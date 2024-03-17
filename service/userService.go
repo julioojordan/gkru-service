@@ -7,5 +7,5 @@ import (
 )
 
 type UserService interface {
-	FindOne(ctx *fiber.Ctx) entity.UserResponse
+	FindOne(ctx *fiber.Ctx) entity.LoginResponse
 }

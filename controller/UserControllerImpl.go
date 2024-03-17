@@ -20,9 +20,9 @@ func NewUserController(userService service.UserService) UserController {
 func (controller *UserControllerImpl) FindOne(ctx *fiber.Ctx) error {
 	user := controller.UserService.FindOne(ctx)
 	res := entity.WebResponse{
-		Code: 200,
+		Code:   200,
 		Status: "Ok",
-		Data: user,
+		Data:   user,
 	}
 	return ctx.JSON(res)
 }

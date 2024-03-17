@@ -2,6 +2,7 @@ package service
 
 import (
 	"database/sql"
+	"gkru-service/authentication"
 	"gkru-service/entity"
 	"gkru-service/exception"
 	"gkru-service/helper"
@@ -25,7 +26,7 @@ func NewUserService(userRepository repository.UserRepository, DB *sql.DB, valida
 	}
 }
 
-func (service *UserServiceImpl) FindOne(ctx *fiber.Ctx) entity.UserResponse {
+func (service *UserServiceImpl) FindOne(ctx *fiber.Ctx) entity.LoginResponse {
 	tx, err := service.DB.Begin()
 	helper.PanicIfError(err)
 	defer helper.CommitOrRollback(tx)
@@ -35,6 +36,10 @@ func (service *UserServiceImpl) FindOne(ctx *fiber.Ctx) entity.UserResponse {
 		panic(exception.NewNotFoundError(err.Error()))
 	}
 
-	return helper.ToUserResponse(user)
+	// createToken if user found
+	authToken, err := authentication.CreateToken(user.Username)
+	helper.PanicIfError(err)
+
+	return helper.ToLoginResponse(authToken)
 }
 
