@@ -2,12 +2,18 @@ package repository
 
 import (
 	"database/sql"
+	"encoding/json"
 	"errors"
 	"gkru-service/entity"
 	"gkru-service/helper"
 
 	"github.com/gofiber/fiber/v2"
 )
+
+type LoginRequest struct {
+	Username string `json:"username"`
+	Password string `json:"password"`
+}
 
 type userRepositoryImpl struct {
 }
@@ -18,10 +24,12 @@ func NewUserRepository(db *sql.DB) UserRepository {
 
 func (repository *userRepositoryImpl) FindOne(ctx *fiber.Ctx, tx *sql.Tx) (entity.User, error) {
 	sqlScript := "SELECT id, username FROM users WHERE username = ? AND password = ?"
-	username := ctx.FormValue("username")
-	password := ctx.FormValue("password")
+	body := ctx.Body()
+	request := new(LoginRequest)
+	err := json.Unmarshal(body, request)
+	helper.PanicIfError(err)
 
-	result, err :=tx.Query(sqlScript, username, password)
+	result, err :=tx.Query(sqlScript, request.Username, request.Password)
 	helper.PanicIfError(err);
 	defer result.Close()
 	

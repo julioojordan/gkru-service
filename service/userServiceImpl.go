@@ -21,8 +21,8 @@ type UserServiceImpl struct {
 func NewUserService(userRepository repository.UserRepository, DB *sql.DB, validate *validator.Validate) UserService {
 	return &UserServiceImpl{
 		UserRepository: userRepository,
-		DB:                 DB,
-		Validate:           validate,
+		DB:             DB,
+		Validate:       validate,
 	}
 }
 
@@ -40,6 +40,9 @@ func (service *UserServiceImpl) FindOne(ctx *fiber.Ctx) entity.LoginResponse {
 	authToken, err := authentication.CreateToken(user.Username)
 	helper.PanicIfError(err)
 
-	return helper.ToLoginResponse(authToken)
-}
+	// add Cookie
+	helper.SetCookie(ctx, authToken)
+	cookie := helper.GetCookieValue(ctx, "auth_token")
 
+	return helper.ToLoginResponse(cookie)
+}
