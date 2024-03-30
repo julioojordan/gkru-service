@@ -2,14 +2,14 @@ package service
 
 import (
 	"database/sql"
+	"fmt"
 	"gkru-service/authentication"
-	"gkru-service/entity"
-	"gkru-service/exception"
 	"gkru-service/helper"
 	"gkru-service/repository"
 
 	"github.com/go-playground/validator/v10"
 	"github.com/gofiber/fiber/v2"
+	"github.com/sirupsen/logrus"
 )
 
 type UserServiceImpl struct {
@@ -26,23 +26,23 @@ func NewUserService(userRepository repository.UserRepository, DB *sql.DB, valida
 	}
 }
 
-func (service *UserServiceImpl) FindOne(ctx *fiber.Ctx) entity.LoginResponse {
+func (service *UserServiceImpl) FindOne(ctx *fiber.Ctx) (interface{}, error) {
+	logger, _ := ctx.Locals("logger").(*logrus.Logger)
 	tx, err := service.DB.Begin()
 	helper.PanicIfError(err)
-	defer helper.CommitOrRollback(tx)
+	defer helper.CommitOrRollback(tx, logger)
 
 	user, err := service.UserRepository.FindOne(ctx, tx)
 	if err != nil {
-		panic(exception.NewNotFoundError(err.Error()))
+		fmt.Println("err", err)
+		if err.Error() != "user is not found" {
+			return nil, fiber.ErrInternalServerError
+		}
+		return nil, err
 	}
 
-	// createToken if user found
 	authToken, err := authentication.CreateToken(user.Username)
 	helper.PanicIfError(err)
 
-	// add Cookie
-	helper.SetCookie(ctx, authToken)
-	cookie := helper.GetCookieValue(ctx, "auth_token")
-
-	return helper.ToLoginResponse(cookie)
+	return helper.ToLoginResponse(authToken), nil
 }

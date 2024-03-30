@@ -19,13 +19,11 @@ func SetupRoutes(app *fiber.App, controller controller.UserController, Customlog
 	app.Use(logger.New(logger.Config{
 		Format: "[${ip}]:${port} ${status} - ${method} ${path}\n",
 	}))
-
 	//setup component logger
 	app.Use(func(ctx *fiber.Ctx) error {
         ctx.Locals("logger", Customlogger)
         return ctx.Next()
     })
-
 	// =========== SETUP MIDDLEWARE ===============
 
 
@@ -34,7 +32,7 @@ func SetupRoutes(app *fiber.App, controller controller.UserController, Customlog
 	app.Get("/testAuth", func(c *fiber.Ctx) error {
 		auth := c.Get("Authorization")
 		if auth == "" {
-			fmt.Println("missing Auth HEader")
+			fmt.Println("missing Auth Header")
 			return c.SendString("unauthorized")
 		}
 		tokenString := auth[len("Bearer "):]

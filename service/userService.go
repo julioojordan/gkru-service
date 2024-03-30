@@ -1,11 +1,10 @@
 package service
 
 import (
-	"gkru-service/entity"
 
 	"github.com/gofiber/fiber/v2"
 )
 
 type UserService interface {
-	FindOne(ctx *fiber.Ctx) entity.LoginResponse
+	FindOne(ctx *fiber.Ctx) (interface{}, error)
 }

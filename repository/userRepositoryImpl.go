@@ -3,7 +3,6 @@ package repository
 import (
 	"database/sql"
 	"encoding/json"
-	"errors"
 	"gkru-service/entity"
 	"gkru-service/helper"
 
@@ -39,6 +38,6 @@ func (repository *userRepositoryImpl) FindOne(ctx *fiber.Ctx, tx *sql.Tx) (entit
 		helper.PanicIfError(err)
 		return user, nil
 	} else{
-		return user, errors.New("User is Not Found")
+		return user, fiber.NewError(fiber.StatusNotFound, "user is not found")
 	}
 }
