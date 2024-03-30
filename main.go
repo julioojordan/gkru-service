@@ -10,14 +10,20 @@ import (
 	"time"
 
 	_ "github.com/go-sql-driver/mysql"
+	"github.com/sirupsen/logrus"
 
 	"github.com/go-playground/validator/v10"
 	"github.com/gofiber/fiber/v2"
 )
 
 func main() {
-	db := db.NewDB()
+	logger := logrus.New()
+	logger.SetFormatter(&logrus.JSONFormatter{})
+
+	db := db.NewDB(logger)
 	validate := validator.New()
+
+    logger.Info("Database connected successfully")
 
 	//prepare service
 	userRepository := repository.NewUserRepository(db)
@@ -31,7 +37,7 @@ func main() {
 		Prefork:      true,
 	})
 
-	routes.SetupRoutes(app, userController)
+	routes.SetupRoutes(app, userController, logger)
 	err := app.Listen("localhost:3001")
 	helper.PanicIfError(err);
 }
