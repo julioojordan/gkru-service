@@ -11,7 +11,7 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-func SetupRoutes(app *fiber.App, controller controller.UserController, Customlogger *logrus.Logger) {
+func SetupRoutes(app *fiber.App, Customlogger *logrus.Logger) {
 	// =========== SETUP MIDDLEWARE ===============
 	//set middleware cors origin
 	app.Use(cors.New())
@@ -28,7 +28,16 @@ func SetupRoutes(app *fiber.App, controller controller.UserController, Customlog
 
 
 	// =========== SETUP ROUTE ===============
-    app.Post("/login", controller.FindOne)
+    // app.Post("/login", controller.FindOne)
+	app.Post("/login", func(ctx *fiber.Ctx) error {
+		userController := ctx.Locals("controllers").(controller.Controllers).UserController
+		return userController.FindOne(ctx)
+	})
+
+	app.Get("/Keluarga", func(ctx *fiber.Ctx) error {
+		dataKeluargaController := ctx.Locals("controllers").(controller.Controllers).DataKeluargaController
+		return dataKeluargaController.FindOne(ctx)
+	})
 	app.Get("/testAuth", func(c *fiber.Ctx) error {
 		auth := c.Get("Authorization")
 		if auth == "" {
