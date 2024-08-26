@@ -29,6 +29,10 @@ type DataKeluargaFinal struct {
 	Anggota        []DataAnggota
 }
 
+type TotalKeluarga struct {
+	Total            int32
+}
+
 // cara pakai
 /*
 var keluarga DataKeluargaFinal

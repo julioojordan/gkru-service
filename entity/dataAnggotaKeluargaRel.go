@@ -11,8 +11,8 @@ type DataAnggotaKeluargaRel struct {
 
 type DataAnggotaWithKeluargaRel struct {
 	Id            int32
-	IdAnggota     int32
 	Hubungan      string
+	IdAnggota     int32
 	NamaLengkap   string
 	TanggalLahir  time.Time
 	TanggalBaptis time.Time

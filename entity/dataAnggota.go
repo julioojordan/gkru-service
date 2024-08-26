@@ -9,3 +9,7 @@ type DataAnggota struct {
 	TanggalBaptis time.Time
 	Keterangan    string
 }
+
+type TotalAnggota struct {
+	Total            int32
+}

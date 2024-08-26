@@ -9,7 +9,7 @@ import (
 )
 
 func NewDB(logger *logrus.Logger) *sql.DB {
-	db, err := sql.Open("mysql", "root:root@tcp(localhost:3306)/gkru_app")
+	db, err := sql.Open("mysql", "root:root@tcp(localhost:3306)/gkru_app?parseTime=true")
 	// if db cloesed after service run
 	if err != nil {
         logger.WithError(err).Error("Failed to connect to database")

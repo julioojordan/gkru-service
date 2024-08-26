@@ -40,6 +40,14 @@ func main() {
 
 	dataAnggotaKeluargaRelRepository := repository.NewDataAnggotaKeluargaRelRepository(db)
 
+	wealthRepository := repository.NewWealthRepository(db)
+	wealthService := service.NewWealthService(wealthRepository, db, validate)
+	wealthController := controller.NewWealthController(wealthService)
+
+	transactionHistoryRepository := repository.NewTransactionHistoryRepository(db)
+	transactionHistoryService := service.NewTransactionHistoryService(transactionHistoryRepository, db, validate)
+	transactionHistoryController := controller.NewTransactionHistoryController(transactionHistoryService)
+
 	app := fiber.New(fiber.Config{
 		IdleTimeout:  time.Second * 5,
 		WriteTimeout: time.Second * 5,
@@ -50,16 +58,18 @@ func main() {
 	//setup context
 	app.Use(func(c *fiber.Ctx) error {
 		controllers := controller.Controllers{
-			UserController:           userController.(*controller.UserControllerImpl),
-			DataLingkunganController: dataLingkunganController.(*controller.DataLingkunganControllerImpl),
-			DataKeluargaController:   dataKeluargaController.(*controller.DataKeluargaControllerImpl),
+			UserController:               userController.(*controller.UserControllerImpl),
+			DataLingkunganController:     dataLingkunganController.(*controller.DataLingkunganControllerImpl),
+			DataKeluargaController:       dataKeluargaController.(*controller.DataKeluargaControllerImpl),
+			WealthController:             wealthController.(*controller.WealthControllerImpl),
+			TransactionHistoryController: transactionHistoryController.(*controller.TransactionHistoryControllerImpl),
 		}
 		services := service.Services{
 			DataLingkunganService: dataLingkunganService.(*service.DataLingkunganServiceImpl),
 		}
 		//gak tau ini kenapa ga perlu di parse ke dataLingkunganRepositoryImpl -> padahal yang atasnya bisa
 		repositories := repository.Repositories{
-			DataLingkunganRepository: dataLingkunganRepository,
+			DataLingkunganRepository:         dataLingkunganRepository,
 			DataAnggotaKeluargaRelRepository: dataAnggotaKeluargaRelRepository,
 		}
 		c.Locals("controllers", controllers)

@@ -59,6 +59,7 @@ func (repository *dataKeluargaRepositoryImpl) FindOne(ctx *fiber.Ctx, tx *sql.Tx
 
 	getAnggotaRel, err := repositories.DataAnggotaKeluargaRelRepository.FindKeluargaAnggotaRel(dataKeluargaRaw.KKRelation, tx)
 	fmt.Println("getAnggotaRel",getAnggotaRel)
+	fmt.Println("getAnggotaRel err", err)
 	helper.PanicIfError(err)
 
 	var kepalaKeluarga entity.DataAnggota
@@ -94,4 +95,20 @@ func (repository *dataKeluargaRepositoryImpl) FindOne(ctx *fiber.Ctx, tx *sql.Tx
 		Anggota:        anggota,
 	}
 	return dataKeluargaFinal, nil
+}
+
+func (repository *dataKeluargaRepositoryImpl) GetTotalKeluarga(ctx *fiber.Ctx, tx *sql.Tx) (entity.TotalKeluarga, error) {
+	sqlScript := "SELECT COUNT(*) FROM data_keluarga"
+	result, err :=tx.Query(sqlScript)
+	helper.PanicIfError(err);
+	defer result.Close()
+	
+	totalKeluarga := entity.TotalKeluarga{}
+	if result.Next(){
+		err := result.Scan(&totalKeluarga.Total)
+		helper.PanicIfError(err)
+		return totalKeluarga, nil
+	} else{
+		return totalKeluarga, fiber.NewError(fiber.StatusInternalServerError , "Error Internal")
+	}
 }

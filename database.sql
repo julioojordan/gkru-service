@@ -209,15 +209,16 @@ INSERT INTO wealth (total, lingkungan, wilayah) VALUES
 (70000, 2, 1),
 (100000, 3, 2);
 
+-- to do kurang id dari user yang melakukan pengeluaran
 CREATE TABLE riwayat_transaksi (
     id INT AUTO_INCREMENT PRIMARY KEY,
     nominal FLOAT DEFAULT 0,
-    sumber_dana INT NOT NULL, -- dari wealth id mana
-    sumber_pemasukan INT NOT NULL, -- dari id peserta id yang memasukan dana
-    keterangan VARCHAR(255) NOT NULL
+    wealth_id INT NOT NULL, -- dari wealth id mana
+    user_id INT NOT NULL, -- dari id user id yang memasukan dana (bukan peserta ya, nanti harusnya ada field lagi untuk peserta)
+    keterangan VARCHAR(255) NOT NULL -- konstant IN and OUT aja, kayanya perlu keterangan tambahan
 );
 
-INSERT INTO riwayat_transaksi (nominal, sumber_dana, sumber_pemasukan, keterangan) VALUES
+INSERT INTO riwayat_transaksi (nominal, wealth_id, user_id, keterangan) VALUES
 (50000, 1, 1, 'IN'),
 (70000, 2, 13, 'IN'),
 (100000, 3, 25, 'IN');

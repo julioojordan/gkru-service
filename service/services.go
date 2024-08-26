@@ -9,6 +9,15 @@ type UserService interface {
 	FindOne(ctx *fiber.Ctx) (interface{}, error)
 }
 
+type WealthService interface {
+	GetTotal(ctx *fiber.Ctx) (interface{}, error)
+}
+
+type TransactionHistoryService interface {
+	GetTotalIncome(ctx *fiber.Ctx) (interface{}, error)
+	GetTotalOutcome(ctx *fiber.Ctx) (interface{}, error)
+}
+
 type DataKeluargaService interface {
 	FindOne(ctx *fiber.Ctx) (interface{}, error)
 }

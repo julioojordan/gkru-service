@@ -1,8 +1,7 @@
 package routes
 
 import (
-	"fmt"
-	"gkru-service/authentication"
+	"gkru-service/middlewares"
 	"gkru-service/controller"
 
 	"github.com/gofiber/fiber/v2"
@@ -38,22 +37,17 @@ func SetupRoutes(app *fiber.App, Customlogger *logrus.Logger) {
 		dataKeluargaController := ctx.Locals("controllers").(controller.Controllers).DataKeluargaController
 		return dataKeluargaController.FindOne(ctx)
 	})
-	app.Get("/testAuth", func(c *fiber.Ctx) error {
-		auth := c.Get("Authorization")
-		if auth == "" {
-			fmt.Println("missing Auth Header")
-			return c.SendString("unauthorized")
-		}
-		tokenString := auth[len("Bearer "):]
-		err := authentication.VerifyToken(tokenString)
-		if err != nil {
-			fmt.Println("invalid token")
-			return c.SendString("unauthorized 2")
-		}
-		logger, _ := c.Locals("logger").(*logrus.Logger)
-		logger.Info("Berhasil !")
-		
-		return c.SendString("Berhasil !")
+	app.Get("/wealth/getTotal", middlewares.AuthMiddleware, func(ctx *fiber.Ctx) error {
+		wealthController := ctx.Locals("controllers").(controller.Controllers).WealthController
+		return wealthController.GetTotal(ctx)
+	})
+	app.Get("/history/getTotalIncome", middlewares.AuthMiddleware, func(ctx *fiber.Ctx) error {
+		transactionHistoryController := ctx.Locals("controllers").(controller.Controllers).TransactionHistoryController
+		return transactionHistoryController.GetTotalIncome(ctx)
+	})
+	app.Get("/history/getTotalOutcome", middlewares.AuthMiddleware, func(ctx *fiber.Ctx) error {
+		transactionHistoryController := ctx.Locals("controllers").(controller.Controllers).TransactionHistoryController
+		return transactionHistoryController.GetTotalOutcome(ctx)
 	})
 	// =========== SETUP ROUTE ===============
 }
