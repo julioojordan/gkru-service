@@ -20,16 +20,20 @@ type WealthRepository interface {
 type TransactionHistoryRepository interface {
 	GetTotalIncome(ctx *fiber.Ctx, tx *sql.Tx) (entity.AmountHistory, error)
 	GetTotalOutcome(ctx *fiber.Ctx, tx *sql.Tx) (entity.AmountHistory, error)
+	// GetHistory(ctx *fiber.Ctx, tx *sql.Tx) (entity.AmountHistory, error)
 }
 
 type DataKeluargaRepository interface {
 	FindOne(ctx *fiber.Ctx, tx *sql.Tx) (entity.DataKeluargaFinal, error)
 	GetTotalKeluarga(ctx *fiber.Ctx, tx *sql.Tx) (entity.TotalKeluarga, error)
+	AddKeluarga(ctx *fiber.Ctx, tx *sql.Tx) (entity.DataKeluarga, error)
 }
 
 type DataAnggotaRepository interface {
 	// FindKeluargaAnggotaRel(relId int32, tx *sql.Tx) ([]entity.DataAnggota, error)
 	GetTotalAnggota(ctx *fiber.Ctx, tx *sql.Tx) (entity.TotalAnggota, error)
+	AddAnggota(ctx *fiber.Ctx, tx *sql.Tx) (entity.DataAnggota, error)
+	UpdateAnggota(ctx *fiber.Ctx, tx *sql.Tx) (entity.DataAnggotaWithStatus, error)
 }
 
 type DataAnggotaKeluargaRelRepository interface {

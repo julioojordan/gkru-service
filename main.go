@@ -38,6 +38,10 @@ func main() {
 	dataKeluargaService := service.NewDataKeluargaService(dataKeluargaRepository, db, validate)
 	dataKeluargaController := controller.NewDataKeluargaController(dataKeluargaService)
 
+	dataAnggotaRepository := repository.NewDataAnggotaRepository(db)
+	dataAnggotaService := service.NewDataAnggotaService(dataAnggotaRepository, db, validate)
+	dataAnggotaController := controller.NewDataAnggotaController(dataAnggotaService)
+
 	dataAnggotaKeluargaRelRepository := repository.NewDataAnggotaKeluargaRelRepository(db)
 
 	wealthRepository := repository.NewWealthRepository(db)
@@ -63,6 +67,7 @@ func main() {
 			DataKeluargaController:       dataKeluargaController.(*controller.DataKeluargaControllerImpl),
 			WealthController:             wealthController.(*controller.WealthControllerImpl),
 			TransactionHistoryController: transactionHistoryController.(*controller.TransactionHistoryControllerImpl),
+			DataAnggotaController:        dataAnggotaController.(*controller.DataAnggotaControllerImpl),
 		}
 		services := service.Services{
 			DataLingkunganService: dataLingkunganService.(*service.DataLingkunganServiceImpl),
@@ -71,6 +76,7 @@ func main() {
 		repositories := repository.Repositories{
 			DataLingkunganRepository:         dataLingkunganRepository,
 			DataAnggotaKeluargaRelRepository: dataAnggotaKeluargaRelRepository,
+			DataAnggotaRepository:            dataAnggotaRepository,
 		}
 		c.Locals("controllers", controllers)
 		c.Locals("services", services)

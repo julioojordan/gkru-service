@@ -1,8 +1,9 @@
 package routes
 
 import (
-	"gkru-service/middlewares"
+	"fmt"
 	"gkru-service/controller"
+	"gkru-service/middlewares"
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/cors"
@@ -33,21 +34,48 @@ func SetupRoutes(app *fiber.App, Customlogger *logrus.Logger) {
 		return userController.FindOne(ctx)
 	})
 
-	app.Get("/Keluarga", func(ctx *fiber.Ctx) error {
+	app.Get("/Keluarga/getTotal", func(ctx *fiber.Ctx) error {
+		fmt.Println("masuk /Keluarga/getTotal")
+		dataKeluargaController := ctx.Locals("controllers").(controller.Controllers).DataKeluargaController
+		return dataKeluargaController.GetTotalKeluarga(ctx)
+	})
+	app.Post("/Keluarga/add", func(ctx *fiber.Ctx) error {
+		fmt.Println("masuk /Keluarga/add")
+		dataKeluargaController := ctx.Locals("controllers").(controller.Controllers).DataKeluargaController
+		return dataKeluargaController.AddKeluarga(ctx)
+	})
+	app.Get("/Keluarga/:idKeluarga", func(ctx *fiber.Ctx) error {
+		fmt.Println("masuk /Keluarga/:idKeluarga")
 		dataKeluargaController := ctx.Locals("controllers").(controller.Controllers).DataKeluargaController
 		return dataKeluargaController.FindOne(ctx)
 	})
+
 	app.Get("/wealth/getTotal", middlewares.AuthMiddleware, func(ctx *fiber.Ctx) error {
 		wealthController := ctx.Locals("controllers").(controller.Controllers).WealthController
 		return wealthController.GetTotal(ctx)
 	})
+
 	app.Get("/history/getTotalIncome", middlewares.AuthMiddleware, func(ctx *fiber.Ctx) error {
 		transactionHistoryController := ctx.Locals("controllers").(controller.Controllers).TransactionHistoryController
 		return transactionHistoryController.GetTotalIncome(ctx)
 	})
 	app.Get("/history/getTotalOutcome", middlewares.AuthMiddleware, func(ctx *fiber.Ctx) error {
+		// to do need to test this with id_wilayah and id_lingkungan query params
 		transactionHistoryController := ctx.Locals("controllers").(controller.Controllers).TransactionHistoryController
 		return transactionHistoryController.GetTotalOutcome(ctx)
+	})
+
+	app.Patch("/anggota/:idAnggota/update", func(ctx *fiber.Ctx) error {
+		dataAnggotaController := ctx.Locals("controllers").(controller.Controllers).DataAnggotaController
+		return dataAnggotaController.UpdateAnggota(ctx)
+	})
+	app.Post("/anggota/add", middlewares.AuthMiddleware, func(ctx *fiber.Ctx) error {
+		dataAnggotaController := ctx.Locals("controllers").(controller.Controllers).DataAnggotaController
+		return dataAnggotaController.AddAnggota(ctx)
+	})
+	app.Get("/anggota/getTotal", func(ctx *fiber.Ctx) error {
+		dataAnggotaController := ctx.Locals("controllers").(controller.Controllers).DataAnggotaController
+		return dataAnggotaController.GetTotalAnggota(ctx)
 	})
 	// =========== SETUP ROUTE ===============
 }

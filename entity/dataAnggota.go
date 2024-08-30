@@ -10,6 +10,23 @@ type DataAnggota struct {
 	Keterangan    string
 }
 
+type DataAnggotaWithStatus struct {
+	Id            int32
+	NamaLengkap   string
+	TanggalLahir  time.Time
+	TanggalBaptis time.Time
+	Keterangan    string
+	Status        string
+}
+
 type TotalAnggota struct {
-	Total            int32
+	Total int32
+}
+
+type DataAnggotaResponse struct {
+	Id            int32
+	NamaLengkap   string
+	TanggalLahir  time.Time
+	TanggalBaptis time.Time
+	Keterangan    string
 }

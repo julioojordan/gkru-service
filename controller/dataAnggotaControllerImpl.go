@@ -10,26 +10,26 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-type DataKeluargaControllerImpl struct {
-	DataKeluargaService service.DataKeluargaService
+type DataAnggotaControllerImpl struct {
+	DataAnggotaService service.DataAnggotaService
 }
 
-func NewDataKeluargaController(DataKeluargaService service.DataKeluargaService) DataKeluargaController {
-	return &DataKeluargaControllerImpl{
-		DataKeluargaService: DataKeluargaService,
+func NewDataAnggotaController(DataAnggotaService service.DataAnggotaService) DataAnggotaController {
+	return &DataAnggotaControllerImpl{
+		DataAnggotaService: DataAnggotaService,
 	}
 }
 
-func (controller *DataKeluargaControllerImpl) FindOne(ctx *fiber.Ctx) error {
+func (controller *DataAnggotaControllerImpl) AddAnggota(ctx *fiber.Ctx) error {
 	logger, _ := ctx.Locals("logger").(*logrus.Logger)
-	dataKeluarga, err := controller.DataKeluargaService.FindOne(ctx)
+	dataAnggota, err := controller.DataAnggotaService.AddAnggota(ctx)
 	if err != nil {
 		return helper.HandleError(ctx, logger, err)
 	}
 	res := entity.WebResponse{
 		Code:   200,
 		Status: "Ok",
-		Data:   dataKeluarga,
+		Data:   dataAnggota,
 	}
 	logger.WithFields(logrus.Fields{
 		"type": "response",
@@ -39,16 +39,16 @@ func (controller *DataKeluargaControllerImpl) FindOne(ctx *fiber.Ctx) error {
 	return ctx.JSON(res)
 }
 
-func (controller *DataKeluargaControllerImpl) AddKeluarga(ctx *fiber.Ctx) error {
+func (controller *DataAnggotaControllerImpl) UpdateAnggota(ctx *fiber.Ctx) error {
 	logger, _ := ctx.Locals("logger").(*logrus.Logger)
-	dataKeluarga, err := controller.DataKeluargaService.AddKeluarga(ctx)
+	dataAnggota, err := controller.DataAnggotaService.UpdateAnggota(ctx)
 	if err != nil {
 		return helper.HandleError(ctx, logger, err)
 	}
 	res := entity.WebResponse{
 		Code:   200,
 		Status: "Ok",
-		Data:   dataKeluarga,
+		Data:   dataAnggota,
 	}
 	logger.WithFields(logrus.Fields{
 		"type": "response",
@@ -58,16 +58,16 @@ func (controller *DataKeluargaControllerImpl) AddKeluarga(ctx *fiber.Ctx) error 
 	return ctx.JSON(res)
 }
 
-func (controller *DataKeluargaControllerImpl) GetTotalKeluarga(ctx *fiber.Ctx) error {
+func (controller *DataAnggotaControllerImpl) GetTotalAnggota(ctx *fiber.Ctx) error {
 	logger, _ := ctx.Locals("logger").(*logrus.Logger)
-	dataKeluarga, err := controller.DataKeluargaService.GetTotalKeluarga(ctx)
+	dataAnggota, err := controller.DataAnggotaService.GetTotalAnggota(ctx)
 	if err != nil {
 		return helper.HandleError(ctx, logger, err)
 	}
 	res := entity.WebResponse{
 		Code:   200,
 		Status: "Ok",
-		Data:   dataKeluarga,
+		Data:   dataAnggota,
 	}
 	logger.WithFields(logrus.Fields{
 		"type": "response",

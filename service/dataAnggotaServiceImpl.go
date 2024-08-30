@@ -10,41 +10,27 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-type DataKeluargaServiceImpl struct {
-	DataKeluargaRepository repository.DataKeluargaRepository
+type DataAnggotaServiceImpl struct {
+	DataAnggotaRepository repository.DataAnggotaRepository
 	DB             *sql.DB
 	Validate       *validator.Validate
 }
 
-func NewDataKeluargaService(DataKeluargaRepository repository.DataKeluargaRepository, DB *sql.DB, validate *validator.Validate) DataKeluargaService {
-	return &DataKeluargaServiceImpl{
-		DataKeluargaRepository: DataKeluargaRepository,
+func NewDataAnggotaService(dataAnggotaRepository repository.DataAnggotaRepository, DB *sql.DB, validate *validator.Validate) DataAnggotaService {
+	return &DataAnggotaServiceImpl{
+		DataAnggotaRepository: dataAnggotaRepository,
 		DB:             DB,
 		Validate:       validate,
 	}
 }
 
-func (service *DataKeluargaServiceImpl) FindOne(ctx *fiber.Ctx) (interface{}, error) {
+func (service *DataAnggotaServiceImpl) AddAnggota(ctx *fiber.Ctx) (interface{}, error) {
 	logger, _ := ctx.Locals("logger").(*logrus.Logger)
 	tx, err := service.DB.Begin()
 	helper.PanicIfError(err)
 	defer helper.CommitOrRollback(tx, logger)
 
-	dataKeluarga, err := service.DataKeluargaRepository.FindOne(ctx, tx)
-	if err != nil {
-		return nil, err
-	}
-
-	return dataKeluarga, nil
-}
-
-func (service *DataKeluargaServiceImpl) AddKeluarga(ctx *fiber.Ctx) (interface{}, error) {
-	logger, _ := ctx.Locals("logger").(*logrus.Logger)
-	tx, err := service.DB.Begin()
-	helper.PanicIfError(err)
-	defer helper.CommitOrRollback(tx, logger)
-
-	result, err := service.DataKeluargaRepository.AddKeluarga(ctx, tx)
+	result, err := service.DataAnggotaRepository.AddAnggota(ctx, tx)
 	if err != nil {
 		return nil, err
 	}
@@ -52,13 +38,27 @@ func (service *DataKeluargaServiceImpl) AddKeluarga(ctx *fiber.Ctx) (interface{}
 	return result, nil
 }
 
-func (service *DataKeluargaServiceImpl) GetTotalKeluarga(ctx *fiber.Ctx) (interface{}, error) {
+func (service *DataAnggotaServiceImpl) GetTotalAnggota(ctx *fiber.Ctx) (interface{}, error) {
 	logger, _ := ctx.Locals("logger").(*logrus.Logger)
 	tx, err := service.DB.Begin()
 	helper.PanicIfError(err)
 	defer helper.CommitOrRollback(tx, logger)
 
-	result, err := service.DataKeluargaRepository.GetTotalKeluarga(ctx, tx)
+	result, err := service.DataAnggotaRepository.GetTotalAnggota(ctx, tx)
+	if err != nil {
+		return nil, err
+	}
+
+	return result, nil
+}
+
+func (service *DataAnggotaServiceImpl) UpdateAnggota(ctx *fiber.Ctx) (interface{}, error) {
+	logger, _ := ctx.Locals("logger").(*logrus.Logger)
+	tx, err := service.DB.Begin()
+	helper.PanicIfError(err)
+	defer helper.CommitOrRollback(tx, logger)
+
+	result, err := service.DataAnggotaRepository.UpdateAnggota(ctx, tx)
 	if err != nil {
 		return nil, err
 	}

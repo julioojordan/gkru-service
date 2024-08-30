@@ -8,10 +8,18 @@ type UserController interface {
 
 type DataKeluargaController interface {
 	FindOne(ctx *fiber.Ctx) error
+	AddKeluarga(ctx *fiber.Ctx) error
+	GetTotalKeluarga(ctx *fiber.Ctx) error
 }
 
 type WealthController interface {
 	GetTotal(ctx *fiber.Ctx) error
+}
+
+type DataAnggotaController interface {
+	AddAnggota(ctx *fiber.Ctx) error
+	UpdateAnggota(ctx *fiber.Ctx) error
+	GetTotalAnggota(ctx *fiber.Ctx) error
 }
 
 type TransactionHistoryController interface {
@@ -29,4 +37,5 @@ type Controllers struct {
 	DataKeluargaController       DataKeluargaController
 	WealthController             WealthController
 	TransactionHistoryController TransactionHistoryController
+	DataAnggotaController        DataAnggotaController
 }
