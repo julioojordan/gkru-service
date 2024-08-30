@@ -2,6 +2,7 @@ package controller
 
 import (
 	"gkru-service/entity"
+	"gkru-service/helper"
 	"gkru-service/service"
 
 	"github.com/gofiber/fiber/v2"
@@ -55,20 +56,7 @@ func (controller *TransactionHistoryControllerImpl) GetTotalOutcome(ctx *fiber.C
 	logger, _ := ctx.Locals("logger").(*logrus.Logger)
 	totalOutcome, err := controller.TransactionHistoryService.GetTotalOutcome(ctx)
 	if err != nil {
-		// manually type checking
-		if res, ok := err.(*fiber.Error); ok {
-			logger.WithFields(logrus.Fields{
-				"type": "response",
-				"code": res.Code,
-				"status": utils.StatusMessage(res.Code),
-			}).Warn(res.Error())
-
-			return ctx.Status(fiber.StatusNotFound).JSON(fiber.Map{
-				"code":    res.Code,
-				"status": utils.StatusMessage(res.Code),
-				"message": res.Error(),
-			})
-		}
+		return helper.HandleError(ctx, logger, err)
 	}
 	res := entity.WebResponse{
 		Code:   200,
