@@ -10,26 +10,26 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-type UserControllerImpl struct {
-	UserService service.UserService
+type WealthControllerImpl struct {
+	WealthService service.WealthService
 }
 
-func NewUserController(userService service.UserService) UserController {
-	return &UserControllerImpl{
-		UserService: userService,
+func NewWealthController(WealthService service.WealthService) WealthController {
+	return &WealthControllerImpl{
+		WealthService: WealthService,
 	}
 }
 
-func (controller *UserControllerImpl) FindOne(ctx *fiber.Ctx) error {
+func (controller *WealthControllerImpl) GetTotal(ctx *fiber.Ctx) error {
 	logger, _ := ctx.Locals("logger").(*logrus.Logger)
-	user, err := controller.UserService.FindOne(ctx)
+	wealthTotal, err := controller.WealthService.GetTotal(ctx)
 	if err != nil {
 		return helper.HandleError(ctx, logger, err)
 	}
 	res := entity.WebResponse{
 		Code:   200,
 		Status: "Ok",
-		Data:   user,
+		Data:   wealthTotal,
 	}
 	logger.WithFields(logrus.Fields{
 		"type": "response",
