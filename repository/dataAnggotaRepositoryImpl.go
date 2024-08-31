@@ -40,9 +40,9 @@ func (repository *dataAnggotaRepositoryImpl) GetTotalAnggota(ctx *fiber.Ctx, tx 
 }
 
 func (repository *dataAnggotaRepositoryImpl) AddAnggota(ctx *fiber.Ctx, tx *sql.Tx) (entity.DataAnggota, error) {
-	
+
 	fmt.Println("masuk AddAnggota")
-	
+
 	sqlScript := "INSERT INTO data_anggota(nama_lengkap, tanggal_lahir, tanggal_baptis, keterangan, status) VALUES(?, ?, ?, ?, ?)"
 	body := ctx.Body()
 	fmt.Println(body)
@@ -157,19 +157,31 @@ func (repository *dataAnggotaRepositoryImpl) UpdateAnggota(ctx *fiber.Ctx, tx *s
 	return newDataAnggota, nil
 }
 
-// func (repository *dataAnggotaRepositoryImpl) FindKeluargaAnggotaRel([]ids int32, tx *sql.Tx) ([]entity.DataAnggota, error) {
-// 	sqlScript := "SELECT id, username FROM users WHERE username = ? AND password = ?"
+func (repository *dataAnggotaRepositoryImpl) UpdateKeteranganAnggota(ctx *fiber.Ctx, tx *sql.Tx) (entity.DataAnggotaWithKeteranganOnly, error) {
+	sqlScript := "UPDATE data_anggota SET keterangan = ? where id = ?"
+	sqlScriptRelData := "UPDATE keluarga_anggota_rel SET hubungan = ? WHERE id_anggota = ?"
+	body := ctx.Body()
+	request := new(helper.UpdateKeteranganAnggotaRequest)
+	fmt.Println(request)
+	marshalError := json.Unmarshal(body, request)
+	if marshalError != nil {
+		return entity.DataAnggotaWithKeteranganOnly{}, fiber.NewError(fiber.StatusBadRequest, "Invalid request body")
+	}
 
-// 	result, err :=tx.Query(sqlScript, request.Username, request.Password)
-// 	helper.PanicIfError(err);
-// 	defer result.Close()
+	// Update data anggota
+	_, err := tx.Exec(sqlScript, request.Keterangan, request.Id)
+	if err != nil {
+		return entity.DataAnggotaWithKeteranganOnly{}, fiber.NewError(fiber.StatusInternalServerError, "Failed to update data anggota")
+	}
+	_, err = tx.Exec(sqlScriptRelData, "Kepala Keluarga", request.Id)
+	if err != nil {
+		return entity.DataAnggotaWithKeteranganOnly{}, fiber.NewError(fiber.StatusInternalServerError, "Failed to update data keluarga_anggota_rel")
+	}
 
-// 	user := entity.User{}
-// 	if result.Next(){
-// 		err := result.Scan(&user.Id, &user.Username)
-// 		helper.PanicIfError(err)
-// 		return user, nil
-// 	} else{
-// 		return user, fiber.NewError(fiber.StatusNotFound, "user is not found")
-// 	}
-// }
+	newDataAnggota := entity.DataAnggotaWithKeteranganOnly{
+		Id:         request.Id,
+		Keterangan: request.Keterangan,
+	}
+
+	return newDataAnggota, nil
+}

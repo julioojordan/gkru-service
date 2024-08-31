@@ -34,27 +34,32 @@ func SetupRoutes(app *fiber.App, Customlogger *logrus.Logger) {
 		return userController.FindOne(ctx)
 	})
 
-	app.Get("/Keluarga/getTotal", func(ctx *fiber.Ctx) error {
-		fmt.Println("masuk /Keluarga/getTotal")
+	// =========== KELUARGA ===============
+	app.Get("/Keluarga/getTotal", middlewares.AuthMiddleware, func(ctx *fiber.Ctx) error {
 		dataKeluargaController := ctx.Locals("controllers").(controller.Controllers).DataKeluargaController
 		return dataKeluargaController.GetTotalKeluarga(ctx)
 	})
-	app.Post("/Keluarga/add", func(ctx *fiber.Ctx) error {
-		fmt.Println("masuk /Keluarga/add")
+	app.Post("/Keluarga/add", middlewares.AuthMiddleware, func(ctx *fiber.Ctx) error {
 		dataKeluargaController := ctx.Locals("controllers").(controller.Controllers).DataKeluargaController
 		return dataKeluargaController.AddKeluarga(ctx)
 	})
-	app.Get("/Keluarga/:idKeluarga", func(ctx *fiber.Ctx) error {
+	app.Patch("/Keluarga/:idKeluarga/update", middlewares.AuthMiddleware, func(ctx *fiber.Ctx) error {
+		dataKeluargaController := ctx.Locals("controllers").(controller.Controllers).DataKeluargaController
+		return dataKeluargaController.UpdateDataKeluarga(ctx)
+	})
+	app.Get("/Keluarga/:idKeluarga", middlewares.AuthMiddleware, func(ctx *fiber.Ctx) error {
 		fmt.Println("masuk /Keluarga/:idKeluarga")
 		dataKeluargaController := ctx.Locals("controllers").(controller.Controllers).DataKeluargaController
 		return dataKeluargaController.FindOne(ctx)
 	})
 
+	// =========== WEALTH ===============
 	app.Get("/wealth/getTotal", middlewares.AuthMiddleware, func(ctx *fiber.Ctx) error {
 		wealthController := ctx.Locals("controllers").(controller.Controllers).WealthController
 		return wealthController.GetTotal(ctx)
 	})
 
+	// =========== HISTORY ===============
 	app.Get("/history/getTotalIncome", middlewares.AuthMiddleware, func(ctx *fiber.Ctx) error {
 		transactionHistoryController := ctx.Locals("controllers").(controller.Controllers).TransactionHistoryController
 		return transactionHistoryController.GetTotalIncome(ctx)
@@ -65,7 +70,8 @@ func SetupRoutes(app *fiber.App, Customlogger *logrus.Logger) {
 		return transactionHistoryController.GetTotalOutcome(ctx)
 	})
 
-	app.Patch("/anggota/:idAnggota/update", func(ctx *fiber.Ctx) error {
+	// =========== ANGGOTA ===============
+	app.Patch("/anggota/:idAnggota/update", middlewares.AuthMiddleware, func(ctx *fiber.Ctx) error {
 		dataAnggotaController := ctx.Locals("controllers").(controller.Controllers).DataAnggotaController
 		return dataAnggotaController.UpdateAnggota(ctx)
 	})
@@ -73,7 +79,7 @@ func SetupRoutes(app *fiber.App, Customlogger *logrus.Logger) {
 		dataAnggotaController := ctx.Locals("controllers").(controller.Controllers).DataAnggotaController
 		return dataAnggotaController.AddAnggota(ctx)
 	})
-	app.Get("/anggota/getTotal", func(ctx *fiber.Ctx) error {
+	app.Get("/anggota/getTotal", middlewares.AuthMiddleware, func(ctx *fiber.Ctx) error {
 		dataAnggotaController := ctx.Locals("controllers").(controller.Controllers).DataAnggotaController
 		return dataAnggotaController.GetTotalAnggota(ctx)
 	})

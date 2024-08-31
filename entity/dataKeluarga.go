@@ -20,12 +20,12 @@ type DataKeluarga struct {
 }
 
 type UpdatedDataKeluarga struct {
-	Id             int32
-	Wilayah        DataWilayah
-	Lingkungan     DataLingkungan
-	Nomor          string
-	KepalaKeluarga DataAnggota
-	Alamat         string
+	Id               int32
+	IdWilayah        int32
+	IdLingkungan     int32
+	Nomor            string
+	Alamat           string
+	IdKepalaKeluarga int32
 }
 
 type DataKeluargaFinal struct {
@@ -39,7 +39,7 @@ type DataKeluargaFinal struct {
 }
 
 type TotalKeluarga struct {
-	Total            int32
+	Total int32
 }
 
 // cara pakai

@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"strconv"
+	"strings"
 
 	// "encoding/json"
 	// "fmt"
@@ -116,7 +117,7 @@ func (repository *dataKeluargaRepositoryImpl) GetTotalKeluarga(ctx *fiber.Ctx, t
 	}
 }
 
-func (repository *dataKeluargaRepositoryImpl) AddKeluarga(ctx *fiber.Ctx, tx *sql.Tx) (entity.DataKeluarga, error) {
+func (repository *dataKeluargaRepositoryImpl) AddKeluarga(ctx *fiber.Ctx, tx *sql.Tx) (entity.DataKeluargaRaw, error) {
 	repositories := ctx.Locals("repositories").(Repositories)
 
 	body := ctx.Body()
@@ -124,49 +125,110 @@ func (repository *dataKeluargaRepositoryImpl) AddKeluarga(ctx *fiber.Ctx, tx *sq
 	request := new(helper.AddKeluargaRequest)
 	err := json.Unmarshal(body, request)
 	if err != nil {
-		return entity.DataKeluarga{}, fiber.NewError(fiber.StatusBadRequest, "Invalid request body")
+		return entity.DataKeluargaRaw{}, fiber.NewError(fiber.StatusBadRequest, "Invalid request body")
 	}
+
 	//first add data_anggota first for kepala keluarga
 	kepalaKeluarga, err := repositories.DataAnggotaRepository.AddAnggota(ctx, tx)
 	if err != nil {
-		return entity.DataKeluarga{}, fiber.NewError(fiber.StatusInternalServerError, "Failed to insert data kepala keluarga")
+		return entity.DataKeluargaRaw{}, fiber.NewError(fiber.StatusInternalServerError, "Failed to insert data kepala keluarga")
 	}
 
-	//add data_keluarga
+	//then add data_keluarga
 	sqlScript := "INSERT INTO data_keluarga(id_wilayah, id_lingkungan, nomor, id_kepala_keluarga, alamat) VALUES(?, ?, ?, ?, ?)"
 	result, err := tx.Exec(sqlScript, request.IdWilayah, request.IdLingkungan, request.Nomor, kepalaKeluarga.Id, request.Alamat)
 	if err != nil {
-		return entity.DataKeluarga{}, fiber.NewError(fiber.StatusInternalServerError, "Failed to insert data keluarga")
+		return entity.DataKeluargaRaw{}, fiber.NewError(fiber.StatusInternalServerError, "Failed to insert data keluarga")
 	}
 
 	lastInsertId, err := result.LastInsertId()
 	if err != nil {
-		return entity.DataKeluarga{}, fiber.NewError(fiber.StatusInternalServerError, "Failed to retrieve last insert ID")
+		return entity.DataKeluargaRaw{}, fiber.NewError(fiber.StatusInternalServerError, "Failed to retrieve last insert ID")
 	}
 
-	getLingkungan, err := repositories.DataLingkunganRepository.FindOneById(request.IdLingkungan, tx)
-	if err != nil {
-		return entity.DataKeluarga{}, fiber.NewError(fiber.StatusInternalServerError, "Failed to retrieve lingkungan data")
-	}
-
-	wilayah := getLingkungan.Wilayah
-	lingkungan := entity.DataLingkungan{
-		Id:             getLingkungan.Id,
-		KodeLingkungan: getLingkungan.KodeLingkungan,
-		NamaLingkungan: getLingkungan.NamaLingkungan,
-		Wilayah:        wilayah,
-	}
-
-	// todo harusnya insert lingkungan dulu baru wilayah ya
-	newDataKeluarga := entity.DataKeluarga{
+	// todo: note harusnya insert lingkungan dulu baru wilayah ya
+	newDataKeluarga := entity.DataKeluargaRaw{
 		Id:             int32(lastInsertId),
-		Wilayah:        wilayah,
-		Lingkungan:     lingkungan,
+		Wilayah:        request.IdWilayah,
+		Lingkungan:     request.IdLingkungan,
 		Nomor:          request.Nomor,
-		KepalaKeluarga: kepalaKeluarga,
+		KepalaKeluarga: kepalaKeluarga.Id,
 		Alamat:         request.Alamat,
 	}
 
 	return newDataKeluarga, nil
 }
 
+func (repository *dataKeluargaRepositoryImpl) UpdateDataKeluarga(ctx *fiber.Ctx, tx *sql.Tx) (entity.UpdatedDataKeluarga, error) {
+	sqlScript := "UPDATE data_keluarga SET"
+	isKepalaKeluargaUpdated := false
+	repositories := ctx.Locals("repositories").(Repositories)
+	idKeluarga, errIdKeluarga := strconv.Atoi(ctx.Params("idKeluarga"))
+	if errIdKeluarga != nil {
+		return entity.UpdatedDataKeluarga{}, fiber.NewError(fiber.StatusBadRequest, "Invalid id Keluarga, it must be an integer")
+	}
+	body := ctx.Body()
+	request := new(helper.UpdateKeluargaRequest)
+	request.Keterangan = "Kepala Keluarga" + request.Nomor
+	err := json.Unmarshal(body, request)
+	if err != nil {
+		return entity.UpdatedDataKeluarga{}, fiber.NewError(fiber.StatusBadRequest, "Invalid request body")
+	}
+
+	var params []interface{}
+	var setClauses []string
+
+	if request.IdWilayah != 0 {
+		setClauses = append(setClauses, "id_wilayah = ?")
+		params = append(params, request.IdWilayah)
+	}
+	if request.IdLingkungan != 0 {
+		setClauses = append(setClauses, "id_lingkungan = ?")
+		params = append(params, request.IdLingkungan)
+	}
+	if request.Nomor != "" {
+		setClauses = append(setClauses, "nomor = ?")
+		params = append(params, request.Nomor)
+	}
+	if request.Alamat != "" {
+		setClauses = append(setClauses, "alamat = ?")
+		params = append(params, request.Alamat)
+	}
+	if request.IdKepalaKeluarga != 0 {
+		setClauses = append(setClauses, "id_kepala_keluarga = ?")
+		params = append(params, request.IdKepalaKeluarga)
+		isKepalaKeluargaUpdated = true
+	}
+
+	if len(setClauses) == 0 {
+		return entity.UpdatedDataKeluarga{}, fiber.NewError(fiber.StatusBadRequest, "Error No fields to update")
+	}
+
+	sqlScript += " " + strings.Join(setClauses, ", ") + " WHERE id = ?"
+	fmt.Println(sqlScript)
+	params = append(params, idKeluarga)
+
+	_, err = tx.Exec(sqlScript, params...)
+	if err != nil {
+		return entity.UpdatedDataKeluarga{}, fiber.NewError(fiber.StatusInternalServerError, "Failed to update data keluarga")
+	}
+
+	//update relasi kepala keluarga di db misalkan ada body request untuk update kepala keluarga
+	if isKepalaKeluargaUpdated {
+		_, err := repositories.DataAnggotaRepository.UpdateKeteranganAnggota(ctx, tx)
+		if err != nil {
+			return entity.UpdatedDataKeluarga{}, fiber.NewError(fiber.StatusInternalServerError, "Failed to update keterangan relasi dan hubungan")
+		}
+	}
+
+	newDataKeluarga := entity.UpdatedDataKeluarga{
+		Id:               int32(idKeluarga),
+		IdWilayah:        request.IdWilayah,
+		IdLingkungan:     request.IdLingkungan,
+		Nomor:            request.Nomor,
+		IdKepalaKeluarga: request.IdKepalaKeluarga,
+		Alamat:           request.Alamat,
+	}
+
+	return newDataKeluarga, nil
+}

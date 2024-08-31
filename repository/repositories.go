@@ -26,14 +26,15 @@ type TransactionHistoryRepository interface {
 type DataKeluargaRepository interface {
 	FindOne(ctx *fiber.Ctx, tx *sql.Tx) (entity.DataKeluargaFinal, error)
 	GetTotalKeluarga(ctx *fiber.Ctx, tx *sql.Tx) (entity.TotalKeluarga, error)
-	AddKeluarga(ctx *fiber.Ctx, tx *sql.Tx) (entity.DataKeluarga, error)
+	AddKeluarga(ctx *fiber.Ctx, tx *sql.Tx) (entity.DataKeluargaRaw, error)
+	UpdateDataKeluarga(ctx *fiber.Ctx, tx *sql.Tx) (entity.UpdatedDataKeluarga, error)
 }
 
 type DataAnggotaRepository interface {
-	// FindKeluargaAnggotaRel(relId int32, tx *sql.Tx) ([]entity.DataAnggota, error)
 	GetTotalAnggota(ctx *fiber.Ctx, tx *sql.Tx) (entity.TotalAnggota, error)
 	AddAnggota(ctx *fiber.Ctx, tx *sql.Tx) (entity.DataAnggota, error)
 	UpdateAnggota(ctx *fiber.Ctx, tx *sql.Tx) (entity.DataAnggotaWithStatus, error)
+	UpdateKeteranganAnggota(ctx *fiber.Ctx, tx *sql.Tx) (entity.DataAnggotaWithKeteranganOnly, error)
 }
 
 type DataAnggotaKeluargaRelRepository interface {

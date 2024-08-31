@@ -65,3 +65,17 @@ func (service *DataKeluargaServiceImpl) GetTotalKeluarga(ctx *fiber.Ctx) (interf
 
 	return result, nil
 }
+
+func (service *DataKeluargaServiceImpl) UpdateDataKeluarga(ctx *fiber.Ctx) (interface{}, error) {
+	logger, _ := ctx.Locals("logger").(*logrus.Logger)
+	tx, err := service.DB.Begin()
+	helper.PanicIfError(err)
+	defer helper.CommitOrRollback(tx, logger)
+
+	result, err := service.DataKeluargaRepository.UpdateDataKeluarga(ctx, tx)
+	if err != nil {
+		return nil, err
+	}
+
+	return result, nil
+}

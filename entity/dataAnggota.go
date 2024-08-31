@@ -19,6 +19,11 @@ type DataAnggotaWithStatus struct {
 	Status        string
 }
 
+type DataAnggotaWithKeteranganOnly struct {
+	Id            int32
+	Keterangan    string
+}
+
 type TotalAnggota struct {
 	Total int32
 }

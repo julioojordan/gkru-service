@@ -35,6 +35,7 @@ func (controller *DataAnggotaControllerImpl) AddAnggota(ctx *fiber.Ctx) error {
 		"type": "response",
 		"code": 200,
 		"status": utils.StatusMessage(200),
+		"data": res.Data,
 	}).Info("success")
 	return ctx.JSON(res)
 }
@@ -54,6 +55,7 @@ func (controller *DataAnggotaControllerImpl) UpdateAnggota(ctx *fiber.Ctx) error
 		"type": "response",
 		"code": 200,
 		"status": utils.StatusMessage(200),
+		"data": res.Data,
 	}).Info("success")
 	return ctx.JSON(res)
 }
@@ -73,6 +75,7 @@ func (controller *DataAnggotaControllerImpl) GetTotalAnggota(ctx *fiber.Ctx) err
 		"type": "response",
 		"code": 200,
 		"status": utils.StatusMessage(200),
+		"data": res.Data,
 	}).Info("success")
 	return ctx.JSON(res)
 }
