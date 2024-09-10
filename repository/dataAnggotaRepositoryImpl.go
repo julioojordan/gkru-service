@@ -82,6 +82,152 @@ func (repository *dataAnggotaRepositoryImpl) AddAnggota(ctx *fiber.Ctx, tx *sql.
 	return newDataAnggota, nil
 }
 
+func (repository *dataAnggotaRepositoryImpl) FindOne(ctx *fiber.Ctx, tx *sql.Tx) (entity.DataAnggotaComplete, error) {
+	query := `SELECT a.id, a.nama_lengkap, a.tanggal_lahir, a.tanggal_babtis, a.keterangan, a.status, b.id_keluarga, c.id_wilayah, c.id_lingkungan, d.kode_lingkungan, d.nama_lingkungan, e.kode_wilayah, e.nama_wilayah FROM data_anggota a 
+	JOIN keluarga_anggota_rel b ON a.id = b.id_anggota 
+	JOIN data_keluarga c ON b.id_keluarga = c.id
+	JOIN lingkungan d ON c.id_lingkungan = d.id
+	JOIN wilayah e ON c.id_wilayah = e.id
+	WHERE a.id = ?`
+	idAnggota := ctx.Params("idAnggota")
+
+	result, err := tx.Query(query, idAnggota)
+	if err != nil {
+		return entity.DataAnggotaComplete{}, fiber.NewError(fiber.StatusInternalServerError, "Failed to execute query")
+	}
+	defer result.Close()
+
+	dataAnggotaComplete := entity.DataAnggotaComplete{}
+	for result.Next() {
+		err := result.Scan(&dataAnggotaComplete.Id, &dataAnggotaComplete.NamaLengkap, &dataAnggotaComplete.TanggalLahir, &dataAnggotaComplete.TanggalBaptis, &dataAnggotaComplete.Keterangan, &dataAnggotaComplete.Status, &dataAnggotaComplete.IdKeluarga,  &dataAnggotaComplete.IdWilayah,  &dataAnggotaComplete.IdLingkungan,  &dataAnggotaComplete.KodeLingkungan,  &dataAnggotaComplete.NamaLingkungan,  &dataAnggotaComplete.KodeWilayah,  &dataAnggotaComplete.NamaWilayah)
+		if err != nil {
+			return entity.DataAnggotaComplete{}, fiber.NewError(fiber.StatusInternalServerError, "Failed to scan result")
+		}
+	}
+
+	return dataAnggotaComplete, nil
+}
+
+func (repository *dataAnggotaRepositoryImpl) FindAll(ctx *fiber.Ctx, tx *sql.Tx) ([]entity.DataAnggotaComplete, error) {
+	// note -> id lingkungan & wilayah kemungkinan untuk filter di data table nanti
+	query := `SELECT a.id, a.nama_lengkap, a.tanggal_lahir, a.tanggal_babtis, a.keterangan, a.status, b.id_keluarga, c.id_wilayah, c.id_lingkungan, d.kode_lingkungan, d.nama_lingkungan, e.kode_wilayah, e.nama_wilayah FROM data_anggota a 
+	JOIN keluarga_anggota_rel b ON a.id = b.id_anggota 
+	JOIN data_keluarga c ON b.id_keluarga = c.id
+	JOIN lingkungan d ON c.id_lingkungan = d.id
+	JOIN wilayah e ON c.id_wilayah = e.id`
+	var args []interface{}
+	var conditions []string
+
+	// Mengambil query parameters -> ini basic di semua find all karena bakal ada user berdasarkan wilayah/lingkungan
+	// tapi untuk filter lebih lengkapnya pake data table jadi yang di handle ini aja
+	idLingkunganStr := ctx.Query("idLingkungan")
+	idWilayahStr := ctx.Query("idWilayah")
+	idLingkunganParams := ctx.Params("idLingkungan")
+	idWilayahParams := ctx.Params("idWilayah")
+
+	// Filter berdasarkan path parameter idLingkungan
+	if idLingkunganParams != "" {
+		idLingkungan, err := strconv.Atoi(idLingkunganParams)
+		if err != nil {
+			return nil, fiber.NewError(fiber.StatusBadRequest, "Invalid idLingkungan (path), it must be an integer")
+		}
+		conditions = append(conditions, "c.id_lingkungan = ?")
+		args = append(args, idLingkungan)
+	}
+
+	// Filter berdasarkan path parameter idWilayah
+	if idWilayahParams != "" {
+		idWilayah, err := strconv.Atoi(idWilayahParams)
+		if err != nil {
+			return nil, fiber.NewError(fiber.StatusBadRequest, "Invalid idWilayah (path), it must be an integer")
+		}
+		conditions = append(conditions, "c.id_wilayah = ?")
+		args = append(args, idWilayah)
+	}
+
+	// Filter berdasarkan query parameter idLingkungan
+	if idLingkunganStr != "" {
+		idLingkungan, err := strconv.Atoi(idLingkunganStr)
+		if err != nil {
+			return nil, fiber.NewError(fiber.StatusBadRequest, "Invalid idLingkungan (query), it must be an integer")
+		}
+		conditions = append(conditions, "c.id_lingkungan = ?")
+		args = append(args, idLingkungan)
+	}
+
+	// Filter berdasarkan query parameter idWilayah
+	if idWilayahStr != "" {
+		idWilayah, err := strconv.Atoi(idWilayahStr)
+		if err != nil {
+			return nil, fiber.NewError(fiber.StatusBadRequest, "Invalid idWilayah (query), it must be an integer")
+		}
+		conditions = append(conditions, "c. id_wilayah = ?")
+		args = append(args, idWilayah)
+	}
+	// Jika ada kondisi, tambahkan ke query
+	if len(conditions) > 0 {
+		query += " WHERE " + strings.Join(conditions, " AND ")
+	}
+
+	result, err := tx.Query(query, args...)
+	if err != nil {
+		return nil, fiber.NewError(fiber.StatusInternalServerError, "Failed to execute query")
+	}
+	defer result.Close()
+
+	var dataAnggotaList []entity.DataAnggotaComplete
+
+	for result.Next() {
+		dataAnggotaComplete := entity.DataAnggotaComplete{}
+		err := result.Scan(&dataAnggotaComplete.Id, &dataAnggotaComplete.NamaLengkap, &dataAnggotaComplete.TanggalLahir, &dataAnggotaComplete.TanggalBaptis, &dataAnggotaComplete.Keterangan, &dataAnggotaComplete.Status, &dataAnggotaComplete.IdKeluarga,  &dataAnggotaComplete.IdWilayah,  &dataAnggotaComplete.IdLingkungan,  &dataAnggotaComplete.KodeLingkungan,  &dataAnggotaComplete.NamaLingkungan,  &dataAnggotaComplete.KodeWilayah,  &dataAnggotaComplete.NamaWilayah)
+		if err != nil {
+			return nil, fiber.NewError(fiber.StatusInternalServerError, "Failed to scan result")
+		}
+
+		// Add to list
+		dataAnggotaList = append(dataAnggotaList, dataAnggotaComplete)
+	}
+
+	// If no rows were found, return an empty list
+	if len(dataAnggotaList) == 0 {
+		return nil, fiber.NewError(fiber.StatusNotFound, "No Data Anggota found")
+	}
+
+	return dataAnggotaList, nil
+}
+
+// method akan dipanggil jika current kepala keluarga status nya di edit dari hidup ke mati
+func (repository *dataAnggotaRepositoryImpl) UpdateKepalaKeluarga(ctx *fiber.Ctx, tx *sql.Tx, idAnggota int32, idKeluarga int32) error {
+	getIstriScript := "SELECT id FROM data_anggota WHERE id_keluarga = ? AND keterangan LIKE ?"
+	updateDataAnggotasqlScript := `
+		UPDATE data_anggota 
+		SET keterangan = 'Kepala Keluarga' 
+		WHERE id = ?
+	`
+	likeCondition := "%Istri%"
+
+	result, err := tx.Query(getIstriScript, idKeluarga, likeCondition)
+	if err != nil {
+		return fiber.NewError(fiber.StatusInternalServerError, "Failed to execute select query")
+	}
+	defer result.Close()
+	idAnggotaResult := entity.IdDataAnggota{}
+	for result.Next() {
+		err := result.Scan(&idAnggotaResult.Id)
+		if err != nil {
+			return fiber.NewError(fiber.StatusInternalServerError, "Failed to scan result")
+		}
+	}
+
+	_, err = tx.Exec(updateDataAnggotasqlScript, idAnggotaResult.Id)
+	if err != nil {
+		return fiber.NewError(fiber.StatusInternalServerError, "Failed to update Kepala Keluarga")
+	}
+
+	return nil
+}
+
+// kalo mau update hubungan jadi kepala keluarga tidak bisa ya harus dari edit KK -> mending di fe dibuat pilihan aja keternagan dan status itu
 func (repository *dataAnggotaRepositoryImpl) UpdateAnggota(ctx *fiber.Ctx, tx *sql.Tx) (entity.DataAnggotaWithStatus, error) {
 	sqlScript := "UPDATE data_anggota SET"
 	idAnggota, err := strconv.Atoi(ctx.Params("idAnggota"))
@@ -137,11 +283,19 @@ func (repository *dataAnggotaRepositoryImpl) UpdateAnggota(ctx *fiber.Ctx, tx *s
 		return entity.DataAnggotaWithStatus{}, fiber.NewError(fiber.StatusInternalServerError, "Failed to update data anggota")
 	}
 
+	// kalau request.keterangan ada -> request.hubungan dibuat keisi otomatis ya nanti di FE
 	if request.Hubungan != "" {
 		sqlScriptRelData := "UPDATE keluarga_anggota_rel SET hubungan = ? WHERE id_anggota = ?"
 		_, err = tx.Exec(sqlScriptRelData, request.Hubungan, idAnggota)
 		if err != nil {
 			return entity.DataAnggotaWithStatus{}, fiber.NewError(fiber.StatusInternalServerError, "Failed to update data keluarga_anggota_rel")
+		}
+	}
+
+	if request.Status == "MENINGGAL" {
+		errUpdateKepalaKeluarga := repository.UpdateKepalaKeluarga(ctx, tx, int32(idAnggota), request.IdKeluarga)
+		if errUpdateKepalaKeluarga != nil {
+			return entity.DataAnggotaWithStatus{}, fiber.NewError(fiber.StatusInternalServerError, "Failed to update data kepala keluarga")
 		}
 	}
 

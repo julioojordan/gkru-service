@@ -21,14 +21,13 @@ func SetupRoutes(app *fiber.App, Customlogger *logrus.Logger) {
 	}))
 	//setup component logger
 	app.Use(func(ctx *fiber.Ctx) error {
-        ctx.Locals("logger", Customlogger)
-        return ctx.Next()
-    })
+		ctx.Locals("logger", Customlogger)
+		return ctx.Next()
+	})
 	// =========== SETUP MIDDLEWARE ===============
 
-
 	// =========== SETUP ROUTE ===============
-    // app.Post("/login", controller.FindOne)
+	// app.Post("/login", controller.FindOne)
 	app.Post("/login", func(ctx *fiber.Ctx) error {
 		userController := ctx.Locals("controllers").(controller.Controllers).UserController
 		return userController.FindOne(ctx)
@@ -47,10 +46,18 @@ func SetupRoutes(app *fiber.App, Customlogger *logrus.Logger) {
 		dataKeluargaController := ctx.Locals("controllers").(controller.Controllers).DataKeluargaController
 		return dataKeluargaController.UpdateDataKeluarga(ctx)
 	})
+	app.Patch("/Keluarga/:idKeluarga/delete", middlewares.AuthMiddleware, func(ctx *fiber.Ctx) error {
+		dataKeluargaController := ctx.Locals("controllers").(controller.Controllers).DataKeluargaController
+		return dataKeluargaController.DeleteDataKeluarga(ctx)
+	})
 	app.Get("/Keluarga/:idKeluarga", middlewares.AuthMiddleware, func(ctx *fiber.Ctx) error {
 		fmt.Println("masuk /Keluarga/:idKeluarga")
 		dataKeluargaController := ctx.Locals("controllers").(controller.Controllers).DataKeluargaController
 		return dataKeluargaController.FindOne(ctx)
+	})
+	app.Get("/Keluarga", middlewares.AuthMiddleware, func(ctx *fiber.Ctx) error {
+		dataKeluargaController := ctx.Locals("controllers").(controller.Controllers).DataKeluargaController
+		return dataKeluargaController.FindAll(ctx)
 	})
 
 	// =========== WEALTH ===============
@@ -71,7 +78,7 @@ func SetupRoutes(app *fiber.App, Customlogger *logrus.Logger) {
 	})
 
 	// =========== ANGGOTA ===============
-	app.Patch("/anggota/:idAnggota/update", middlewares.AuthMiddleware, func(ctx *fiber.Ctx) error {
+	app.Patch("/anggota/:idAnggota/update", func(ctx *fiber.Ctx) error {
 		dataAnggotaController := ctx.Locals("controllers").(controller.Controllers).DataAnggotaController
 		return dataAnggotaController.UpdateAnggota(ctx)
 	})

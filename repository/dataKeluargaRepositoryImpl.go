@@ -97,6 +97,143 @@ func (repository *dataKeluargaRepositoryImpl) FindOne(ctx *fiber.Ctx, tx *sql.Tx
 	return dataKeluargaFinal, nil
 }
 
+func (repository *dataKeluargaRepositoryImpl) FindAll(ctx *fiber.Ctx, tx *sql.Tx) ([]entity.DataKeluargaFinal, error) {
+	query := "SELECT id, id_wilayah, id_lingkungan, nomor, id_kepala_keluarga, id_keluarga_anggota_rel, alamat FROM data_keluarga"
+	var args []interface{}
+	var conditions []string
+
+	// Mengambil query parameters
+	idLingkunganStr := ctx.Query("idLingkungan")
+	idWilayahStr := ctx.Query("idWilayah")
+	idLingkunganParams := ctx.Params("idLingkungan")
+	idWilayahParams := ctx.Params("idWilayah")
+
+	// Filter berdasarkan path parameter idLingkungan
+	if idLingkunganParams != "" {
+		idLingkungan, err := strconv.Atoi(idLingkunganParams)
+		if err != nil {
+			return nil, fiber.NewError(fiber.StatusBadRequest, "Invalid idLingkungan (path), it must be an integer")
+		}
+		conditions = append(conditions, "id_lingkungan = ?")
+		args = append(args, idLingkungan)
+	}
+
+	// Filter berdasarkan path parameter idWilayah
+	if idWilayahParams != "" {
+		idWilayah, err := strconv.Atoi(idWilayahParams)
+		if err != nil {
+			return nil, fiber.NewError(fiber.StatusBadRequest, "Invalid idWilayah (path), it must be an integer")
+		}
+		conditions = append(conditions, "id_wilayah = ?")
+		args = append(args, idWilayah)
+	}
+
+	// Filter berdasarkan query parameter idLingkungan
+	if idLingkunganStr != "" {
+		idLingkungan, err := strconv.Atoi(idLingkunganStr)
+		if err != nil {
+			return nil, fiber.NewError(fiber.StatusBadRequest, "Invalid idLingkungan (query), it must be an integer")
+		}
+		conditions = append(conditions, "id_lingkungan = ?")
+		args = append(args, idLingkungan)
+	}
+
+	// Filter berdasarkan query parameter idWilayah
+	if idWilayahStr != "" {
+		idWilayah, err := strconv.Atoi(idWilayahStr)
+		if err != nil {
+			return nil, fiber.NewError(fiber.StatusBadRequest, "Invalid idWilayah (query), it must be an integer")
+		}
+		conditions = append(conditions, "id_wilayah = ?")
+		args = append(args, idWilayah)
+	}
+	// Jika ada kondisi, tambahkan ke query
+	if len(conditions) > 0 {
+		query += " WHERE " + strings.Join(conditions, " AND ")
+	}
+
+	result, err := tx.Query(query, args...)
+	if err != nil {
+		return nil, fiber.NewError(fiber.StatusInternalServerError, "Failed to execute query")
+	}
+	defer result.Close()
+
+	var dataKeluargaList []entity.DataKeluargaFinal
+	repositories := ctx.Locals("repositories").(Repositories)
+
+	// Loop through all rows
+	for result.Next() {
+		dataKeluargaRaw := entity.DataKeluargaRaw{}
+		err := result.Scan(&dataKeluargaRaw.Id, &dataKeluargaRaw.Wilayah, &dataKeluargaRaw.Lingkungan, &dataKeluargaRaw.Nomor, &dataKeluargaRaw.KepalaKeluarga, &dataKeluargaRaw.KKRelation, &dataKeluargaRaw.Alamat)
+		if err != nil {
+			return nil, fiber.NewError(fiber.StatusInternalServerError, "Failed to scan result")
+		}
+
+		// Get lingkungan data
+		getLingkungan, err := repositories.DataLingkunganRepository.FindOneById(dataKeluargaRaw.Lingkungan, tx)
+		if err != nil {
+			return nil, fiber.NewError(fiber.StatusInternalServerError, "Failed to retrieve lingkungan data")
+		}
+		wilayah := getLingkungan.Wilayah
+		lingkungan := entity.DataLingkungan{
+			Id:             getLingkungan.Id,
+			KodeLingkungan: getLingkungan.KodeLingkungan,
+			NamaLingkungan: getLingkungan.NamaLingkungan,
+			Wilayah:        wilayah,
+		}
+
+		// Get anggota relasi
+		getAnggotaRel, err := repositories.DataAnggotaKeluargaRelRepository.FindKeluargaAnggotaRel(dataKeluargaRaw.Id, tx)
+		if err != nil {
+			return nil, fiber.NewError(fiber.StatusInternalServerError, "Failed to retrieve anggota relationship data")
+		}
+
+		var kepalaKeluarga entity.DataAnggota
+		var anggota []entity.DataAnggota
+
+		for _, anggotaRel := range getAnggotaRel {
+			if anggotaRel.Hubungan == "Kepala Keluarga" {
+				kepalaKeluarga = entity.DataAnggota{
+					Id:            anggotaRel.IdAnggota,
+					NamaLengkap:   anggotaRel.NamaLengkap,
+					TanggalLahir:  anggotaRel.TanggalLahir,
+					TanggalBaptis: anggotaRel.TanggalBaptis,
+					Keterangan:    anggotaRel.Keterangan,
+				}
+			} else {
+				anggota = append(anggota, entity.DataAnggota{
+					Id:            anggotaRel.IdAnggota,
+					NamaLengkap:   anggotaRel.NamaLengkap,
+					TanggalLahir:  anggotaRel.TanggalLahir,
+					TanggalBaptis: anggotaRel.TanggalBaptis,
+					Keterangan:    anggotaRel.Keterangan,
+				})
+			}
+		}
+
+		// Populate final data structure
+		dataKeluargaFinal := entity.DataKeluargaFinal{
+			Id:             dataKeluargaRaw.Id,
+			Wilayah:        wilayah,
+			Lingkungan:     lingkungan,
+			Nomor:          dataKeluargaRaw.Nomor,
+			KepalaKeluarga: kepalaKeluarga,
+			Alamat:         dataKeluargaRaw.Alamat,
+			Anggota:        anggota,
+		}
+
+		// Add to list
+		dataKeluargaList = append(dataKeluargaList, dataKeluargaFinal)
+	}
+
+	// If no rows were found, return an empty list
+	if len(dataKeluargaList) == 0 {
+		return nil, fiber.NewError(fiber.StatusNotFound, "No Data Keluarga found")
+	}
+
+	return dataKeluargaList, nil
+}
+
 func (repository *dataKeluargaRepositoryImpl) GetTotalKeluarga(ctx *fiber.Ctx, tx *sql.Tx) (entity.TotalKeluarga, error) {
 	sqlScript := "SELECT COUNT(*) FROM data_keluarga"
 	result, err := tx.Query(sqlScript)
@@ -231,4 +368,62 @@ func (repository *dataKeluargaRepositoryImpl) UpdateDataKeluarga(ctx *fiber.Ctx,
 	}
 
 	return newDataKeluarga, nil
+}
+
+func (repository *dataKeluargaRepositoryImpl) DeleteDataKeluarga(ctx *fiber.Ctx, tx *sql.Tx) (entity.DeletedDataKeluarga, error) {
+	idKeluarga, errIdKeluarga := strconv.Atoi(ctx.Params("idKeluarga"))
+	if errIdKeluarga != nil {
+		return entity.DeletedDataKeluarga{}, fiber.NewError(fiber.StatusBadRequest, "Invalid id Keluarga, it must be an integer")
+	}
+
+	// Step 1: Ambil ID anggota dari tabel keluarga_anggota_rel
+	var deletedAnggotaIds []int32
+	rows, err := tx.Query("SELECT id_anggota FROM keluarga_anggota_rel WHERE id_keluarga = ?", idKeluarga)
+	if err != nil {
+		return entity.DeletedDataKeluarga{}, fiber.NewError(fiber.StatusInternalServerError, "Failed to fetch anggota before deletion")
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		var idAnggota int32
+		if err := rows.Scan(&idAnggota); err != nil {
+			return entity.DeletedDataKeluarga{}, fiber.NewError(fiber.StatusInternalServerError, "Failed to scan anggota data")
+		}
+		deletedAnggotaIds = append(deletedAnggotaIds, idAnggota)
+	}
+
+	// Step 2: Hapus data relasi dari tabel keluarga_anggota_rel
+	sqlScript := "DELETE keluarga_anggota_rel WHERE id_keluarga = ?"
+	_, err = tx.Exec(sqlScript, idKeluarga)
+	if err != nil {
+		return entity.DeletedDataKeluarga{}, fiber.NewError(fiber.StatusInternalServerError, "Failed to delete data keluarga anggota rel")
+	}
+
+	// Step 3: Hapus data keluarga dari tabel data_keluarga
+	sqlScript = "DELETE data_keluarga WHERE id = ?"
+	_, err = tx.Exec(sqlScript, idKeluarga)
+	if err != nil {
+		return entity.DeletedDataKeluarga{}, fiber.NewError(fiber.StatusInternalServerError, "Failed to delete data keluarga")
+	}
+
+	// Step 4: Hapus data dari tabel data_anggota berdasarkan deletedAnggotaIds
+	if len(deletedAnggotaIds) > 0 {
+		query := "DELETE FROM data_anggota WHERE id IN (?" + strings.Repeat(", ?", len(deletedAnggotaIds)-1) + ")"
+		args := make([]interface{}, len(deletedAnggotaIds))
+		for i, id := range deletedAnggotaIds {
+			args[i] = id
+		}
+
+		_, err = tx.Exec(query, args...)
+		if err != nil {
+			return entity.DeletedDataKeluarga{}, fiber.NewError(fiber.StatusInternalServerError, "Failed to delete data anggota")
+		}
+	}
+
+	res := entity.DeletedDataKeluarga{
+		Id:                int32(idKeluarga),
+		DeletedAnggotaIds: deletedAnggotaIds,
+	}
+
+	return res, nil
 }

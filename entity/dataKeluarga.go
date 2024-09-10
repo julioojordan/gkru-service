@@ -28,6 +28,11 @@ type UpdatedDataKeluarga struct {
 	IdKepalaKeluarga int32
 }
 
+type DeletedDataKeluarga struct {
+	Id                int32
+	DeletedAnggotaIds []int32
+}
+
 type DataKeluargaFinal struct {
 	Id             int32
 	Wilayah        DataWilayah

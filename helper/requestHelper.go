@@ -40,6 +40,7 @@ type UpdateAnggotaRequest struct {
 	Keterangan    string    `json:"keterangan"`
 	Status        string    `json:"status"`
 	Hubungan      string    `json:"hubungan"`
+	IdKeluarga    int32     `json:"idKeluarga"`
 }
 type UpdateKeteranganAnggotaRequest struct {
 	Id         int32  `json:"idKepalaKeluarga"`

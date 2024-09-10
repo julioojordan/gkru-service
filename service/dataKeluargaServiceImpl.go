@@ -12,15 +12,15 @@ import (
 
 type DataKeluargaServiceImpl struct {
 	DataKeluargaRepository repository.DataKeluargaRepository
-	DB             *sql.DB
-	Validate       *validator.Validate
+	DB                     *sql.DB
+	Validate               *validator.Validate
 }
 
 func NewDataKeluargaService(DataKeluargaRepository repository.DataKeluargaRepository, DB *sql.DB, validate *validator.Validate) DataKeluargaService {
 	return &DataKeluargaServiceImpl{
 		DataKeluargaRepository: DataKeluargaRepository,
-		DB:             DB,
-		Validate:       validate,
+		DB:                     DB,
+		Validate:               validate,
 	}
 }
 
@@ -31,6 +31,20 @@ func (service *DataKeluargaServiceImpl) FindOne(ctx *fiber.Ctx) (interface{}, er
 	defer helper.CommitOrRollback(tx, logger)
 
 	dataKeluarga, err := service.DataKeluargaRepository.FindOne(ctx, tx)
+	if err != nil {
+		return nil, err
+	}
+
+	return dataKeluarga, nil
+}
+
+func (service *DataKeluargaServiceImpl) FindAll(ctx *fiber.Ctx) (interface{}, error) {
+	logger, _ := ctx.Locals("logger").(*logrus.Logger)
+	tx, err := service.DB.Begin()
+	helper.PanicIfError(err)
+	defer helper.CommitOrRollback(tx, logger)
+
+	dataKeluarga, err := service.DataKeluargaRepository.FindAll(ctx, tx)
 	if err != nil {
 		return nil, err
 	}
@@ -73,6 +87,20 @@ func (service *DataKeluargaServiceImpl) UpdateDataKeluarga(ctx *fiber.Ctx) (inte
 	defer helper.CommitOrRollback(tx, logger)
 
 	result, err := service.DataKeluargaRepository.UpdateDataKeluarga(ctx, tx)
+	if err != nil {
+		return nil, err
+	}
+
+	return result, nil
+}
+
+func (service *DataKeluargaServiceImpl) DeleteDataKeluarga(ctx *fiber.Ctx) (interface{}, error) {
+	logger, _ := ctx.Locals("logger").(*logrus.Logger)
+	tx, err := service.DB.Begin()
+	helper.PanicIfError(err)
+	defer helper.CommitOrRollback(tx, logger)
+
+	result, err := service.DataKeluargaRepository.DeleteDataKeluarga(ctx, tx)
 	if err != nil {
 		return nil, err
 	}

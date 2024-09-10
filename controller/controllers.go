@@ -8,9 +8,11 @@ type UserController interface {
 
 type DataKeluargaController interface {
 	FindOne(ctx *fiber.Ctx) error
+	FindAll(ctx *fiber.Ctx) error
 	AddKeluarga(ctx *fiber.Ctx) error
 	GetTotalKeluarga(ctx *fiber.Ctx) error
 	UpdateDataKeluarga(ctx *fiber.Ctx) error
+	DeleteDataKeluarga(ctx *fiber.Ctx) error
 }
 
 type WealthController interface {

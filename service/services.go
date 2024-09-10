@@ -1,7 +1,6 @@
 package service
 
 import (
-
 	"github.com/gofiber/fiber/v2"
 )
 
@@ -26,9 +25,11 @@ type TransactionHistoryService interface {
 
 type DataKeluargaService interface {
 	FindOne(ctx *fiber.Ctx) (interface{}, error)
+	FindAll(ctx *fiber.Ctx) (interface{}, error)
 	AddKeluarga(ctx *fiber.Ctx) (interface{}, error)
 	GetTotalKeluarga(ctx *fiber.Ctx) (interface{}, error)
 	UpdateDataKeluarga(ctx *fiber.Ctx) (interface{}, error)
+	DeleteDataKeluarga(ctx *fiber.Ctx) (interface{}, error)
 }
 
 type DataLingkunganService interface {

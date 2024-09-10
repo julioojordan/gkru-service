@@ -25,9 +25,11 @@ type TransactionHistoryRepository interface {
 
 type DataKeluargaRepository interface {
 	FindOne(ctx *fiber.Ctx, tx *sql.Tx) (entity.DataKeluargaFinal, error)
+	FindAll(ctx *fiber.Ctx, tx *sql.Tx) ([]entity.DataKeluargaFinal, error)
 	GetTotalKeluarga(ctx *fiber.Ctx, tx *sql.Tx) (entity.TotalKeluarga, error)
 	AddKeluarga(ctx *fiber.Ctx, tx *sql.Tx) (entity.DataKeluargaRaw, error)
 	UpdateDataKeluarga(ctx *fiber.Ctx, tx *sql.Tx) (entity.UpdatedDataKeluarga, error)
+	DeleteDataKeluarga(ctx *fiber.Ctx, tx *sql.Tx) (entity.DeletedDataKeluarga, error)
 }
 
 type DataAnggotaRepository interface {
@@ -50,7 +52,7 @@ type DataWilayahRepository interface {
 }
 
 type Repositories struct {
-	DataLingkunganRepository          DataLingkunganRepository
-	DataAnggotaRepository             DataAnggotaRepository
+	DataLingkunganRepository         DataLingkunganRepository
+	DataAnggotaRepository            DataAnggotaRepository
 	DataAnggotaKeluargaRelRepository DataAnggotaKeluargaRelRepository
 }

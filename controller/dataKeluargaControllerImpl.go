@@ -32,10 +32,30 @@ func (controller *DataKeluargaControllerImpl) FindOne(ctx *fiber.Ctx) error {
 		Data:   dataKeluarga,
 	}
 	logger.WithFields(logrus.Fields{
-		"type": "response",
-		"code": 200,
+		"type":   "response",
+		"code":   200,
 		"status": utils.StatusMessage(200),
-		"data": res.Data,
+		"data":   res.Data,
+	}).Info("success")
+	return ctx.JSON(res)
+}
+
+func (controller *DataKeluargaControllerImpl) FindAll(ctx *fiber.Ctx) error {
+	logger, _ := ctx.Locals("logger").(*logrus.Logger)
+	dataKeluarga, err := controller.DataKeluargaService.FindAll(ctx)
+	if err != nil {
+		return helper.HandleError(ctx, logger, err)
+	}
+	res := entity.WebResponse{
+		Code:   200,
+		Status: "Ok",
+		Data:   dataKeluarga,
+	}
+	logger.WithFields(logrus.Fields{
+		"type":   "response",
+		"code":   200,
+		"status": utils.StatusMessage(200),
+		"data":   res.Data,
 	}).Info("success")
 	return ctx.JSON(res)
 }
@@ -52,10 +72,10 @@ func (controller *DataKeluargaControllerImpl) AddKeluarga(ctx *fiber.Ctx) error 
 		Data:   dataKeluarga,
 	}
 	logger.WithFields(logrus.Fields{
-		"type": "response",
-		"code": 200,
+		"type":   "response",
+		"code":   200,
 		"status": utils.StatusMessage(200),
-		"data": res.Data,
+		"data":   res.Data,
 	}).Info("success")
 	return ctx.JSON(res)
 }
@@ -72,10 +92,10 @@ func (controller *DataKeluargaControllerImpl) GetTotalKeluarga(ctx *fiber.Ctx) e
 		Data:   dataKeluarga,
 	}
 	logger.WithFields(logrus.Fields{
-		"type": "response",
-		"code": 200,
+		"type":   "response",
+		"code":   200,
 		"status": utils.StatusMessage(200),
-		"data": res.Data,
+		"data":   res.Data,
 	}).Info("success")
 	return ctx.JSON(res)
 }
@@ -92,10 +112,30 @@ func (controller *DataKeluargaControllerImpl) UpdateDataKeluarga(ctx *fiber.Ctx)
 		Data:   dataKeluarga,
 	}
 	logger.WithFields(logrus.Fields{
-		"type": "response",
-		"code": 200,
+		"type":   "response",
+		"code":   200,
 		"status": utils.StatusMessage(200),
-		"data": res.Data,
+		"data":   res.Data,
+	}).Info("success")
+	return ctx.JSON(res)
+}
+
+func (controller *DataKeluargaControllerImpl) DeleteDataKeluarga(ctx *fiber.Ctx) error {
+	logger, _ := ctx.Locals("logger").(*logrus.Logger)
+	dataKeluarga, err := controller.DataKeluargaService.DeleteDataKeluarga(ctx)
+	if err != nil {
+		return helper.HandleError(ctx, logger, err)
+	}
+	res := entity.WebResponse{
+		Code:   200,
+		Status: "Ok",
+		Data:   dataKeluarga,
+	}
+	logger.WithFields(logrus.Fields{
+		"type":   "response",
+		"code":   200,
+		"status": utils.StatusMessage(200),
+		"data":   res.Data,
 	}).Info("success")
 	return ctx.JSON(res)
 }
