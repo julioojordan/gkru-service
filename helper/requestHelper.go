@@ -1,6 +1,9 @@
 package helper
 
-import "time"
+import (
+	"gkru-service/entity"
+	"time"
+)
 
 type FindOneRequest struct {
 	Id int32 `json:"id"`
@@ -14,6 +17,10 @@ type AddAnggotaRequest struct {
 	Status        string    `json:"status"`
 	Hubungan      string    `json:"hubungan"`
 	IdKeluarga    int32     `json:"idKeluarga"`
+}
+
+type DeleteAnggotaRequest struct {
+	SelectedAnggota []entity.DataAnggotaComplete `json:"selectedAnggota"`
 }
 
 type AddKeluargaRequest struct {

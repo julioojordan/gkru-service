@@ -79,3 +79,44 @@ func (controller *DataAnggotaControllerImpl) GetTotalAnggota(ctx *fiber.Ctx) err
 	}).Info("success")
 	return ctx.JSON(res)
 }
+
+func (controller *DataAnggotaControllerImpl) DeleteOneAnggota(ctx *fiber.Ctx) error {
+	logger, _ := ctx.Locals("logger").(*logrus.Logger)
+	dataAnggota, err := controller.DataAnggotaService.DeleteOneAnggota(ctx)
+	if err != nil {
+		return helper.HandleError(ctx, logger, err)
+	}
+	res := entity.WebResponse{
+		Code:   200,
+		Status: "Ok",
+		Data:   dataAnggota,
+	}
+	logger.WithFields(logrus.Fields{
+		"type": "response",
+		"code": 200,
+		"status": utils.StatusMessage(200),
+		"data": res.Data,
+	}).Info("success")
+	return ctx.JSON(res)
+}
+
+
+func (controller *DataAnggotaControllerImpl) DeleteBulkAnggota(ctx *fiber.Ctx) error {
+	logger, _ := ctx.Locals("logger").(*logrus.Logger)
+	dataAnggota, err := controller.DataAnggotaService.DeleteBulkAnggota(ctx)
+	if err != nil {
+		return helper.HandleError(ctx, logger, err)
+	}
+	res := entity.WebResponse{
+		Code:   200,
+		Status: "Ok",
+		Data:   dataAnggota,
+	}
+	logger.WithFields(logrus.Fields{
+		"type": "response",
+		"code": 200,
+		"status": utils.StatusMessage(200),
+		"data": res.Data,
+	}).Info("success")
+	return ctx.JSON(res)
+}

@@ -82,13 +82,21 @@ func SetupRoutes(app *fiber.App, Customlogger *logrus.Logger) {
 		dataAnggotaController := ctx.Locals("controllers").(controller.Controllers).DataAnggotaController
 		return dataAnggotaController.UpdateAnggota(ctx)
 	})
+	app.Patch("/anggota/:idAnggota/delete", func(ctx *fiber.Ctx) error {
+		dataAnggotaController := ctx.Locals("controllers").(controller.Controllers).DataAnggotaController
+		return dataAnggotaController.DeleteOneAnggota(ctx)
+	})
 	app.Post("/anggota/add", middlewares.AuthMiddleware, func(ctx *fiber.Ctx) error {
 		dataAnggotaController := ctx.Locals("controllers").(controller.Controllers).DataAnggotaController
 		return dataAnggotaController.AddAnggota(ctx)
 	})
-	app.Get("/anggota/getTotal", middlewares.AuthMiddleware, func(ctx *fiber.Ctx) error {
+	app.Post("/anggota/add", middlewares.AuthMiddleware, func(ctx *fiber.Ctx) error {
 		dataAnggotaController := ctx.Locals("controllers").(controller.Controllers).DataAnggotaController
-		return dataAnggotaController.GetTotalAnggota(ctx)
+		return dataAnggotaController.AddAnggota(ctx)
+	})
+	app.Get("/anggota/delete", middlewares.AuthMiddleware, func(ctx *fiber.Ctx) error {
+		dataAnggotaController := ctx.Locals("controllers").(controller.Controllers).DataAnggotaController
+		return dataAnggotaController.DeleteBulkAnggota(ctx)
 	})
 	// =========== SETUP ROUTE ===============
 }

@@ -48,6 +48,7 @@ type DataAnggotaComplete struct {
 	Keterangan     string
 	Status         string
 	IdKeluarga     int32
+	Hubungan       string
 	IdWilayah      int32
 	IdLingkungan   int32
 	KodeLingkungan string

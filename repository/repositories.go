@@ -37,6 +37,8 @@ type DataAnggotaRepository interface {
 	AddAnggota(ctx *fiber.Ctx, tx *sql.Tx) (entity.DataAnggota, error)
 	UpdateAnggota(ctx *fiber.Ctx, tx *sql.Tx) (entity.DataAnggotaWithStatus, error)
 	UpdateKeteranganAnggota(ctx *fiber.Ctx, tx *sql.Tx) (entity.DataAnggotaWithKeteranganOnly, error)
+	DeleteOneAnggota(ctx *fiber.Ctx, tx *sql.Tx) (entity.IdDataAnggota, error)
+	DeleteBulkAnggota(ctx *fiber.Ctx, tx *sql.Tx) ([]entity.IdDataAnggota, error)
 }
 
 type DataAnggotaKeluargaRelRepository interface {

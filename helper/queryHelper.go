@@ -19,3 +19,12 @@ func AddLingkunganOrWilayahQueryHelper(idWilayah string, idLingkungan string, sq
 	return tx.Query(sqlScript, params...)
 
 }
+
+// function buat convert slice ids ke interface untuk mengisi parameter query
+func ConvertToInterfaceSlice(ids []int32) []interface{} {
+	ifaces := make([]interface{}, len(ids))
+	for i, v := range ids {
+		ifaces[i] = v
+	}
+	return ifaces
+}

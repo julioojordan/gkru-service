@@ -23,6 +23,8 @@ type DataAnggotaController interface {
 	AddAnggota(ctx *fiber.Ctx) error
 	UpdateAnggota(ctx *fiber.Ctx) error
 	GetTotalAnggota(ctx *fiber.Ctx) error
+	DeleteOneAnggota(ctx *fiber.Ctx) error
+	DeleteBulkAnggota(ctx *fiber.Ctx) error
 }
 
 type TransactionHistoryController interface {
