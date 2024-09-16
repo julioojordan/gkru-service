@@ -25,6 +25,8 @@ type DataAnggotaController interface {
 	GetTotalAnggota(ctx *fiber.Ctx) error
 	DeleteOneAnggota(ctx *fiber.Ctx) error
 	DeleteBulkAnggota(ctx *fiber.Ctx) error
+	FindAll(ctx *fiber.Ctx) error
+	FindOne(ctx *fiber.Ctx) error
 }
 
 type TransactionHistoryController interface {
@@ -33,7 +35,11 @@ type TransactionHistoryController interface {
 }
 
 type DataLingkunganController interface {
-	// FindOneWithId(ctx *fiber.Ctx, id int32) error
+	FindOneWithParam(ctx *fiber.Ctx) error
+	FindAll(ctx *fiber.Ctx) error
+	Add(ctx *fiber.Ctx) error
+	Update(ctx *fiber.Ctx) error
+	DeleteOne(ctx *fiber.Ctx) error
 }
 
 type Controllers struct {

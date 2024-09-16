@@ -15,3 +15,17 @@ type DataLingkungan struct {
 	NamaLingkungan string
 	Wilayah        DataWilayah
 }
+
+type IdDataLingkungan struct {
+	Id             int32
+}
+
+type TotalLingkungan struct {
+	Total int32
+}
+type DataLingkunganWithIdWilayah struct {
+	Id             int32
+	KodeLingkungan string
+	NamaLingkungan string
+	Wilayah        int32
+}

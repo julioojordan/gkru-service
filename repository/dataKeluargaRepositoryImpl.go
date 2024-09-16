@@ -97,6 +97,34 @@ func (repository *dataKeluargaRepositoryImpl) FindOne(ctx *fiber.Ctx, tx *sql.Tx
 	return dataKeluargaFinal, nil
 }
 
+func (repository *dataKeluargaRepositoryImpl) CountKeluargaWithParam(ctx *fiber.Ctx, tx *sql.Tx, param string, id int32) (entity.TotalInt, error) {
+	if param == ""{
+		param = "lingkungan"
+	}
+
+	dataKeluargaRawScript := "SELECT COUNT(*) FROM data_keluarga WHERE id_lingkunan = ?"
+	if param == "wilayah"{
+		dataKeluargaRawScript = "SELECT COUNT(*) FROM data_keluarga WHERE id_wilayah = ?"
+	}
+
+	result, err := tx.Query(dataKeluargaRawScript, id)
+	if err != nil {
+		return entity.TotalInt{}, fiber.NewError(fiber.StatusInternalServerError, "Failed to execute query")
+	}
+	defer result.Close()
+
+	total := entity.TotalInt{}
+	if result.Next() {
+		err := result.Scan(&total.Total)
+		if err != nil {
+			return entity.TotalInt{}, fiber.NewError(fiber.StatusInternalServerError, "Failed to scan result")
+		}
+		return total, nil
+	} else {
+		return entity.TotalInt{}, fiber.NewError(fiber.StatusInternalServerError, "No data found")
+	}
+}
+
 func (repository *dataKeluargaRepositoryImpl) FindAll(ctx *fiber.Ctx, tx *sql.Tx) ([]entity.DataKeluargaFinal, error) {
 	query := "SELECT id, id_wilayah, id_lingkungan, nomor, id_kepala_keluarga, id_keluarga_anggota_rel, alamat FROM data_keluarga"
 	var args []interface{}
@@ -258,7 +286,6 @@ func (repository *dataKeluargaRepositoryImpl) AddKeluarga(ctx *fiber.Ctx, tx *sq
 	repositories := ctx.Locals("repositories").(Repositories)
 
 	body := ctx.Body()
-	fmt.Println(body)
 	request := new(helper.AddKeluargaRequest)
 	err := json.Unmarshal(body, request)
 	if err != nil {
@@ -427,3 +454,4 @@ func (repository *dataKeluargaRepositoryImpl) DeleteDataKeluarga(ctx *fiber.Ctx,
 
 	return res, nil
 }
+

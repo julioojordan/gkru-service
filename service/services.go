@@ -18,6 +18,8 @@ type DataAnggotaService interface {
 	GetTotalAnggota(ctx *fiber.Ctx) (interface{}, error)
 	DeleteOneAnggota(ctx *fiber.Ctx) (interface{}, error)
 	DeleteBulkAnggota(ctx *fiber.Ctx) (interface{}, error)
+	FindAll(ctx *fiber.Ctx) (interface{}, error)
+	FindOne(ctx *fiber.Ctx) (interface{}, error)
 }
 
 type TransactionHistoryService interface {
@@ -35,7 +37,11 @@ type DataKeluargaService interface {
 }
 
 type DataLingkunganService interface {
-	FindOneById(ctx *fiber.Ctx, id int32) (interface{}, error)
+	FindOneWithParam(ctx *fiber.Ctx) (interface{}, error)
+	FindAll(ctx *fiber.Ctx) (interface{}, error)
+	Add(ctx *fiber.Ctx) (interface{}, error)
+	Update(ctx *fiber.Ctx) (interface{}, error)
+	DeleteOne(ctx *fiber.Ctx) (interface{}, error)
 }
 
 type Services struct {

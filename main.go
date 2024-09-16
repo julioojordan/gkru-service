@@ -75,6 +75,7 @@ func main() {
 		//gak tau ini kenapa ga perlu di parse ke dataLingkunganRepositoryImpl -> padahal yang atasnya bisa
 		repositories := repository.Repositories{
 			DataLingkunganRepository:         dataLingkunganRepository,
+			DataKeluargaRepository:           dataKeluargaRepository,
 			DataAnggotaKeluargaRelRepository: dataAnggotaKeluargaRelRepository,
 			DataAnggotaRepository:            dataAnggotaRepository,
 		}

@@ -30,11 +30,14 @@ type DataKeluargaRepository interface {
 	AddKeluarga(ctx *fiber.Ctx, tx *sql.Tx) (entity.DataKeluargaRaw, error)
 	UpdateDataKeluarga(ctx *fiber.Ctx, tx *sql.Tx) (entity.UpdatedDataKeluarga, error)
 	DeleteDataKeluarga(ctx *fiber.Ctx, tx *sql.Tx) (entity.DeletedDataKeluarga, error)
+	CountKeluargaWithParam(ctx *fiber.Ctx, tx *sql.Tx, from string, id int32) (entity.TotalInt, error)
 }
 
 type DataAnggotaRepository interface {
 	GetTotalAnggota(ctx *fiber.Ctx, tx *sql.Tx) (entity.TotalAnggota, error)
 	AddAnggota(ctx *fiber.Ctx, tx *sql.Tx) (entity.DataAnggota, error)
+	FindAll(ctx *fiber.Ctx, tx *sql.Tx) ([]entity.DataAnggotaComplete, error)
+	FindOne(ctx *fiber.Ctx, tx *sql.Tx) (entity.DataAnggotaComplete, error)
 	UpdateAnggota(ctx *fiber.Ctx, tx *sql.Tx) (entity.DataAnggotaWithStatus, error)
 	UpdateKeteranganAnggota(ctx *fiber.Ctx, tx *sql.Tx) (entity.DataAnggotaWithKeteranganOnly, error)
 	DeleteOneAnggota(ctx *fiber.Ctx, tx *sql.Tx) (entity.IdDataAnggota, error)
@@ -47,6 +50,11 @@ type DataAnggotaKeluargaRelRepository interface {
 
 type DataLingkunganRepository interface {
 	FindOneById(id int32, tx *sql.Tx) (entity.DataLingkungan, error)
+	FindOneWithParam(ctx *fiber.Ctx, tx *sql.Tx) (entity.DataLingkungan, error)
+	FindAll(ctx *fiber.Ctx, tx *sql.Tx) ([]entity.DataLingkungan, error)
+	Add(ctx *fiber.Ctx, tx *sql.Tx) (entity.DataLingkunganWithIdWilayah, error)
+	Update(ctx *fiber.Ctx, tx *sql.Tx) (entity.DataLingkunganWithIdWilayah, error)
+	DeleteOne(ctx *fiber.Ctx, tx *sql.Tx) (entity.IdDataLingkungan, error)
 }
 
 type DataWilayahRepository interface {
@@ -55,6 +63,7 @@ type DataWilayahRepository interface {
 
 type Repositories struct {
 	DataLingkunganRepository         DataLingkunganRepository
+	DataKeluargaRepository           DataKeluargaRepository
 	DataAnggotaRepository            DataAnggotaRepository
 	DataAnggotaKeluargaRelRepository DataAnggotaKeluargaRelRepository
 }

@@ -34,28 +34,28 @@ func SetupRoutes(app *fiber.App, Customlogger *logrus.Logger) {
 	})
 
 	// =========== KELUARGA ===============
-	app.Get("/Keluarga/getTotal", middlewares.AuthMiddleware, func(ctx *fiber.Ctx) error {
+	app.Get("/keluarga/getTotal", middlewares.AuthMiddleware, func(ctx *fiber.Ctx) error {
 		dataKeluargaController := ctx.Locals("controllers").(controller.Controllers).DataKeluargaController
 		return dataKeluargaController.GetTotalKeluarga(ctx)
 	})
-	app.Post("/Keluarga/add", middlewares.AuthMiddleware, func(ctx *fiber.Ctx) error {
+	app.Post("/keluarga/add", middlewares.AuthMiddleware, func(ctx *fiber.Ctx) error {
 		dataKeluargaController := ctx.Locals("controllers").(controller.Controllers).DataKeluargaController
 		return dataKeluargaController.AddKeluarga(ctx)
 	})
-	app.Patch("/Keluarga/:idKeluarga/update", middlewares.AuthMiddleware, func(ctx *fiber.Ctx) error {
+	app.Patch("/keluarga/:idKeluarga/update", middlewares.AuthMiddleware, func(ctx *fiber.Ctx) error {
 		dataKeluargaController := ctx.Locals("controllers").(controller.Controllers).DataKeluargaController
 		return dataKeluargaController.UpdateDataKeluarga(ctx)
 	})
-	app.Patch("/Keluarga/:idKeluarga/delete", middlewares.AuthMiddleware, func(ctx *fiber.Ctx) error {
+	app.Patch("/keluarga/:idKeluarga/delete", middlewares.AuthMiddleware, func(ctx *fiber.Ctx) error {
 		dataKeluargaController := ctx.Locals("controllers").(controller.Controllers).DataKeluargaController
 		return dataKeluargaController.DeleteDataKeluarga(ctx)
 	})
-	app.Get("/Keluarga/:idKeluarga", middlewares.AuthMiddleware, func(ctx *fiber.Ctx) error {
+	app.Get("/keluarga/:idKeluarga", middlewares.AuthMiddleware, func(ctx *fiber.Ctx) error {
 		fmt.Println("masuk /Keluarga/:idKeluarga")
 		dataKeluargaController := ctx.Locals("controllers").(controller.Controllers).DataKeluargaController
 		return dataKeluargaController.FindOne(ctx)
 	})
-	app.Get("/Keluarga", middlewares.AuthMiddleware, func(ctx *fiber.Ctx) error {
+	app.Get("/keluarga", middlewares.AuthMiddleware, func(ctx *fiber.Ctx) error {
 		dataKeluargaController := ctx.Locals("controllers").(controller.Controllers).DataKeluargaController
 		return dataKeluargaController.FindAll(ctx)
 	})
@@ -82,7 +82,7 @@ func SetupRoutes(app *fiber.App, Customlogger *logrus.Logger) {
 		dataAnggotaController := ctx.Locals("controllers").(controller.Controllers).DataAnggotaController
 		return dataAnggotaController.UpdateAnggota(ctx)
 	})
-	app.Patch("/anggota/:idAnggota/delete", func(ctx *fiber.Ctx) error {
+	app.Delete("/anggota/:idAnggota/delete", func(ctx *fiber.Ctx) error {
 		dataAnggotaController := ctx.Locals("controllers").(controller.Controllers).DataAnggotaController
 		return dataAnggotaController.DeleteOneAnggota(ctx)
 	})
@@ -90,13 +90,43 @@ func SetupRoutes(app *fiber.App, Customlogger *logrus.Logger) {
 		dataAnggotaController := ctx.Locals("controllers").(controller.Controllers).DataAnggotaController
 		return dataAnggotaController.AddAnggota(ctx)
 	})
-	app.Post("/anggota/add", middlewares.AuthMiddleware, func(ctx *fiber.Ctx) error {
-		dataAnggotaController := ctx.Locals("controllers").(controller.Controllers).DataAnggotaController
-		return dataAnggotaController.AddAnggota(ctx)
-	})
-	app.Get("/anggota/delete", middlewares.AuthMiddleware, func(ctx *fiber.Ctx) error {
+	app.Post("/anggota/delete", middlewares.AuthMiddleware, func(ctx *fiber.Ctx) error {
 		dataAnggotaController := ctx.Locals("controllers").(controller.Controllers).DataAnggotaController
 		return dataAnggotaController.DeleteBulkAnggota(ctx)
+	})
+	app.Get("/anggota/:idAnggota", middlewares.AuthMiddleware, func(ctx *fiber.Ctx) error {
+		dataAnggotaController := ctx.Locals("controllers").(controller.Controllers).DataAnggotaController
+		return dataAnggotaController.FindOne(ctx)
+	})
+	app.Get("/anggota", middlewares.AuthMiddleware, func(ctx *fiber.Ctx) error {
+		dataAnggotaController := ctx.Locals("controllers").(controller.Controllers).DataAnggotaController
+		return dataAnggotaController.FindAll(ctx)
+	})
+
+	// =========== LINGKUNGAN ===============
+	app.Patch("/lingkungan/:idLingkungan/update", middlewares.AuthMiddleware, func(ctx *fiber.Ctx) error {
+		dataLingkunganController := ctx.Locals("controllers").(controller.Controllers).DataLingkunganController
+		return dataLingkunganController.Update(ctx)
+	})
+	app.Delete("/anggota/:idLingkungan/delete", middlewares.AuthMiddleware, func(ctx *fiber.Ctx) error {
+		dataLingkunganController := ctx.Locals("controllers").(controller.Controllers).DataLingkunganController
+		return dataLingkunganController.DeleteOne(ctx)
+	})
+	app.Get("/lingkungan/delete", middlewares.AuthMiddleware, func(ctx *fiber.Ctx) error {
+		dataLingkunganController := ctx.Locals("controllers").(controller.Controllers).DataLingkunganController
+		return dataLingkunganController.FindAll(ctx)
+	})
+	app.Post("/lingkungan/add", middlewares.AuthMiddleware, func(ctx *fiber.Ctx) error {
+		dataLingkunganController := ctx.Locals("controllers").(controller.Controllers).DataLingkunganController
+		return dataLingkunganController.Add(ctx)
+	})
+	app.Get("/lingkungan/:idLingkungan", middlewares.AuthMiddleware, func(ctx *fiber.Ctx) error {
+		dataLingkunganController := ctx.Locals("controllers").(controller.Controllers).DataLingkunganController
+		return dataLingkunganController.FindOneWithParam(ctx)
+	})
+	app.Get("/lingkungan", middlewares.AuthMiddleware, func(ctx *fiber.Ctx) error {
+		dataLingkunganController := ctx.Locals("controllers").(controller.Controllers).DataLingkunganController
+		return dataLingkunganController.FindAll(ctx)
 	})
 	// =========== SETUP ROUTE ===============
 }
