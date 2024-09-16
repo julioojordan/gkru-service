@@ -83,9 +83,9 @@ func (repository *dataLingkunganRepositoryImpl) FindAll(ctx *fiber.Ctx, tx *sql.
 	helper.PanicIfError(err)
 	defer result.Close()
 
-	raw := entity.DataLingkunganRaw{}
 	data := []entity.DataLingkungan{}
-	if result.Next() {
+	for result.Next() {
+		raw := entity.DataLingkunganRaw{}
 		err := result.Scan(&raw.Id, &raw.KodeLingkungan, &raw.NamaLingkungan, &raw.IdWilayah, &raw.KodeWilayah, &raw.NamaWilayah)
 		helper.PanicIfError(err)
 		wilayah := entity.DataWilayah{
@@ -100,14 +100,17 @@ func (repository *dataLingkunganRepositoryImpl) FindAll(ctx *fiber.Ctx, tx *sql.
 			Wilayah:        wilayah,
 		}
 		data = append(data, lingkungan)
-		return data, nil
-	} else {
-		return []entity.DataLingkungan{}, fiber.NewError(fiber.StatusNotFound, "lingkungan is not found")
+	} 
+	
+	if len(data) == 0 {
+		return nil, fiber.NewError(fiber.StatusNotFound, "lingkungan is not found")
 	}
+	
+	return data, nil
 }
 
 func (repository *dataLingkunganRepositoryImpl) Add(ctx *fiber.Ctx, tx *sql.Tx) (entity.DataLingkunganWithIdWilayah, error) {
-	sqlScript := "INSERT INTO data_lingkungan(kode_lingkungan, nama_lingkungan, id_wilayah) VALUES(?, ?, ?,)"
+	sqlScript := "INSERT INTO data_lingkungan(kode_lingkungan, nama_lingkungan, id_wilayah) VALUES(?, ?, ?)"
 	body := ctx.Body()
 	request := new(helper.LingkunganRequest)
 	err := json.Unmarshal(body, request)
@@ -122,7 +125,7 @@ func (repository *dataLingkunganRepositoryImpl) Add(ctx *fiber.Ctx, tx *sql.Tx) 
 
 	lastInsertId, err := result.LastInsertId()
 	if err != nil {
-		return entity.DataLingkunganWithIdWilayah{}, fiber.NewError(fiber.StatusInternalServerError, "Failed to retrieve last insert ID")
+		return entity.DataLingkunganWithIdWilayah{}, fiber.NewError(fiber.StatusInternalServerError, "Failed to retrieve last inserted ID")
 	}
 
 	response := entity.DataLingkunganWithIdWilayah{

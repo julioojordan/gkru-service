@@ -108,7 +108,7 @@ func SetupRoutes(app *fiber.App, Customlogger *logrus.Logger) {
 		dataLingkunganController := ctx.Locals("controllers").(controller.Controllers).DataLingkunganController
 		return dataLingkunganController.Update(ctx)
 	})
-	app.Delete("/anggota/:idLingkungan/delete", middlewares.AuthMiddleware, func(ctx *fiber.Ctx) error {
+	app.Delete("/lingkungan/:idLingkungan/delete", middlewares.AuthMiddleware, func(ctx *fiber.Ctx) error {
 		dataLingkunganController := ctx.Locals("controllers").(controller.Controllers).DataLingkunganController
 		return dataLingkunganController.DeleteOne(ctx)
 	})
@@ -127,6 +127,32 @@ func SetupRoutes(app *fiber.App, Customlogger *logrus.Logger) {
 	app.Get("/lingkungan", middlewares.AuthMiddleware, func(ctx *fiber.Ctx) error {
 		dataLingkunganController := ctx.Locals("controllers").(controller.Controllers).DataLingkunganController
 		return dataLingkunganController.FindAll(ctx)
+	})
+
+	// =========== WILAYAH ===============
+	app.Patch("/wilayah/:idWilayah/update", middlewares.AuthMiddleware, func(ctx *fiber.Ctx) error {
+		dataWilayahController := ctx.Locals("controllers").(controller.Controllers).DataWilayahController
+		return dataWilayahController.Update(ctx)
+	})
+	app.Delete("/wilayah/:idWilayah/delete", middlewares.AuthMiddleware, func(ctx *fiber.Ctx) error {
+		dataWilayahController := ctx.Locals("controllers").(controller.Controllers).DataWilayahController
+		return dataWilayahController.DeleteOne(ctx)
+	})
+	app.Get("/wilayah/delete", middlewares.AuthMiddleware, func(ctx *fiber.Ctx) error {
+		dataWilayahController := ctx.Locals("controllers").(controller.Controllers).DataWilayahController
+		return dataWilayahController.FindAll(ctx)
+	})
+	app.Post("/wilayah/add", middlewares.AuthMiddleware, func(ctx *fiber.Ctx) error {
+		dataWilayahController := ctx.Locals("controllers").(controller.Controllers).DataWilayahController
+		return dataWilayahController.Add(ctx)
+	})
+	app.Get("/wilayah/:idWilayah", middlewares.AuthMiddleware, func(ctx *fiber.Ctx) error {
+		dataWilayahController := ctx.Locals("controllers").(controller.Controllers).DataWilayahController
+		return dataWilayahController.FindOne(ctx)
+	})
+	app.Get("/wilayah", middlewares.AuthMiddleware, func(ctx *fiber.Ctx) error {
+		dataWilayahController := ctx.Locals("controllers").(controller.Controllers).DataWilayahController
+		return dataWilayahController.FindAll(ctx)
 	})
 	// =========== SETUP ROUTE ===============
 }

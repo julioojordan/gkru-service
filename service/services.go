@@ -44,8 +44,17 @@ type DataLingkunganService interface {
 	DeleteOne(ctx *fiber.Ctx) (interface{}, error)
 }
 
+type DataWilayahService interface {
+	FindOne(ctx *fiber.Ctx) (interface{}, error)
+	FindAll(ctx *fiber.Ctx) (interface{}, error)
+	Add(ctx *fiber.Ctx) (interface{}, error)
+	Update(ctx *fiber.Ctx) (interface{}, error)
+	DeleteOne(ctx *fiber.Ctx) (interface{}, error)
+}
+
 type Services struct {
 	UserService           UserService
 	DataLingkunganService DataLingkunganService
+	DataWilayahService    DataWilayahService
 	DataKeluargaService   DataKeluargaService
 }

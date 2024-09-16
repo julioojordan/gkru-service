@@ -23,6 +23,11 @@ type LingkunganRequest struct {
 	NamaLingkungan string `json:"namaLingkungan"`
 	Wilayah        int32  `json:"wilayah"`
 }
+
+type WilayahRequest struct {
+	KodeWilayah string `json:"kodeWilayah"`
+	NamaWilayah string `json:"namaWilayah"`
+}
 type DeleteAnggotaRequest struct {
 	SelectedAnggota []entity.DataAnggotaComplete `json:"selectedAnggota"`
 }

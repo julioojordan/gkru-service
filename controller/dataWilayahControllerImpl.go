@@ -10,26 +10,26 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-type DataLingkunganControllerImpl struct {
-	DataLingkunganService service.DataLingkunganService
+type DataWilayahControllerImpl struct {
+	DataWilayahService service.DataWilayahService
 }
 
-func NewDataLingkunganController(DataLingkunganService service.DataLingkunganService) DataLingkunganController {
-	return &DataLingkunganControllerImpl{
-		DataLingkunganService: DataLingkunganService,
+func NewDataWilayahController(DataWilayahService service.DataWilayahService) DataWilayahController {
+	return &DataWilayahControllerImpl{
+		DataWilayahService: DataWilayahService,
 	}
 }
 
-func (controller *DataLingkunganControllerImpl) FindOneWithParam(ctx *fiber.Ctx) error {
+func (controller *DataWilayahControllerImpl) FindOne(ctx *fiber.Ctx) error {
 	logger, _ := ctx.Locals("logger").(*logrus.Logger)
-	dataLingkungan, err := controller.DataLingkunganService.FindOneWithParam(ctx)
+	dataWilayah, err := controller.DataWilayahService.FindOne(ctx)
 	if err != nil {
 		return helper.HandleError(ctx, logger, err)
 	}
 	res := entity.WebResponse{
 		Code:   200,
 		Status: "Ok",
-		Data:   dataLingkungan,
+		Data:   dataWilayah,
 	}
 	logger.WithFields(logrus.Fields{
 		"type": "response",
@@ -40,16 +40,16 @@ func (controller *DataLingkunganControllerImpl) FindOneWithParam(ctx *fiber.Ctx)
 	return ctx.JSON(res)
 }
 
-func (controller *DataLingkunganControllerImpl) FindAll(ctx *fiber.Ctx) error {
+func (controller *DataWilayahControllerImpl) FindAll(ctx *fiber.Ctx) error {
 	logger, _ := ctx.Locals("logger").(*logrus.Logger)
-	dataLingkungan, err := controller.DataLingkunganService.FindAll(ctx)
+	dataWilayah, err := controller.DataWilayahService.FindAll(ctx)
 	if err != nil {
 		return helper.HandleError(ctx, logger, err)
 	}
 	res := entity.WebResponse{
 		Code:   200,
 		Status: "Ok",
-		Data:   dataLingkungan,
+		Data:   dataWilayah,
 	}
 	logger.WithFields(logrus.Fields{
 		"type": "response",
@@ -60,16 +60,16 @@ func (controller *DataLingkunganControllerImpl) FindAll(ctx *fiber.Ctx) error {
 	return ctx.JSON(res)
 }
 
-func (controller *DataLingkunganControllerImpl) Add(ctx *fiber.Ctx) error {
+func (controller *DataWilayahControllerImpl) Add(ctx *fiber.Ctx) error {
 	logger, _ := ctx.Locals("logger").(*logrus.Logger)
-	dataLingkungan, err := controller.DataLingkunganService.Add(ctx)
+	dataWilayah, err := controller.DataWilayahService.Add(ctx)
 	if err != nil {
 		return helper.HandleError(ctx, logger, err)
 	}
 	res := entity.WebResponse{
 		Code:   200,
 		Status: "Ok",
-		Data:   dataLingkungan,
+		Data:   dataWilayah,
 	}
 	logger.WithFields(logrus.Fields{
 		"type": "response",
@@ -80,16 +80,16 @@ func (controller *DataLingkunganControllerImpl) Add(ctx *fiber.Ctx) error {
 	return ctx.JSON(res)
 }
 
-func (controller *DataLingkunganControllerImpl) Update(ctx *fiber.Ctx) error {
+func (controller *DataWilayahControllerImpl) Update(ctx *fiber.Ctx) error {
 	logger, _ := ctx.Locals("logger").(*logrus.Logger)
-	dataLingkungan, err := controller.DataLingkunganService.Update(ctx)
+	dataWilayah, err := controller.DataWilayahService.Update(ctx)
 	if err != nil {
 		return helper.HandleError(ctx, logger, err)
 	}
 	res := entity.WebResponse{
 		Code:   200,
 		Status: "Ok",
-		Data:   dataLingkungan,
+		Data:   dataWilayah,
 	}
 	logger.WithFields(logrus.Fields{
 		"type": "response",
@@ -100,16 +100,16 @@ func (controller *DataLingkunganControllerImpl) Update(ctx *fiber.Ctx) error {
 	return ctx.JSON(res)
 }
 
-func (controller *DataLingkunganControllerImpl) DeleteOne(ctx *fiber.Ctx) error {
+func (controller *DataWilayahControllerImpl) DeleteOne(ctx *fiber.Ctx) error {
 	logger, _ := ctx.Locals("logger").(*logrus.Logger)
-	dataLingkungan, err := controller.DataLingkunganService.DeleteOne(ctx)
+	dataWilayah, err := controller.DataWilayahService.DeleteOne(ctx)
 	if err != nil {
 		return helper.HandleError(ctx, logger, err)
 	}
 	res := entity.WebResponse{
 		Code:   200,
 		Status: "Ok",
-		Data:   dataLingkungan,
+		Data:   dataWilayah,
 	}
 	logger.WithFields(logrus.Fields{
 		"type": "response",

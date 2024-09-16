@@ -59,10 +59,15 @@ type DataLingkunganRepository interface {
 
 type DataWilayahRepository interface {
 	FindOne(ctx *fiber.Ctx, tx *sql.Tx) (entity.DataWilayah, error)
+	FindAll(ctx *fiber.Ctx, tx *sql.Tx) ([]entity.DataWilayah, error)
+	Add(ctx *fiber.Ctx, tx *sql.Tx) (entity.DataWilayah, error)
+	Update(ctx *fiber.Ctx, tx *sql.Tx) (entity.DataWilayah, error)
+	DeleteOne(ctx *fiber.Ctx, tx *sql.Tx) (entity.IdInt, error)
 }
 
 type Repositories struct {
 	DataLingkunganRepository         DataLingkunganRepository
+	DataWilayahRepository            DataWilayahRepository
 	DataKeluargaRepository           DataKeluargaRepository
 	DataAnggotaRepository            DataAnggotaRepository
 	DataAnggotaKeluargaRelRepository DataAnggotaKeluargaRelRepository

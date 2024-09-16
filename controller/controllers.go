@@ -42,9 +42,18 @@ type DataLingkunganController interface {
 	DeleteOne(ctx *fiber.Ctx) error
 }
 
+type DataWilayahController interface {
+	FindOne(ctx *fiber.Ctx) error
+	FindAll(ctx *fiber.Ctx) error
+	Add(ctx *fiber.Ctx) error
+	Update(ctx *fiber.Ctx) error
+	DeleteOne(ctx *fiber.Ctx) error
+}
+
 type Controllers struct {
 	UserController               UserController
 	DataLingkunganController     DataLingkunganController
+	DataWilayahController        DataWilayahController
 	DataKeluargaController       DataKeluargaController
 	WealthController             WealthController
 	TransactionHistoryController TransactionHistoryController
