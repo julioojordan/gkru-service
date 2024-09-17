@@ -40,12 +40,8 @@ func (repository *dataAnggotaRepositoryImpl) GetTotalAnggota(ctx *fiber.Ctx, tx 
 }
 
 func (repository *dataAnggotaRepositoryImpl) AddAnggota(ctx *fiber.Ctx, tx *sql.Tx) (entity.DataAnggota, error) {
-
-	fmt.Println("masuk AddAnggota")
-
 	sqlScript := "INSERT INTO data_anggota(nama_lengkap, tanggal_lahir, tanggal_baptis, keterangan, status) VALUES(?, ?, ?, ?, ?)"
 	body := ctx.Body()
-	fmt.Println(body)
 	request := new(helper.AddAnggotaRequest)
 	err := json.Unmarshal(body, request)
 	if err != nil {
@@ -98,11 +94,13 @@ func (repository *dataAnggotaRepositoryImpl) FindOne(ctx *fiber.Ctx, tx *sql.Tx)
 	defer result.Close()
 
 	dataAnggotaComplete := entity.DataAnggotaComplete{}
-	for result.Next() {
+	if result.Next() {
 		err := result.Scan(&dataAnggotaComplete.Id, &dataAnggotaComplete.NamaLengkap, &dataAnggotaComplete.TanggalLahir, &dataAnggotaComplete.TanggalBaptis, &dataAnggotaComplete.Keterangan, &dataAnggotaComplete.Status, &dataAnggotaComplete.IdKeluarga, &dataAnggotaComplete.Hubungan, &dataAnggotaComplete.IdWilayah, &dataAnggotaComplete.IdLingkungan, &dataAnggotaComplete.KodeLingkungan, &dataAnggotaComplete.NamaLingkungan, &dataAnggotaComplete.KodeWilayah, &dataAnggotaComplete.NamaWilayah)
 		if err != nil {
 			return entity.DataAnggotaComplete{}, fiber.NewError(fiber.StatusInternalServerError, "Failed to scan result")
 		}
+	} else {
+		return entity.DataAnggotaComplete{}, fiber.NewError(fiber.StatusInternalServerError, "No data found")
 	}
 
 	return dataAnggotaComplete, nil

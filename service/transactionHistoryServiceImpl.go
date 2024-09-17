@@ -47,7 +47,90 @@ func (service *TransactionHistoryServiceImpl) GetTotalOutcome(ctx *fiber.Ctx) (i
 	defer helper.CommitOrRollback(tx, logger)
 
 	totalWealth, err := service.TransactionHistoryRepository.GetTotalOutcome(ctx, tx)
-	fmt.Println("total Outcome", totalWealth)
+	if err != nil {
+		return nil, err
+	}
+
+	return totalWealth, nil
+}
+
+func (service *TransactionHistoryServiceImpl) FindAll(ctx *fiber.Ctx) (interface{}, error) {
+	logger, _ := ctx.Locals("logger").(*logrus.Logger)
+	tx, err := service.DB.Begin()
+	helper.PanicIfError(err)
+	defer helper.CommitOrRollback(tx, logger)
+
+	totalWealth, err := service.TransactionHistoryRepository.FindAll(ctx, tx)
+	if err != nil {
+		return nil, err
+	}
+
+	return totalWealth, nil
+}
+
+func (service *TransactionHistoryServiceImpl) FindOne(ctx *fiber.Ctx) (interface{}, error) {
+	logger, _ := ctx.Locals("logger").(*logrus.Logger)
+	tx, err := service.DB.Begin()
+	helper.PanicIfError(err)
+	defer helper.CommitOrRollback(tx, logger)
+
+	totalWealth, err := service.TransactionHistoryRepository.FindOne(ctx, tx)
+	if err != nil {
+		return nil, err
+	}
+
+	return totalWealth, nil
+}
+
+func (service *TransactionHistoryServiceImpl) FindAllWithIdKeluarga(ctx *fiber.Ctx) (interface{}, error) {
+	logger, _ := ctx.Locals("logger").(*logrus.Logger)
+	tx, err := service.DB.Begin()
+	helper.PanicIfError(err)
+	defer helper.CommitOrRollback(tx, logger)
+
+	totalWealth, err := service.TransactionHistoryRepository.FindAllWithIdKeluarga(ctx, tx)
+	if err != nil {
+		return nil, err
+	}
+
+	return totalWealth, nil
+}
+
+func (service *TransactionHistoryServiceImpl) Update(ctx *fiber.Ctx) (interface{}, error) {
+	logger, _ := ctx.Locals("logger").(*logrus.Logger)
+	tx, err := service.DB.Begin()
+	helper.PanicIfError(err)
+	defer helper.CommitOrRollback(tx, logger)
+
+	totalWealth, err := service.TransactionHistoryRepository.Update(ctx, tx)
+	if err != nil {
+		return nil, err
+	}
+
+	return totalWealth, nil
+}
+
+func (service *TransactionHistoryServiceImpl) Delete(ctx *fiber.Ctx) (interface{}, error) {
+	logger, _ := ctx.Locals("logger").(*logrus.Logger)
+	tx, err := service.DB.Begin()
+	helper.PanicIfError(err)
+	defer helper.CommitOrRollback(tx, logger)
+
+	totalWealth, err := service.TransactionHistoryRepository.Delete(ctx, tx)
+	if err != nil {
+		return nil, err
+	}
+
+	return totalWealth, nil
+}
+
+func (service *TransactionHistoryServiceImpl) Add(ctx *fiber.Ctx) (interface{}, error) {
+	logger, _ := ctx.Locals("logger").(*logrus.Logger)
+	tx, err := service.DB.Begin()
+	helper.PanicIfError(err)
+	defer helper.CommitOrRollback(tx, logger)
+
+	totalWealth, err := service.TransactionHistoryRepository.Add(ctx, tx)
 	if err != nil {
 		return nil, err
 	}

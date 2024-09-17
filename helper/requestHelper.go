@@ -48,6 +48,27 @@ type UpdateKeluargaRequest struct {
 	Keterangan       string `json:"keterangan"`
 }
 
+type UpdateTHRequest struct {
+	Nominal       int32  `json:"nominal"`
+	Keterangan    string `json:"keterangan"`
+	IdKeluarga    int32  `json:"idKeluarga"`
+	IdWilayah     int32  `json:"idWilayah"`
+	IdLingkungan  int32  `json:"idLingkungan"`
+	SubKeterangan string `json:"subKeterangan"`
+	UpdatedBy     int32  `json:"UpdatedBy"`
+}
+
+type AddTHRequest struct {
+	Nominal       int32     `json:"nominal"`
+	IdKeluarga    int32     `json:"idKeluarga"`
+	Keterangan    string    `json:"keterangan"`
+	CreatedBy     int32     `json:"CreatedBy"`
+	IdWilayah     int32     `json:"idWilayah"`
+	IdLingkungan  int32     `json:"idLingkungan"`
+	SubKeterangan string    `json:"subKeterangan"`
+	CreatedDate   time.Time `json:"createdDate"`
+}
+
 type UpdateAnggotaRequest struct {
 	Id            int32     `json:"idAnggota"`
 	NamaLengkap   string    `json:"namaLengkap"`

@@ -67,14 +67,38 @@ func SetupRoutes(app *fiber.App, Customlogger *logrus.Logger) {
 	})
 
 	// =========== HISTORY ===============
+	app.Patch("/history/:idTh/update", middlewares.AuthMiddleware, func(ctx *fiber.Ctx) error {
+		transactionHistoryController := ctx.Locals("controllers").(controller.Controllers).TransactionHistoryController
+		return transactionHistoryController.Update(ctx)
+	})
+	app.Delete("/history/:idTh/delete", middlewares.AuthMiddleware, func(ctx *fiber.Ctx) error {
+		transactionHistoryController := ctx.Locals("controllers").(controller.Controllers).TransactionHistoryController
+		return transactionHistoryController.Delete(ctx)
+	})
+	app.Delete("/history/:idTh", middlewares.AuthMiddleware, func(ctx *fiber.Ctx) error {
+		transactionHistoryController := ctx.Locals("controllers").(controller.Controllers).TransactionHistoryController
+		return transactionHistoryController.FindOne(ctx)
+	})
+	app.Post("/history/add", middlewares.AuthMiddleware, func(ctx *fiber.Ctx) error {
+		transactionHistoryController := ctx.Locals("controllers").(controller.Controllers).TransactionHistoryController
+		return transactionHistoryController.Add(ctx)
+	})
 	app.Get("/history/getTotalIncome", middlewares.AuthMiddleware, func(ctx *fiber.Ctx) error {
 		transactionHistoryController := ctx.Locals("controllers").(controller.Controllers).TransactionHistoryController
 		return transactionHistoryController.GetTotalIncome(ctx)
 	})
 	app.Get("/history/getTotalOutcome", middlewares.AuthMiddleware, func(ctx *fiber.Ctx) error {
-		// to do need to test this with id_wilayah and id_lingkungan query params
 		transactionHistoryController := ctx.Locals("controllers").(controller.Controllers).TransactionHistoryController
 		return transactionHistoryController.GetTotalOutcome(ctx)
+	})
+	app.Get("/history", middlewares.AuthMiddleware, func(ctx *fiber.Ctx) error {
+		transactionHistoryController := ctx.Locals("controllers").(controller.Controllers).TransactionHistoryController
+		idKeluarga := ctx.Query("idKeluarga")
+		if idKeluarga != "" {
+			return transactionHistoryController.FindAllWithIdKeluarga(ctx)
+		} else {
+			return transactionHistoryController.FindAll(ctx)
+		}
 	})
 
 	// =========== ANGGOTA ===============

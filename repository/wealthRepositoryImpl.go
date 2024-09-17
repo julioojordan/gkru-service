@@ -16,6 +16,8 @@ func NewWealthRepository(db *sql.DB) WealthRepository {
 	return &wealthRepositoryImpl{}
 }
 
+// kemungkinan ini gak dipake, pake aja count langsung di th history
+
 func (repository *wealthRepositoryImpl) GetTotal(ctx *fiber.Ctx, tx *sql.Tx) (entity.TotalWealth, error) {
 	sqlScript := "SELECT SUM(total) FROM wealth"
 	result, err :=tx.Query(sqlScript)

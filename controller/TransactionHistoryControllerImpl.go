@@ -70,3 +70,117 @@ func (controller *TransactionHistoryControllerImpl) GetTotalOutcome(ctx *fiber.C
 	}).Info("success")
 	return ctx.JSON(res)
 }
+
+func (controller *TransactionHistoryControllerImpl) FindOne(ctx *fiber.Ctx) error {
+	logger, _ := ctx.Locals("logger").(*logrus.Logger)
+	totalOutcome, err := controller.TransactionHistoryService.FindOne(ctx)
+	if err != nil {
+		return helper.HandleError(ctx, logger, err)
+	}
+	res := entity.WebResponse{
+		Code:   200,
+		Status: "Ok",
+		Data:   totalOutcome,
+	}
+	logger.WithFields(logrus.Fields{
+		"type": "response",
+		"code": 200,
+		"status": utils.StatusMessage(200),
+	}).Info("success")
+	return ctx.JSON(res)
+}
+
+func (controller *TransactionHistoryControllerImpl) FindAll(ctx *fiber.Ctx) error {
+	logger, _ := ctx.Locals("logger").(*logrus.Logger)
+	totalOutcome, err := controller.TransactionHistoryService.FindAll(ctx)
+	if err != nil {
+		return helper.HandleError(ctx, logger, err)
+	}
+	res := entity.WebResponse{
+		Code:   200,
+		Status: "Ok",
+		Data:   totalOutcome,
+	}
+	logger.WithFields(logrus.Fields{
+		"type": "response",
+		"code": 200,
+		"status": utils.StatusMessage(200),
+	}).Info("success")
+	return ctx.JSON(res)
+}
+
+func (controller *TransactionHistoryControllerImpl) FindAllWithIdKeluarga(ctx *fiber.Ctx) error {
+	logger, _ := ctx.Locals("logger").(*logrus.Logger)
+	totalOutcome, err := controller.TransactionHistoryService.FindAllWithIdKeluarga(ctx)
+	if err != nil {
+		return helper.HandleError(ctx, logger, err)
+	}
+	res := entity.WebResponse{
+		Code:   200,
+		Status: "Ok",
+		Data:   totalOutcome,
+	}
+	logger.WithFields(logrus.Fields{
+		"type": "response",
+		"code": 200,
+		"status": utils.StatusMessage(200),
+	}).Info("success")
+	return ctx.JSON(res)
+}
+
+func (controller *TransactionHistoryControllerImpl) Add(ctx *fiber.Ctx) error {
+	logger, _ := ctx.Locals("logger").(*logrus.Logger)
+	totalOutcome, err := controller.TransactionHistoryService.Add(ctx)
+	if err != nil {
+		return helper.HandleError(ctx, logger, err)
+	}
+	res := entity.WebResponse{
+		Code:   200,
+		Status: "Ok",
+		Data:   totalOutcome,
+	}
+	logger.WithFields(logrus.Fields{
+		"type": "response",
+		"code": 200,
+		"status": utils.StatusMessage(200),
+	}).Info("success")
+	return ctx.JSON(res)
+}
+
+func (controller *TransactionHistoryControllerImpl) Update(ctx *fiber.Ctx) error {
+	logger, _ := ctx.Locals("logger").(*logrus.Logger)
+	totalOutcome, err := controller.TransactionHistoryService.Update(ctx)
+	if err != nil {
+		return helper.HandleError(ctx, logger, err)
+	}
+	res := entity.WebResponse{
+		Code:   200,
+		Status: "Ok",
+		Data:   totalOutcome,
+	}
+	logger.WithFields(logrus.Fields{
+		"type": "response",
+		"code": 200,
+		"status": utils.StatusMessage(200),
+	}).Info("success")
+	return ctx.JSON(res)
+}
+
+func (controller *TransactionHistoryControllerImpl) Delete(ctx *fiber.Ctx) error {
+	logger, _ := ctx.Locals("logger").(*logrus.Logger)
+	totalOutcome, err := controller.TransactionHistoryService.Delete(ctx)
+	if err != nil {
+		return helper.HandleError(ctx, logger, err)
+	}
+	res := entity.WebResponse{
+		Code:   200,
+		Status: "Ok",
+		Data:   totalOutcome,
+	}
+	logger.WithFields(logrus.Fields{
+		"type": "response",
+		"code": 200,
+		"status": utils.StatusMessage(200),
+	}).Info("success")
+	return ctx.JSON(res)
+}

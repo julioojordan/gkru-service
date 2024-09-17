@@ -25,6 +25,12 @@ type DataAnggotaService interface {
 type TransactionHistoryService interface {
 	GetTotalIncome(ctx *fiber.Ctx) (interface{}, error)
 	GetTotalOutcome(ctx *fiber.Ctx) (interface{}, error)
+	FindOne(ctx *fiber.Ctx) (interface{}, error)
+	FindAll(ctx *fiber.Ctx) (interface{}, error)
+	FindAllWithIdKeluarga(ctx *fiber.Ctx) (interface{}, error)
+	Update(ctx *fiber.Ctx) (interface{}, error)
+	Delete(ctx *fiber.Ctx) (interface{}, error)
+	Add(ctx *fiber.Ctx) (interface{}, error)
 }
 
 type DataKeluargaService interface {

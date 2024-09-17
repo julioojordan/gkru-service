@@ -98,12 +98,12 @@ func (repository *dataKeluargaRepositoryImpl) FindOne(ctx *fiber.Ctx, tx *sql.Tx
 }
 
 func (repository *dataKeluargaRepositoryImpl) CountKeluargaWithParam(ctx *fiber.Ctx, tx *sql.Tx, param string, id int32) (entity.TotalInt, error) {
-	if param == ""{
+	if param == "" {
 		param = "lingkungan"
 	}
 
 	dataKeluargaRawScript := "SELECT COUNT(*) FROM data_keluarga WHERE id_lingkunan = ?"
-	if param == "wilayah"{
+	if param == "wilayah" {
 		dataKeluargaRawScript = "SELECT COUNT(*) FROM data_keluarga WHERE id_wilayah = ?"
 	}
 
@@ -454,4 +454,3 @@ func (repository *dataKeluargaRepositoryImpl) DeleteDataKeluarga(ctx *fiber.Ctx,
 
 	return res, nil
 }
-
