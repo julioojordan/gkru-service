@@ -26,13 +26,17 @@ func (repository *dataWilayahRepositoryImpl) FindOne(ctx *fiber.Ctx, tx *sql.Tx)
 	}
 	sqlScript := "SELECT id, kode_wilayah, nama_wilayah FROM wilayah WHERE id = ?"
 	result, err := tx.Query(sqlScript, IdWilayah)
-	helper.PanicIfError(err)
+	if err != nil {
+		return entity.DataWilayah{}, helper.CreateErrorMessage("Failed to execute query", err)
+	}
 	defer result.Close()
 
 	response := entity.DataWilayah{}
 	if result.Next() {
 		err := result.Scan(&response.Id, &response.KodeWilayah, &response.NamaWilayah)
-		helper.PanicIfError(err)
+		if err != nil {
+			return entity.DataWilayah{}, helper.CreateErrorMessage("Failed to scan result", err)
+		}
 		wilayah := entity.DataWilayah{
 			Id:          response.Id,
 			KodeWilayah: response.KodeWilayah,
@@ -47,14 +51,18 @@ func (repository *dataWilayahRepositoryImpl) FindOne(ctx *fiber.Ctx, tx *sql.Tx)
 func (repository *dataWilayahRepositoryImpl) FindAll(ctx *fiber.Ctx, tx *sql.Tx) ([]entity.DataWilayah, error) {
 	sqlScript := "SELECT id, kode_wilayah, nama_wilayah FROM wilayah ORDER BY id ASC"
 	result, err := tx.Query(sqlScript)
-	helper.PanicIfError(err)
+	if err != nil {
+		return []entity.DataWilayah{}, helper.CreateErrorMessage("Failed to execute query", err)
+	}
 	defer result.Close()
 
 	dataList := []entity.DataWilayah{}
 	for result.Next() {
 		raw := entity.DataWilayah{}
 		err := result.Scan(&raw.Id, &raw.KodeWilayah, &raw.NamaWilayah)
-		helper.PanicIfError(err)
+		if err != nil {
+			return []entity.DataWilayah{}, helper.CreateErrorMessage("Failed to scan result", err)
+		}
 		wilayah := entity.DataWilayah{
 			Id:          raw.Id,
 			KodeWilayah: raw.KodeWilayah,
@@ -81,12 +89,12 @@ func (repository *dataWilayahRepositoryImpl) Add(ctx *fiber.Ctx, tx *sql.Tx) (en
 
 	result, err := tx.Exec(sqlScript, request.KodeWilayah, request.NamaWilayah)
 	if err != nil {
-		return entity.DataWilayah{}, fiber.NewError(fiber.StatusInternalServerError, "Failed to insert data wilayah")
+		return entity.DataWilayah{}, helper.CreateErrorMessage("Failed to insert data wilayah", err)
 	}
 
 	lastInsertId, err := result.LastInsertId()
 	if err != nil {
-		return entity.DataWilayah{}, fiber.NewError(fiber.StatusInternalServerError, "Failed to retrieve last inserted ID")
+		return entity.DataWilayah{}, helper.CreateErrorMessage("Failed to retrieve last inserted ID", err)
 	}
 
 	response := entity.DataWilayah{
@@ -136,7 +144,7 @@ func (repository *dataWilayahRepositoryImpl) Update(ctx *fiber.Ctx, tx *sql.Tx) 
 	// Executing the update statement
 	_, err = tx.Exec(sqlScript, params...)
 	if err != nil {
-		return entity.DataWilayah{}, fiber.NewError(fiber.StatusInternalServerError, "Failed to update data wilayah")
+		return entity.DataWilayah{}, helper.CreateErrorMessage("Failed to update data wilayah", err)
 	}
 
 	response := entity.DataWilayah{
@@ -163,13 +171,13 @@ func (repository *dataWilayahRepositoryImpl) DeleteOne(ctx *fiber.Ctx, tx *sql.T
 	}
 
 	if totalKeluarga.Total != 0 {
-		return entity.IdInt{}, fiber.NewError(fiber.StatusInternalServerError, "Failed to delete data wilayah karena data wilayah masih digunakan oleh KK")
+		return entity.IdInt{}, helper.CreateErrorMessage("Failed to delete data wilayah karena data wilayah masih digunakan oleh KK", err)
 	}
 
 	// Executing the update statement
 	_, err = tx.Exec(sqlScript, idWilayah)
 	if err != nil {
-		return entity.IdInt{}, fiber.NewError(fiber.StatusInternalServerError, "Failed to delete data wilayah")
+		return entity.IdInt{}, helper.CreateErrorMessage("Failed to delete data wilayah", err)
 	}
 
 	response := entity.IdInt{

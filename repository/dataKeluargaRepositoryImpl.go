@@ -28,14 +28,14 @@ func (repository *dataKeluargaRepositoryImpl) FindOne(ctx *fiber.Ctx, tx *sql.Tx
 
 	result, err := tx.Query(dataKeluargaRawScript, idKeluarga)
 	if err != nil {
-		return entity.DataKeluargaFinal{}, fiber.NewError(fiber.StatusInternalServerError, "Failed to execute query")
+		return entity.DataKeluargaFinal{}, helper.CreateErrorMessage("Failed to execute query", err)
 	}
 
 	dataKeluargaRaw := entity.DataKeluargaRaw{}
 	if result.Next() {
 		err := result.Scan(&dataKeluargaRaw.Id, &dataKeluargaRaw.Wilayah, &dataKeluargaRaw.Lingkungan, &dataKeluargaRaw.Nomor, &dataKeluargaRaw.KepalaKeluarga, &dataKeluargaRaw.KKRelation, &dataKeluargaRaw.Alamat)
 		if err != nil {
-			return entity.DataKeluargaFinal{}, fiber.NewError(fiber.StatusInternalServerError, "Failed to scan result")
+			return entity.DataKeluargaFinal{}, helper.CreateErrorMessage("Failed to scan result", err)
 		}
 	} else {
 		return entity.DataKeluargaFinal{}, fiber.NewError(fiber.StatusNotFound, "Data Keluarga is not found")
@@ -46,7 +46,7 @@ func (repository *dataKeluargaRepositoryImpl) FindOne(ctx *fiber.Ctx, tx *sql.Tx
 
 	getLingkungan, err := repositories.DataLingkunganRepository.FindOneById(dataKeluargaRaw.Lingkungan, tx)
 	if err != nil {
-		return entity.DataKeluargaFinal{}, fiber.NewError(fiber.StatusInternalServerError, "Failed to retrieve lingkungan data")
+		return entity.DataKeluargaFinal{}, helper.CreateErrorMessage("Failed to retrieve lingkungan data", err)
 	}
 	wilayah := getLingkungan.Wilayah
 	lingkungan := entity.DataLingkungan{
@@ -58,7 +58,7 @@ func (repository *dataKeluargaRepositoryImpl) FindOne(ctx *fiber.Ctx, tx *sql.Tx
 
 	getAnggotaRel, err := repositories.DataAnggotaKeluargaRelRepository.FindKeluargaAnggotaRel(dataKeluargaRaw.Id, tx)
 	if err != nil {
-		return entity.DataKeluargaFinal{}, fiber.NewError(fiber.StatusInternalServerError, "Failed to retrieve anggota relationship data")
+		return entity.DataKeluargaFinal{}, helper.CreateErrorMessage("Failed to retrieve anggota relationship data", err)
 	}
 
 	var kepalaKeluarga entity.DataAnggota
@@ -109,7 +109,7 @@ func (repository *dataKeluargaRepositoryImpl) CountKeluargaWithParam(ctx *fiber.
 
 	result, err := tx.Query(dataKeluargaRawScript, id)
 	if err != nil {
-		return entity.TotalInt{}, fiber.NewError(fiber.StatusInternalServerError, "Failed to execute query")
+		return entity.TotalInt{}, helper.CreateErrorMessage("Failed to execute query", err)
 	}
 	defer result.Close()
 
@@ -117,7 +117,7 @@ func (repository *dataKeluargaRepositoryImpl) CountKeluargaWithParam(ctx *fiber.
 	if result.Next() {
 		err := result.Scan(&total.Total)
 		if err != nil {
-			return entity.TotalInt{}, fiber.NewError(fiber.StatusInternalServerError, "Failed to scan result")
+			return entity.TotalInt{}, helper.CreateErrorMessage("Failed to scan result", err)
 		}
 		return total, nil
 	} else {
@@ -182,7 +182,7 @@ func (repository *dataKeluargaRepositoryImpl) FindAll(ctx *fiber.Ctx, tx *sql.Tx
 
 	result, err := tx.Query(query, args...)
 	if err != nil {
-		return nil, fiber.NewError(fiber.StatusInternalServerError, "Failed to execute query")
+		return nil, helper.CreateErrorMessage("Failed to execute query", err)
 	}
 	defer result.Close()
 
@@ -194,13 +194,13 @@ func (repository *dataKeluargaRepositoryImpl) FindAll(ctx *fiber.Ctx, tx *sql.Tx
 		dataKeluargaRaw := entity.DataKeluargaRaw{}
 		err := result.Scan(&dataKeluargaRaw.Id, &dataKeluargaRaw.Wilayah, &dataKeluargaRaw.Lingkungan, &dataKeluargaRaw.Nomor, &dataKeluargaRaw.KepalaKeluarga, &dataKeluargaRaw.KKRelation, &dataKeluargaRaw.Alamat)
 		if err != nil {
-			return nil, fiber.NewError(fiber.StatusInternalServerError, "Failed to scan result")
+			return nil, helper.CreateErrorMessage("Failed to scan resul", err)
 		}
 
 		// Get lingkungan data
 		getLingkungan, err := repositories.DataLingkunganRepository.FindOneById(dataKeluargaRaw.Lingkungan, tx)
 		if err != nil {
-			return nil, fiber.NewError(fiber.StatusInternalServerError, "Failed to retrieve lingkungan data")
+			return nil, helper.CreateErrorMessage("Failed to retrieve lingkungan data", err)
 		}
 		wilayah := getLingkungan.Wilayah
 		lingkungan := entity.DataLingkungan{
@@ -213,7 +213,7 @@ func (repository *dataKeluargaRepositoryImpl) FindAll(ctx *fiber.Ctx, tx *sql.Tx
 		// Get anggota relasi
 		getAnggotaRel, err := repositories.DataAnggotaKeluargaRelRepository.FindKeluargaAnggotaRel(dataKeluargaRaw.Id, tx)
 		if err != nil {
-			return nil, fiber.NewError(fiber.StatusInternalServerError, "Failed to retrieve anggota relationship data")
+			return nil, helper.CreateErrorMessage("Failed to retrieve anggota relationship data", err)
 		}
 
 		var kepalaKeluarga entity.DataAnggota
@@ -266,7 +266,7 @@ func (repository *dataKeluargaRepositoryImpl) GetTotalKeluarga(ctx *fiber.Ctx, t
 	sqlScript := "SELECT COUNT(*) FROM data_keluarga"
 	result, err := tx.Query(sqlScript)
 	if err != nil {
-		return entity.TotalKeluarga{}, fiber.NewError(fiber.StatusInternalServerError, "Failed to execute query")
+		return entity.TotalKeluarga{}, helper.CreateErrorMessage("Failed to execute query", err)
 	}
 	defer result.Close()
 
@@ -274,7 +274,7 @@ func (repository *dataKeluargaRepositoryImpl) GetTotalKeluarga(ctx *fiber.Ctx, t
 	if result.Next() {
 		err := result.Scan(&totalKeluarga.Total)
 		if err != nil {
-			return entity.TotalKeluarga{}, fiber.NewError(fiber.StatusInternalServerError, "Failed to scan result")
+			return entity.TotalKeluarga{}, helper.CreateErrorMessage("Failed to scan result", err)
 		}
 		return totalKeluarga, nil
 	} else {
@@ -295,19 +295,19 @@ func (repository *dataKeluargaRepositoryImpl) AddKeluarga(ctx *fiber.Ctx, tx *sq
 	//first add data_anggota first for kepala keluarga
 	kepalaKeluarga, err := repositories.DataAnggotaRepository.AddAnggota(ctx, tx)
 	if err != nil {
-		return entity.DataKeluargaRaw{}, fiber.NewError(fiber.StatusInternalServerError, "Failed to insert data kepala keluarga")
+		return entity.DataKeluargaRaw{}, helper.CreateErrorMessage("Failed to insert data kepala keluarga", err)
 	}
 
 	//then add data_keluarga
 	sqlScript := "INSERT INTO data_keluarga(id_wilayah, id_lingkungan, nomor, id_kepala_keluarga, alamat) VALUES(?, ?, ?, ?, ?)"
 	result, err := tx.Exec(sqlScript, request.IdWilayah, request.IdLingkungan, request.Nomor, kepalaKeluarga.Id, request.Alamat)
 	if err != nil {
-		return entity.DataKeluargaRaw{}, fiber.NewError(fiber.StatusInternalServerError, "Failed to insert data keluarga")
+		return entity.DataKeluargaRaw{}, helper.CreateErrorMessage("Failed to insert data keluarga", err)
 	}
 
 	lastInsertId, err := result.LastInsertId()
 	if err != nil {
-		return entity.DataKeluargaRaw{}, fiber.NewError(fiber.StatusInternalServerError, "Failed to retrieve last insert ID")
+		return entity.DataKeluargaRaw{}, helper.CreateErrorMessage("Failed to retrieve last insert ID", err)
 	}
 
 	// todo: note harusnya insert lingkungan dulu baru wilayah ya
@@ -374,14 +374,14 @@ func (repository *dataKeluargaRepositoryImpl) UpdateDataKeluarga(ctx *fiber.Ctx,
 
 	_, err = tx.Exec(sqlScript, params...)
 	if err != nil {
-		return entity.UpdatedDataKeluarga{}, fiber.NewError(fiber.StatusInternalServerError, "Failed to update data keluarga")
+		return entity.UpdatedDataKeluarga{}, helper.CreateErrorMessage("Failed to update data keluarga", err)
 	}
 
 	//update relasi kepala keluarga di db misalkan ada body request untuk update kepala keluarga
 	if isKepalaKeluargaUpdated {
 		_, err := repositories.DataAnggotaRepository.UpdateKeteranganAnggota(ctx, tx)
 		if err != nil {
-			return entity.UpdatedDataKeluarga{}, fiber.NewError(fiber.StatusInternalServerError, "Failed to update keterangan relasi dan hubungan")
+			return entity.UpdatedDataKeluarga{}, helper.CreateErrorMessage("Failed to update keterangan relasi dan hubungan", err)
 		}
 	}
 
@@ -407,14 +407,14 @@ func (repository *dataKeluargaRepositoryImpl) DeleteDataKeluarga(ctx *fiber.Ctx,
 	var deletedAnggotaIds []int32
 	rows, err := tx.Query("SELECT id_anggota FROM keluarga_anggota_rel WHERE id_keluarga = ?", idKeluarga)
 	if err != nil {
-		return entity.DeletedDataKeluarga{}, fiber.NewError(fiber.StatusInternalServerError, "Failed to fetch anggota before deletion")
+		return entity.DeletedDataKeluarga{},helper.CreateErrorMessage("Failed to fetch anggota before deletion", err)
 	}
 	defer rows.Close()
 
 	for rows.Next() {
 		var idAnggota int32
 		if err := rows.Scan(&idAnggota); err != nil {
-			return entity.DeletedDataKeluarga{}, fiber.NewError(fiber.StatusInternalServerError, "Failed to scan anggota data")
+			return entity.DeletedDataKeluarga{}, helper.CreateErrorMessage("Failed to scan anggota data", err)
 		}
 		deletedAnggotaIds = append(deletedAnggotaIds, idAnggota)
 	}
@@ -423,14 +423,14 @@ func (repository *dataKeluargaRepositoryImpl) DeleteDataKeluarga(ctx *fiber.Ctx,
 	sqlScript := "DELETE keluarga_anggota_rel WHERE id_keluarga = ?"
 	_, err = tx.Exec(sqlScript, idKeluarga)
 	if err != nil {
-		return entity.DeletedDataKeluarga{}, fiber.NewError(fiber.StatusInternalServerError, "Failed to delete data keluarga anggota rel")
+		return entity.DeletedDataKeluarga{}, helper.CreateErrorMessage("Failed to delete data keluarga anggota rel", err)
 	}
 
 	// Step 3: Hapus data keluarga dari tabel data_keluarga
 	sqlScript = "DELETE data_keluarga WHERE id = ?"
 	_, err = tx.Exec(sqlScript, idKeluarga)
 	if err != nil {
-		return entity.DeletedDataKeluarga{}, fiber.NewError(fiber.StatusInternalServerError, "Failed to delete data keluarga")
+		return entity.DeletedDataKeluarga{}, helper.CreateErrorMessage("Failed to delete data keluarga", err)
 	}
 
 	// Step 4: Hapus data dari tabel data_anggota berdasarkan deletedAnggotaIds
@@ -443,7 +443,7 @@ func (repository *dataKeluargaRepositoryImpl) DeleteDataKeluarga(ctx *fiber.Ctx,
 
 		_, err = tx.Exec(query, args...)
 		if err != nil {
-			return entity.DeletedDataKeluarga{}, fiber.NewError(fiber.StatusInternalServerError, "Failed to delete data anggota")
+			return entity.DeletedDataKeluarga{}, helper.CreateErrorMessage("Failed to delete data anggota", err)
 		}
 	}
 

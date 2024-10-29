@@ -53,13 +53,17 @@ func (repository *dataLingkunganRepositoryImpl) FindOneWithParam(ctx *fiber.Ctx,
 	}
 	sqlScript := "SELECT l.id, l.kode_lingkungan, l.nama_lingkungan, w.id, w.kode_wilayah, w.nama_wilayah FROM lingkungan l JOIN wilayah w ON l.id_wilayah = w.id WHERE l.id = ?"
 	result, err := tx.Query(sqlScript, idLingkungan)
-	helper.PanicIfError(err)
+	if err != nil {
+		return entity.DataLingkungan{}, helper.CreateErrorMessage("Failed to execute query", err)
+	}
 	defer result.Close()
 
 	raw := entity.DataLingkunganRaw{}
 	if result.Next() {
 		err := result.Scan(&raw.Id, &raw.KodeLingkungan, &raw.NamaLingkungan, &raw.IdWilayah, &raw.KodeWilayah, &raw.NamaWilayah)
-		helper.PanicIfError(err)
+		if err != nil {
+			return entity.DataLingkungan{}, helper.CreateErrorMessage("Failed to scan result", err)
+		}
 		wilayah := entity.DataWilayah{
 			Id:          raw.IdWilayah,
 			KodeWilayah: raw.KodeWilayah,
@@ -80,14 +84,18 @@ func (repository *dataLingkunganRepositoryImpl) FindOneWithParam(ctx *fiber.Ctx,
 func (repository *dataLingkunganRepositoryImpl) FindAll(ctx *fiber.Ctx, tx *sql.Tx) ([]entity.DataLingkungan, error) {
 	sqlScript := "SELECT l.id, l.kode_lingkungan, l.nama_lingkungan, w.id, w.kode_wilayah, w.nama_wilayah FROM lingkungan l JOIN wilayah w ON l.id_wilayah = w.id ORDER BY w.id ASC"
 	result, err := tx.Query(sqlScript)
-	helper.PanicIfError(err)
+	if err != nil {
+		return []entity.DataLingkungan{}, helper.CreateErrorMessage("Failed to execute query", err)
+	}
 	defer result.Close()
 
 	data := []entity.DataLingkungan{}
 	for result.Next() {
 		raw := entity.DataLingkunganRaw{}
 		err := result.Scan(&raw.Id, &raw.KodeLingkungan, &raw.NamaLingkungan, &raw.IdWilayah, &raw.KodeWilayah, &raw.NamaWilayah)
-		helper.PanicIfError(err)
+		if err != nil {
+			return []entity.DataLingkungan{}, helper.CreateErrorMessage("Failed to scan result", err)
+		}
 		wilayah := entity.DataWilayah{
 			Id:          raw.IdWilayah,
 			KodeWilayah: raw.KodeWilayah,
@@ -120,12 +128,12 @@ func (repository *dataLingkunganRepositoryImpl) Add(ctx *fiber.Ctx, tx *sql.Tx) 
 
 	result, err := tx.Exec(sqlScript, request.KodeLingkungan, request.NamaLingkungan, request.Wilayah)
 	if err != nil {
-		return entity.DataLingkunganWithIdWilayah{}, fiber.NewError(fiber.StatusInternalServerError, "Failed to insert data lingkungan")
+		return entity.DataLingkunganWithIdWilayah{}, helper.CreateErrorMessage("Failed to insert data lingkungan", err)
 	}
 
 	lastInsertId, err := result.LastInsertId()
 	if err != nil {
-		return entity.DataLingkunganWithIdWilayah{}, fiber.NewError(fiber.StatusInternalServerError, "Failed to retrieve last inserted ID")
+		return entity.DataLingkunganWithIdWilayah{}, helper.CreateErrorMessage("Failed to retrieve last inserted ID", err)
 	}
 
 	response := entity.DataLingkunganWithIdWilayah{
@@ -180,7 +188,7 @@ func (repository *dataLingkunganRepositoryImpl) Update(ctx *fiber.Ctx, tx *sql.T
 	// Executing the update statement
 	_, err = tx.Exec(sqlScript, params...)
 	if err != nil {
-		return entity.DataLingkunganWithIdWilayah{}, fiber.NewError(fiber.StatusInternalServerError, "Failed to update data lingkungan")
+		return entity.DataLingkunganWithIdWilayah{}, helper.CreateErrorMessage("Failed to update data lingkungan", err)
 	}
 
 	response := entity.DataLingkunganWithIdWilayah{
@@ -208,13 +216,13 @@ func (repository *dataLingkunganRepositoryImpl) DeleteOne(ctx *fiber.Ctx, tx *sq
 	}
 
 	if totalKeluarga.Total != 0 {
-		return entity.IdDataLingkungan{}, fiber.NewError(fiber.StatusInternalServerError, "Failed to delete data lingkungan karena data lingkungan masih digunakan oleh KK")
+		return entity.IdDataLingkungan{}, helper.CreateErrorMessage("Failed to delete data lingkungan karena data lingkungan masih digunakan oleh KK", err)
 	}
 
 	// Executing the update statement
 	_, err = tx.Exec(sqlScript, idLingkungan)
 	if err != nil {
-		return entity.IdDataLingkungan{}, fiber.NewError(fiber.StatusInternalServerError, "Failed to delete data lingkungan")
+		return entity.IdDataLingkungan{}, helper.CreateErrorMessage("Failed to delete data lingkungan", err)
 	}
 
 	response := entity.IdDataLingkungan{
