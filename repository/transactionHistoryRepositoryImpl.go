@@ -81,17 +81,68 @@ func (repository *transactionHistoryRepositoryImpl) GetTotalOutcome(ctx *fiber.C
 	}
 }
 
+// Tambahkan fungsi untuk mapping dari ThRaw ke ThFinal
+func mapToThFinal(dataThRaw entity.ThRaw) entity.ThFinal {
+	// Set nilai default jika NULL
+	subKeterangan := ""
+	if dataThRaw.SubKeterangan.Valid {
+		subKeterangan = dataThRaw.SubKeterangan.String
+	}
+
+	updatorId := int32(0)
+	if dataThRaw.UpdatorId.Valid {
+		updatorId = int32(dataThRaw.UpdatorId.Int32)
+	}
+
+	return entity.ThFinal{
+		Id:            dataThRaw.Id,
+		Nominal:       dataThRaw.Nominal,
+		IdKeluarga:    dataThRaw.IdKeluarga,
+		Keterangan:    dataThRaw.Keterangan,
+		Creator:       entity.User{Id: dataThRaw.CreatorId, Username: dataThRaw.UserName},
+		Wilayah:       entity.DataWilayah{Id: dataThRaw.IdWilayah, KodeWilayah: dataThRaw.KodeWilayah, NamaWilayah: dataThRaw.NamaWilayah},
+		Lingkungan:    entity.DataLingkunganWithIdWilayah{Id: dataThRaw.IdLingkungan, KodeLingkungan: dataThRaw.KodeLingkungan, NamaLingkungan: dataThRaw.NamaLingkungan, Wilayah: dataThRaw.IdWilayah},
+		UpdatorId:     updatorId,
+		SubKeterangan: subKeterangan,
+		CreatedDate:   dataThRaw.CreatedDate,
+		UpdatedDate:   dataThRaw.UpdatedDate,
+	}
+}
+
 // findOne
 func (repository *transactionHistoryRepositoryImpl) FindOne(ctx *fiber.Ctx, tx *sql.Tx) (entity.ThFinal, error) {
 	idTh, err := strconv.Atoi(ctx.Params("idTh"))
 	if err != nil {
 		return entity.ThFinal{}, fiber.NewError(fiber.StatusBadRequest, "Invalid id TH, it must be an integer")
 	}
-	sqlScript := `SELECT (a.id, a.nominal, a.id_keluarga, a.keterangan, a.created_by, a.id_wilayah, a.id_lingkungan, a.updated_by, a.sub_keterangan, a.created_date, a.updated_date, b.username, c.kode_lingkungan, c.nama_lingkungan, d.kode_wilayah, d.nama_wilayah)
-	JOIN user ON a.created_by = b.id
-	JOIN lingkungan ON a.id_lingkungan = c.id
-	JOIN wilayah ON a.id_wilayah = d.id
-	FROM riwayat_transaksi WHERE id = ?`
+	sqlScript := `
+    SELECT 
+        a.id, 
+        a.nominal, 
+        a.id_keluarga, 
+        a.keterangan, 
+        a.created_by, 
+        a.id_wilayah, 
+        a.id_lingkungan, 
+        a.updated_by, 
+        a.sub_keterangan, 
+        a.created_date, 
+        a.updated_date, 
+        b.username, 
+        c.kode_lingkungan, 
+        c.nama_lingkungan, 
+        d.kode_wilayah, 
+        d.nama_wilayah
+    FROM 
+        riwayat_transaksi a
+    JOIN 
+        users b ON a.created_by = b.id
+    JOIN 
+        lingkungan c ON a.id_lingkungan = c.id
+    JOIN 
+        wilayah d ON a.id_wilayah = d.id
+    WHERE 
+        a.id = ?`
 
 	result, err := tx.Query(sqlScript, idTh)
 	if err != nil {
@@ -101,7 +152,7 @@ func (repository *transactionHistoryRepositoryImpl) FindOne(ctx *fiber.Ctx, tx *
 
 	dataThRaw := entity.ThRaw{}
 	if result.Next() {
-		err := result.Scan(&dataThRaw.Id, &dataThRaw.Nominal, &dataThRaw.Keterangan, &dataThRaw.CreatorId, &dataThRaw.IdWilayah, &dataThRaw.IdLingkungan, &dataThRaw.UpdatorId, &dataThRaw.SubKeterangan, &dataThRaw.CreatedDate, &dataThRaw.UpdatedDate, &dataThRaw.UserName, &dataThRaw.KodeLingkungan, &dataThRaw.NamaLingkungan, &dataThRaw.KodeWilayah, &dataThRaw.NamaWilayah)
+		err := result.Scan(&dataThRaw.Id, &dataThRaw.Nominal, &dataThRaw.IdKeluarga, &dataThRaw.Keterangan, &dataThRaw.CreatorId, &dataThRaw.IdWilayah, &dataThRaw.IdLingkungan, &dataThRaw.UpdatorId, &dataThRaw.SubKeterangan, &dataThRaw.CreatedDate, &dataThRaw.UpdatedDate, &dataThRaw.UserName, &dataThRaw.KodeLingkungan, &dataThRaw.NamaLingkungan, &dataThRaw.KodeWilayah, &dataThRaw.NamaWilayah)
 		if err != nil {
 			return entity.ThFinal{}, helper.CreateErrorMessage("Failed to scan result", err)
 		}
@@ -109,37 +160,7 @@ func (repository *transactionHistoryRepositoryImpl) FindOne(ctx *fiber.Ctx, tx *
 		return entity.ThFinal{}, fiber.NewError(fiber.StatusInternalServerError, "No data found")
 	}
 
-	resUser := entity.User{
-		Id:       dataThRaw.CreatorId,
-		Username: dataThRaw.UserName,
-	}
-
-	resLingkungan := entity.DataLingkunganWithIdWilayah{
-		Id:             dataThRaw.IdLingkungan,
-		KodeLingkungan: dataThRaw.KodeLingkungan,
-		NamaLingkungan: dataThRaw.NamaLingkungan,
-		Wilayah:        dataThRaw.IdWilayah,
-	}
-
-	resWilayah := entity.DataWilayah{
-		Id:          dataThRaw.IdWilayah,
-		KodeWilayah: dataThRaw.KodeWilayah,
-		NamaWilayah: dataThRaw.NamaWilayah,
-	}
-
-	response := entity.ThFinal{
-		Id:            int32(idTh),
-		Nominal:       dataThRaw.Nominal,
-		IdKeluarga:    dataThRaw.IdKeluarga,
-		Keterangan:    dataThRaw.Keterangan,
-		Creator:       resUser,
-		Wilayah:       resWilayah,
-		Lingkungan:    resLingkungan,
-		UpdatorId:     dataThRaw.UpdatorId,
-		SubKeterangan: dataThRaw.SubKeterangan,
-		CreatedDate:   dataThRaw.CreatedDate,
-		UpdatedDate:   dataThRaw.UpdatedDate,
-	}
+	response := mapToThFinal(dataThRaw)
 
 	return response, nil
 }
@@ -152,11 +173,12 @@ func (repository *transactionHistoryRepositoryImpl) FindAll(ctx *fiber.Ctx, tx *
 		   c.kode_lingkungan, c.nama_lingkungan, 
 		   d.kode_wilayah, d.nama_wilayah
 	FROM riwayat_transaksi a
-	JOIN user b ON a.created_by = b.id
-	JOIN lingkungan c ON a.id_lingkungan = c.id
-	JOIN wilayah d ON a.id_wilayah = d.id
+	LEFT JOIN users b ON a.created_by = b.id
+	LEFT JOIN lingkungan c ON a.id_lingkungan = c.id
+	LEFT JOIN wilayah d ON a.id_wilayah = d.id
 	ORDER BY a.created_date ASC`
 
+	// Eksekusi query
 	result, err := tx.Query(sqlScript)
 	if err != nil {
 		return nil, helper.CreateErrorMessage("Failed to execute query", err)
@@ -165,6 +187,7 @@ func (repository *transactionHistoryRepositoryImpl) FindAll(ctx *fiber.Ctx, tx *
 
 	var thFinals []entity.ThFinal
 
+	// Iterasi hasil
 	for result.Next() {
 		dataThRaw := entity.ThRaw{}
 		err := result.Scan(&dataThRaw.Id, &dataThRaw.Nominal, &dataThRaw.IdKeluarga, &dataThRaw.Keterangan, &dataThRaw.CreatorId, &dataThRaw.IdWilayah, &dataThRaw.IdLingkungan, &dataThRaw.UpdatorId, &dataThRaw.SubKeterangan, &dataThRaw.CreatedDate, &dataThRaw.UpdatedDate, &dataThRaw.UserName, &dataThRaw.KodeLingkungan, &dataThRaw.NamaLingkungan, &dataThRaw.KodeWilayah, &dataThRaw.NamaWilayah)
@@ -172,41 +195,12 @@ func (repository *transactionHistoryRepositoryImpl) FindAll(ctx *fiber.Ctx, tx *
 			return nil, helper.CreateErrorMessage("Failed to scan result", err)
 		}
 
-		resUser := entity.User{
-			Id:       dataThRaw.CreatorId,
-			Username: dataThRaw.UserName,
-		}
-
-		resLingkungan := entity.DataLingkunganWithIdWilayah{
-			Id:             dataThRaw.IdLingkungan,
-			KodeLingkungan: dataThRaw.KodeLingkungan,
-			NamaLingkungan: dataThRaw.NamaLingkungan,
-			Wilayah:        dataThRaw.IdWilayah,
-		}
-
-		resWilayah := entity.DataWilayah{
-			Id:          dataThRaw.IdWilayah,
-			KodeWilayah: dataThRaw.KodeWilayah,
-			NamaWilayah: dataThRaw.NamaWilayah,
-		}
-
-		thFinal := entity.ThFinal{
-			Id:            dataThRaw.Id,
-			Nominal:       dataThRaw.Nominal,
-			IdKeluarga:    dataThRaw.IdKeluarga,
-			Keterangan:    dataThRaw.Keterangan,
-			Creator:       resUser,
-			Wilayah:       resWilayah,
-			Lingkungan:    resLingkungan,
-			UpdatorId:     dataThRaw.UpdatorId,
-			SubKeterangan: dataThRaw.SubKeterangan,
-			CreatedDate:   dataThRaw.CreatedDate,
-			UpdatedDate:   dataThRaw.UpdatedDate,
-		}
-
+		// Gunakan fungsi mapping
+		thFinal := mapToThFinal(dataThRaw)
 		thFinals = append(thFinals, thFinal)
 	}
 
+	// Jika tidak ada data
 	if len(thFinals) == 0 {
 		return nil, fiber.NewError(fiber.StatusNotFound, "No data found")
 	}
@@ -246,38 +240,7 @@ func (repository *transactionHistoryRepositoryImpl) FindAllWithIdKeluarga(ctx *f
 			return nil, helper.CreateErrorMessage("Failed to scan result", err)
 		}
 
-		resUser := entity.User{
-			Id:       dataThRaw.CreatorId,
-			Username: dataThRaw.UserName,
-		}
-
-		resLingkungan := entity.DataLingkunganWithIdWilayah{
-			Id:             dataThRaw.IdLingkungan,
-			KodeLingkungan: dataThRaw.KodeLingkungan,
-			NamaLingkungan: dataThRaw.NamaLingkungan,
-			Wilayah:        dataThRaw.IdWilayah,
-		}
-
-		resWilayah := entity.DataWilayah{
-			Id:          dataThRaw.IdWilayah,
-			KodeWilayah: dataThRaw.KodeWilayah,
-			NamaWilayah: dataThRaw.NamaWilayah,
-		}
-
-		thFinal := entity.ThFinal{
-			Id:            dataThRaw.Id,
-			Nominal:       dataThRaw.Nominal,
-			IdKeluarga:    dataThRaw.IdKeluarga,
-			Keterangan:    dataThRaw.Keterangan,
-			Creator:       resUser,
-			Wilayah:       resWilayah,
-			Lingkungan:    resLingkungan,
-			UpdatorId:     dataThRaw.UpdatorId,
-			SubKeterangan: dataThRaw.SubKeterangan,
-			CreatedDate:   dataThRaw.CreatedDate,
-			UpdatedDate:   dataThRaw.UpdatedDate,
-		}
-
+		thFinal := mapToThFinal(dataThRaw)
 		thFinals = append(thFinals, thFinal)
 	}
 

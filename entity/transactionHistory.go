@@ -1,6 +1,7 @@
 package entity
 
 import (
+	"database/sql"
 	"time"
 )
 
@@ -9,15 +10,15 @@ type AmountHistory struct {
 }
 
 type CreatedTh struct {
-	Id             int32
-	Nominal        int32
-	IdKeluarga     int32
-	Keterangan     string
-	CreatorId      int32
-	IdWilayah      int32
-	IdLingkungan   int32
-	SubKeterangan  string
-	CreatedDate    time.Time
+	Id            int32
+	Nominal       int32
+	IdKeluarga    int32
+	Keterangan    string
+	CreatorId     int32
+	IdWilayah     int32
+	IdLingkungan  int32
+	SubKeterangan string
+	CreatedDate   time.Time
 }
 
 type ThRaw struct {
@@ -28,8 +29,8 @@ type ThRaw struct {
 	CreatorId      int32
 	IdWilayah      int32
 	IdLingkungan   int32
-	UpdatorId      int32
-	SubKeterangan  string
+	UpdatorId      sql.NullInt32
+	SubKeterangan  sql.NullString
 	CreatedDate    time.Time
 	UpdatedDate    time.Time
 	UserName       string
