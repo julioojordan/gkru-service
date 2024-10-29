@@ -46,3 +46,17 @@ func (service *UserServiceImpl) FindOne(ctx *fiber.Ctx) (interface{}, error) {
 
 	return helper.ToLoginResponse(authToken), nil
 }
+
+func (service *UserServiceImpl) FindAll(ctx *fiber.Ctx) (interface{}, error) {
+	logger, _ := ctx.Locals("logger").(*logrus.Logger)
+	tx, err := service.DB.Begin()
+	helper.PanicIfError(err)
+	defer helper.CommitOrRollback(tx, logger)
+
+	result, err := service.UserRepository.FindAll(ctx, tx)
+	if err != nil {
+		return nil, err
+	}
+
+	return result, nil
+}

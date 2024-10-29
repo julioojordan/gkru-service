@@ -6,6 +6,7 @@ import (
 
 type UserService interface {
 	FindOne(ctx *fiber.Ctx) (interface{}, error)
+	FindAll(ctx *fiber.Ctx) (interface{}, error)
 }
 
 type WealthService interface {

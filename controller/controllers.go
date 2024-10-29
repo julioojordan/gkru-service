@@ -4,6 +4,7 @@ import "github.com/gofiber/fiber/v2"
 
 type UserController interface {
 	FindOne(ctx *fiber.Ctx) error
+	FindAll(ctx *fiber.Ctx) error
 }
 
 type DataKeluargaController interface {
