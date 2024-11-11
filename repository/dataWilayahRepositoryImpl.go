@@ -3,6 +3,7 @@ package repository
 import (
 	"database/sql"
 	"encoding/json"
+	"fmt"
 	"gkru-service/entity"
 	"gkru-service/helper"
 	"strconv"
@@ -79,7 +80,7 @@ func (repository *dataWilayahRepositoryImpl) FindAll(ctx *fiber.Ctx, tx *sql.Tx)
 }
 
 func (repository *dataWilayahRepositoryImpl) Add(ctx *fiber.Ctx, tx *sql.Tx) (entity.DataWilayah, error) {
-	sqlScript := "INSERT INTO data_wilayah(kode_wilayah, nama_wilayah) VALUES(?, ?,)"
+	sqlScript := "INSERT INTO wilayah(kode_wilayah, nama_wilayah) VALUES(?, ?)"
 	body := ctx.Body()
 	request := new(helper.WilayahRequest)
 	err := json.Unmarshal(body, request)
@@ -107,7 +108,7 @@ func (repository *dataWilayahRepositoryImpl) Add(ctx *fiber.Ctx, tx *sql.Tx) (en
 }
 
 func (repository *dataWilayahRepositoryImpl) Update(ctx *fiber.Ctx, tx *sql.Tx) (entity.DataWilayah, error) {
-	sqlScript := "UPDATE data_wilayah SET"
+	sqlScript := "UPDATE wilayah SET"
 	idWilayah, err := strconv.Atoi(ctx.Params("idWilayah"))
 	if err != nil {
 		return entity.DataWilayah{}, fiber.NewError(fiber.StatusBadRequest, "Invalid id wilayah, it must be an integer")
@@ -140,6 +141,7 @@ func (repository *dataWilayahRepositoryImpl) Update(ctx *fiber.Ctx, tx *sql.Tx) 
 	// Joining all set clauses
 	sqlScript += " " + strings.Join(setClauses, ", ") + " WHERE id = ?"
 	params = append(params, idWilayah)
+	fmt.Println(sqlScript)
 
 	// Executing the update statement
 	_, err = tx.Exec(sqlScript, params...)
@@ -158,7 +160,7 @@ func (repository *dataWilayahRepositoryImpl) Update(ctx *fiber.Ctx, tx *sql.Tx) 
 
 func (repository *dataWilayahRepositoryImpl) DeleteOne(ctx *fiber.Ctx, tx *sql.Tx) (entity.IdInt, error) {
 	repositories := ctx.Locals("repositories").(Repositories)
-	sqlScript := "DELETE data_wilayah WHERE id = ?"
+	sqlScript := "DELETE wilayah WHERE id = ?"
 	idWilayah, err := strconv.Atoi(ctx.Params("idWilayah"))
 	if err != nil {
 		return entity.IdInt{}, fiber.NewError(fiber.StatusBadRequest, "Invalid id Wilayah, it must be an integer")
@@ -185,4 +187,24 @@ func (repository *dataWilayahRepositoryImpl) DeleteOne(ctx *fiber.Ctx, tx *sql.T
 	}
 
 	return response, nil
+}
+
+func (repository *dataWilayahRepositoryImpl) GetTotalWilayah(ctx *fiber.Ctx, tx *sql.Tx) (entity.TotalInt, error) {
+	sqlScript := "SELECT COUNT(*) FROM wilayah"
+	result, err := tx.Query(sqlScript)
+	if err != nil {
+		return entity.TotalInt{}, helper.CreateErrorMessage("Failed to execute query", err)
+	}
+	defer result.Close()
+
+	totalInt := entity.TotalInt{}
+	if result.Next() {
+		err := result.Scan(&totalInt.Total)
+		if err != nil {
+			return entity.TotalInt{}, helper.CreateErrorMessage("Failed to scan result", err)
+		}
+		return totalInt, nil
+	} else {
+		return entity.TotalInt{}, fiber.NewError(fiber.StatusInternalServerError, "No data found")
+	}
 }

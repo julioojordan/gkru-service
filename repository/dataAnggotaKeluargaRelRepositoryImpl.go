@@ -17,10 +17,10 @@ func NewDataAnggotaKeluargaRelRepository(db *sql.DB) DataAnggotaKeluargaRelRepos
 	return &dataAnggotaKeluargaRelRepositoryImpl{}
 }
 
-func (repository *dataAnggotaKeluargaRelRepositoryImpl) FindKeluargaAnggotaRel(id int32, tx *sql.Tx) ([]entity.DataAnggotaWithKeluargaRel, error) {
-	sqlScript := "SELECT a.id, a.hubungan, a.id_anggota, b.nama_lengkap, b.tanggal_lahir, b.tanggal_baptis, b.keterangan FROM keluarga_anggota_rel a JOIN data_anggota b ON a.id_anggota = b.id WHERE a.id_keluarga = ?"
+func (repository *dataAnggotaKeluargaRelRepositoryImpl) FindKeluargaAnggotaRel(id int32, db *sql.DB) ([]entity.DataAnggotaWithKeluargaRel, error) {
+	sqlScript := "SELECT a.id, a.hubungan, a.id_anggota, b.nama_lengkap, b.tanggal_lahir, b.tanggal_baptis, b.keterangan, b.status, b.jenis_kelamin FROM keluarga_anggota_rel a JOIN data_anggota b ON a.id_anggota = b.id WHERE a.id_keluarga = ?"
 
-	rows, err := tx.Query(sqlScript, id)
+	rows, err := db.Query(sqlScript, id)
 	helper.PanicIfError(err)
 	defer rows.Close()
 
@@ -30,14 +30,10 @@ func (repository *dataAnggotaKeluargaRelRepositoryImpl) FindKeluargaAnggotaRel(i
 	var results []entity.DataAnggotaWithKeluargaRel
 	for rows.Next() {
 		data := entity.DataAnggotaWithKeluargaRel{}
-		err := rows.Scan(&data.Id, &data.Hubungan, &data.IdAnggota, &data.NamaLengkap, &data.TanggalLahir, &data.TanggalBaptis, &data.Keterangan)
-		fmt.Println("data", data)
+		err := rows.Scan(&data.Id, &data.Hubungan, &data.IdAnggota, &data.NamaLengkap, &data.TanggalLahir, &data.TanggalBaptis, &data.Keterangan, &data.Status, &data.JenisKelamin)
 		helper.PanicIfError(err)
 		results = append(results, data)
-		fmt.Println("results", results)
 	}
-	
-	fmt.Println("FindKeluargaAnggotaRel 2", results)
 
 	if len(results) == 0 {
 		return nil, fiber.NewError(fiber.StatusNotFound, "Data is not found")

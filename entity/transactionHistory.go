@@ -33,6 +33,8 @@ type ThRaw struct {
 	SubKeterangan  sql.NullString
 	CreatedDate    time.Time
 	UpdatedDate    time.Time
+	Bulan          int32
+	Tahun          int32
 	UserName       string
 	KodeLingkungan string
 	NamaLingkungan string
@@ -52,6 +54,8 @@ type ThFinal struct {
 	SubKeterangan string
 	CreatedDate   time.Time
 	UpdatedDate   time.Time
+	Bulan         int32
+	Tahun          int32
 }
 
 type UpdatedThFinal struct {

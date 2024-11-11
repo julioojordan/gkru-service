@@ -93,3 +93,17 @@ func (service *DataLingkunganServiceImpl) DeleteOne(ctx *fiber.Ctx) (interface{}
 
 	return result, nil
 }
+
+func (service *DataLingkunganServiceImpl) GetTotalLingkungan(ctx *fiber.Ctx) (interface{}, error) {
+	logger, _ := ctx.Locals("logger").(*logrus.Logger)
+	tx, err := service.DB.Begin()
+	helper.PanicIfError(err)
+	defer helper.CommitOrRollback(tx, logger)
+
+	result, err := service.DataLingkunganRepository.GetTotalLingkungan(ctx, tx)
+	if err != nil {
+		return nil, err
+	}
+
+	return result, nil
+}

@@ -10,13 +10,14 @@ type FindOneRequest struct {
 }
 
 type AddAnggotaRequest struct {
-	NamaLengkap   string    `json:"namaLengkap"`
-	TanggalLahir  time.Time `json:"tanggalLahir"`
-	TanggalBabtis time.Time `json:"tanggalBabtis"`
-	Keterangan    string    `json:"keterangan"`
-	Status        string    `json:"status"`
-	Hubungan      string    `json:"hubungan"`
-	IdKeluarga    int32     `json:"idKeluarga"`
+	NamaLengkap   string `json:"namaLengkap"`
+	TanggalLahir  string `json:"tanggalLahir"`
+	TanggalBaptis string `json:"tanggalBaptis"`
+	Keterangan    string `json:"keterangan"`
+	Status        string `json:"status"`
+	Hubungan      string `json:"hubungan"`
+	IdKeluarga    int32  `json:"idKeluarga"`
+	JenisKelamin  string `json:"jenisKelamin"`
 }
 type LingkunganRequest struct {
 	KodeLingkungan string `json:"kodeLingkungan"`
@@ -27,6 +28,23 @@ type LingkunganRequest struct {
 type WilayahRequest struct {
 	KodeWilayah string `json:"kodeWilayah"`
 	NamaWilayah string `json:"namaWilayah"`
+}
+
+type UserRequest struct {
+	Username        string `json:"username"`
+	Password        string `json:"password"`
+	KetuaLingkungan int32  `json:"ketuaLingkungan"`
+	KetuaWilayah    int32  `json:"ketuaWilayah"`
+	UpdatedBy       int32  `json:"updatedBy"`
+}
+
+type AddUserRequest struct {
+	Username        string    `json:"username"`
+	Password        string    `json:"password"`
+	KetuaLingkungan int32     `json:"ketuaLingkungan"`
+	KetuaWilayah    int32     `json:"ketuaWilayah"`
+	UpdatedBy       int32     `json:"updatedBy"`
+	CreatedBy       int32     `json:"createdBy"`
 }
 type DeleteAnggotaRequest struct {
 	SelectedAnggota []entity.DataAnggotaComplete `json:"selectedAnggota"`
@@ -67,17 +85,20 @@ type AddTHRequest struct {
 	IdLingkungan  int32     `json:"idLingkungan"`
 	SubKeterangan string    `json:"subKeterangan"`
 	CreatedDate   time.Time `json:"createdDate"`
+	Bulan         int32     `json:"bulan"`
+	Tahun         int32     `json:"tahun"`
 }
 
 type UpdateAnggotaRequest struct {
 	Id            int32     `json:"idAnggota"`
 	NamaLengkap   string    `json:"namaLengkap"`
 	TanggalLahir  time.Time `json:"tanggalLahir"`
-	TanggalBabtis time.Time `json:"tanggalBabtis"`
+	TanggalBaptis time.Time `json:"tanggalBaptis"`
 	Keterangan    string    `json:"keterangan"`
 	Status        string    `json:"status"`
 	Hubungan      string    `json:"hubungan"`
 	IdKeluarga    int32     `json:"idKeluarga"`
+	JenisKelamin  string    `json:"jenisKelamin"`
 }
 type UpdateKeteranganAnggotaRequest struct {
 	Id         int32  `json:"idKepalaKeluarga"`

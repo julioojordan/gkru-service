@@ -7,6 +7,8 @@ import (
 type UserService interface {
 	FindOne(ctx *fiber.Ctx) (interface{}, error)
 	FindAll(ctx *fiber.Ctx) (interface{}, error)
+	Update(ctx *fiber.Ctx) (interface{}, error)
+	Add(ctx *fiber.Ctx) (interface{}, error)
 }
 
 type WealthService interface {
@@ -20,6 +22,7 @@ type DataAnggotaService interface {
 	DeleteOneAnggota(ctx *fiber.Ctx) (interface{}, error)
 	DeleteBulkAnggota(ctx *fiber.Ctx) (interface{}, error)
 	FindAll(ctx *fiber.Ctx) (interface{}, error)
+	FindAllWithIdKeluarga(ctx *fiber.Ctx) (interface{}, error)
 	FindOne(ctx *fiber.Ctx) (interface{}, error)
 }
 
@@ -49,6 +52,7 @@ type DataLingkunganService interface {
 	Add(ctx *fiber.Ctx) (interface{}, error)
 	Update(ctx *fiber.Ctx) (interface{}, error)
 	DeleteOne(ctx *fiber.Ctx) (interface{}, error)
+	GetTotalLingkungan(ctx *fiber.Ctx) (interface{}, error)
 }
 
 type DataWilayahService interface {
@@ -57,6 +61,7 @@ type DataWilayahService interface {
 	Add(ctx *fiber.Ctx) (interface{}, error)
 	Update(ctx *fiber.Ctx) (interface{}, error)
 	DeleteOne(ctx *fiber.Ctx) (interface{}, error)
+	GetTotalWilayah(ctx *fiber.Ctx) (interface{}, error)
 }
 
 type Services struct {

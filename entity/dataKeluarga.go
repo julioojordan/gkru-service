@@ -6,7 +6,6 @@ type DataKeluargaRaw struct {
 	Lingkungan     int32
 	Nomor          string
 	KepalaKeluarga int32
-	KKRelation     int32
 	Alamat         string
 }
 
@@ -38,9 +37,9 @@ type DataKeluargaFinal struct {
 	Wilayah        DataWilayah
 	Lingkungan     DataLingkungan
 	Nomor          string
-	KepalaKeluarga DataAnggota
+	KepalaKeluarga DataAnggotaWithStatus
 	Alamat         string
-	Anggota        []DataAnggota
+	Anggota        []DataAnggotaWithStatus
 }
 
 type TotalKeluarga struct {

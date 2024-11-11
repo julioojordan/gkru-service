@@ -93,3 +93,17 @@ func (service *DataWilayahServiceImpl) DeleteOne(ctx *fiber.Ctx) (interface{}, e
 
 	return result, nil
 }
+
+func (service *DataWilayahServiceImpl) GetTotalWilayah(ctx *fiber.Ctx) (interface{}, error) {
+	logger, _ := ctx.Locals("logger").(*logrus.Logger)
+	tx, err := service.DB.Begin()
+	helper.PanicIfError(err)
+	defer helper.CommitOrRollback(tx, logger)
+
+	result, err := service.DataWilayahRepository.GetTotalWilayah(ctx, tx)
+	if err != nil {
+		return nil, err
+	}
+
+	return result, nil
+}

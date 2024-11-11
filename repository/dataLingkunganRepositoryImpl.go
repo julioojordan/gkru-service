@@ -46,6 +46,34 @@ func (repository *dataLingkunganRepositoryImpl) FindOneById(id int32, tx *sql.Tx
 	}
 }
 
+func (repository *dataLingkunganRepositoryImpl) FindOneByIdSeparateTx(id int32, db *sql.DB) (entity.DataLingkungan, error) {
+	// ini digunakan untuk data keluarga
+	sqlScript := "SELECT l.id, l.kode_lingkungan, l.nama_lingkungan, w.id, w.kode_wilayah, w.nama_wilayah FROM lingkungan l JOIN wilayah w ON l.id_wilayah = w.id WHERE l.id = ?"
+	result, err := db.Query(sqlScript, id)
+	helper.PanicIfError(err)
+	defer result.Close()
+
+	raw := entity.DataLingkunganRaw{}
+	if result.Next() {
+		err := result.Scan(&raw.Id, &raw.KodeLingkungan, &raw.NamaLingkungan, &raw.IdWilayah, &raw.KodeWilayah, &raw.NamaWilayah)
+		helper.PanicIfError(err)
+		wilayah := entity.DataWilayah{
+			Id:          raw.IdWilayah,
+			KodeWilayah: raw.KodeWilayah,
+			NamaWilayah: raw.NamaWilayah,
+		}
+		lingkungan := entity.DataLingkungan{
+			Id:             raw.Id,
+			KodeLingkungan: raw.KodeLingkungan,
+			NamaLingkungan: raw.NamaLingkungan,
+			Wilayah:        wilayah,
+		}
+		return lingkungan, nil
+	} else {
+		return entity.DataLingkungan{}, fiber.NewError(fiber.StatusNotFound, "lingkungan is not found")
+	}
+}
+
 func (repository *dataLingkunganRepositoryImpl) FindOneWithParam(ctx *fiber.Ctx, tx *sql.Tx) (entity.DataLingkungan, error) {
 	idLingkungan, err := strconv.Atoi(ctx.Params("idLingkungan"))
 	if err != nil {
@@ -118,7 +146,7 @@ func (repository *dataLingkunganRepositoryImpl) FindAll(ctx *fiber.Ctx, tx *sql.
 }
 
 func (repository *dataLingkunganRepositoryImpl) Add(ctx *fiber.Ctx, tx *sql.Tx) (entity.DataLingkunganWithIdWilayah, error) {
-	sqlScript := "INSERT INTO data_lingkungan(kode_lingkungan, nama_lingkungan, id_wilayah) VALUES(?, ?, ?)"
+	sqlScript := "INSERT INTO lingkungan(kode_lingkungan, nama_lingkungan, id_wilayah) VALUES(?, ?, ?)"
 	body := ctx.Body()
 	request := new(helper.LingkunganRequest)
 	err := json.Unmarshal(body, request)
@@ -147,7 +175,7 @@ func (repository *dataLingkunganRepositoryImpl) Add(ctx *fiber.Ctx, tx *sql.Tx) 
 }
 
 func (repository *dataLingkunganRepositoryImpl) Update(ctx *fiber.Ctx, tx *sql.Tx) (entity.DataLingkunganWithIdWilayah, error) {
-	sqlScript := "UPDATE data_lingkungan SET"
+	sqlScript := "UPDATE lingkungan SET"
 	idLingkungan, err := strconv.Atoi(ctx.Params("idLingkungan"))
 	if err != nil {
 		return entity.DataLingkunganWithIdWilayah{}, fiber.NewError(fiber.StatusBadRequest, "Invalid id lingkungan, it must be an integer")
@@ -203,7 +231,7 @@ func (repository *dataLingkunganRepositoryImpl) Update(ctx *fiber.Ctx, tx *sql.T
 
 func (repository *dataLingkunganRepositoryImpl) DeleteOne(ctx *fiber.Ctx, tx *sql.Tx) (entity.IdDataLingkungan, error) {
 	repositories := ctx.Locals("repositories").(Repositories)
-	sqlScript := "DELETE data_lingkungan WHERE id = ?"
+	sqlScript := "DELETE lingkungan WHERE id = ?"
 	idLingkungan, err := strconv.Atoi(ctx.Params("idLingkungan"))
 	if err != nil {
 		return entity.IdDataLingkungan{}, fiber.NewError(fiber.StatusBadRequest, "Invalid id Lingkungan, it must be an integer")
@@ -230,4 +258,24 @@ func (repository *dataLingkunganRepositoryImpl) DeleteOne(ctx *fiber.Ctx, tx *sq
 	}
 
 	return response, nil
+}
+
+func (repository *dataLingkunganRepositoryImpl) GetTotalLingkungan(ctx *fiber.Ctx, tx *sql.Tx) (entity.TotalInt, error) {
+	sqlScript := "SELECT COUNT(*) FROM lingkungan"
+	result, err := tx.Query(sqlScript)
+	if err != nil {
+		return entity.TotalInt{}, helper.CreateErrorMessage("Failed to execute query", err)
+	}
+	defer result.Close()
+
+	totalInt := entity.TotalInt{}
+	if result.Next() {
+		err := result.Scan(&totalInt.Total)
+		if err != nil {
+			return entity.TotalInt{}, helper.CreateErrorMessage("Failed to scan result", err)
+		}
+		return totalInt, nil
+	} else {
+		return entity.TotalInt{}, fiber.NewError(fiber.StatusInternalServerError, "No data found")
+	}
 }

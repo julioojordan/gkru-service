@@ -11,6 +11,9 @@ import (
 
 type UserRepository interface {
 	FindOne(ctx *fiber.Ctx, tx *sql.Tx) (entity.User, error)
+	FindAll(ctx *fiber.Ctx, tx *sql.Tx) ([]entity.User, error)
+	Update(ctx *fiber.Ctx, tx *sql.Tx) (entity.User, error)
+	Add(ctx *fiber.Ctx, tx *sql.Tx) (entity.IdInt, error)
 }
 
 type WealthRepository interface {
@@ -29,8 +32,8 @@ type TransactionHistoryRepository interface {
 }
 
 type DataKeluargaRepository interface {
-	FindOne(ctx *fiber.Ctx, tx *sql.Tx) (entity.DataKeluargaFinal, error)
-	FindAll(ctx *fiber.Ctx, tx *sql.Tx) ([]entity.DataKeluargaFinal, error)
+	FindOne(ctx *fiber.Ctx, tx *sql.Tx, db *sql.DB) (entity.DataKeluargaFinal, error)
+	FindAll(ctx *fiber.Ctx, tx *sql.Tx, db *sql.DB) ([]entity.DataKeluargaFinal, error)
 	GetTotalKeluarga(ctx *fiber.Ctx, tx *sql.Tx) (entity.TotalKeluarga, error)
 	AddKeluarga(ctx *fiber.Ctx, tx *sql.Tx) (entity.DataKeluargaRaw, error)
 	UpdateDataKeluarga(ctx *fiber.Ctx, tx *sql.Tx) (entity.UpdatedDataKeluarga, error)
@@ -42,6 +45,7 @@ type DataAnggotaRepository interface {
 	GetTotalAnggota(ctx *fiber.Ctx, tx *sql.Tx) (entity.TotalAnggota, error)
 	AddAnggota(ctx *fiber.Ctx, tx *sql.Tx) (entity.DataAnggota, error)
 	FindAll(ctx *fiber.Ctx, tx *sql.Tx) ([]entity.DataAnggotaComplete, error)
+	FindAllWithIdKeluarga(ctx *fiber.Ctx, tx *sql.Tx) ([]entity.DataAnggotaComplete, error)
 	FindOne(ctx *fiber.Ctx, tx *sql.Tx) (entity.DataAnggotaComplete, error)
 	UpdateAnggota(ctx *fiber.Ctx, tx *sql.Tx) (entity.DataAnggotaWithStatus, error)
 	UpdateKeteranganAnggota(ctx *fiber.Ctx, tx *sql.Tx) (entity.DataAnggotaWithKeteranganOnly, error)
@@ -50,16 +54,18 @@ type DataAnggotaRepository interface {
 }
 
 type DataAnggotaKeluargaRelRepository interface {
-	FindKeluargaAnggotaRel(id int32, tx *sql.Tx) ([]entity.DataAnggotaWithKeluargaRel, error)
+	FindKeluargaAnggotaRel(id int32,  db *sql.DB) ([]entity.DataAnggotaWithKeluargaRel, error)
 }
 
 type DataLingkunganRepository interface {
 	FindOneById(id int32, tx *sql.Tx) (entity.DataLingkungan, error)
+	FindOneByIdSeparateTx(id int32, db *sql.DB) (entity.DataLingkungan, error)
 	FindOneWithParam(ctx *fiber.Ctx, tx *sql.Tx) (entity.DataLingkungan, error)
 	FindAll(ctx *fiber.Ctx, tx *sql.Tx) ([]entity.DataLingkungan, error)
 	Add(ctx *fiber.Ctx, tx *sql.Tx) (entity.DataLingkunganWithIdWilayah, error)
 	Update(ctx *fiber.Ctx, tx *sql.Tx) (entity.DataLingkunganWithIdWilayah, error)
 	DeleteOne(ctx *fiber.Ctx, tx *sql.Tx) (entity.IdDataLingkungan, error)
+	GetTotalLingkungan(ctx *fiber.Ctx, tx *sql.Tx) (entity.TotalInt, error)
 }
 
 type DataWilayahRepository interface {
@@ -68,6 +74,7 @@ type DataWilayahRepository interface {
 	Add(ctx *fiber.Ctx, tx *sql.Tx) (entity.DataWilayah, error)
 	Update(ctx *fiber.Ctx, tx *sql.Tx) (entity.DataWilayah, error)
 	DeleteOne(ctx *fiber.Ctx, tx *sql.Tx) (entity.IdInt, error)
+	GetTotalWilayah(ctx *fiber.Ctx, tx *sql.Tx) (entity.TotalInt, error)
 }
 
 type Repositories struct {

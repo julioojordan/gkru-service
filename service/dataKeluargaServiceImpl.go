@@ -30,7 +30,7 @@ func (service *DataKeluargaServiceImpl) FindOne(ctx *fiber.Ctx) (interface{}, er
 	helper.PanicIfError(err)
 	defer helper.CommitOrRollback(tx, logger)
 
-	dataKeluarga, err := service.DataKeluargaRepository.FindOne(ctx, tx)
+	dataKeluarga, err := service.DataKeluargaRepository.FindOne(ctx, tx, service.DB)
 	if err != nil {
 		return nil, err
 	}
@@ -44,7 +44,7 @@ func (service *DataKeluargaServiceImpl) FindAll(ctx *fiber.Ctx) (interface{}, er
 	helper.PanicIfError(err)
 	defer helper.CommitOrRollback(tx, logger)
 
-	dataKeluarga, err := service.DataKeluargaRepository.FindAll(ctx, tx)
+	dataKeluarga, err := service.DataKeluargaRepository.FindAll(ctx, tx, service.DB)
 	if err != nil {
 		return nil, err
 	}

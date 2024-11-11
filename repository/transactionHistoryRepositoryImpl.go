@@ -106,6 +106,8 @@ func mapToThFinal(dataThRaw entity.ThRaw) entity.ThFinal {
 		SubKeterangan: subKeterangan,
 		CreatedDate:   dataThRaw.CreatedDate,
 		UpdatedDate:   dataThRaw.UpdatedDate,
+		Bulan:         dataThRaw.Bulan,
+		Tahun:         dataThRaw.Tahun,
 	}
 }
 
@@ -128,6 +130,8 @@ func (repository *transactionHistoryRepositoryImpl) FindOne(ctx *fiber.Ctx, tx *
         a.sub_keterangan, 
         a.created_date, 
         a.updated_date, 
+		a.bulan,
+		a.tahun,
         b.username, 
         c.kode_lingkungan, 
         c.nama_lingkungan, 
@@ -152,7 +156,7 @@ func (repository *transactionHistoryRepositoryImpl) FindOne(ctx *fiber.Ctx, tx *
 
 	dataThRaw := entity.ThRaw{}
 	if result.Next() {
-		err := result.Scan(&dataThRaw.Id, &dataThRaw.Nominal, &dataThRaw.IdKeluarga, &dataThRaw.Keterangan, &dataThRaw.CreatorId, &dataThRaw.IdWilayah, &dataThRaw.IdLingkungan, &dataThRaw.UpdatorId, &dataThRaw.SubKeterangan, &dataThRaw.CreatedDate, &dataThRaw.UpdatedDate, &dataThRaw.UserName, &dataThRaw.KodeLingkungan, &dataThRaw.NamaLingkungan, &dataThRaw.KodeWilayah, &dataThRaw.NamaWilayah)
+		err := result.Scan(&dataThRaw.Id, &dataThRaw.Nominal, &dataThRaw.IdKeluarga, &dataThRaw.Keterangan, &dataThRaw.CreatorId, &dataThRaw.IdWilayah, &dataThRaw.IdLingkungan, &dataThRaw.UpdatorId, &dataThRaw.SubKeterangan, &dataThRaw.CreatedDate, &dataThRaw.UpdatedDate, &dataThRaw.Bulan, &dataThRaw.Tahun, &dataThRaw.UserName, &dataThRaw.KodeLingkungan, &dataThRaw.NamaLingkungan, &dataThRaw.KodeWilayah, &dataThRaw.NamaWilayah)
 		if err != nil {
 			return entity.ThFinal{}, helper.CreateErrorMessage("Failed to scan result", err)
 		}
@@ -168,7 +172,7 @@ func (repository *transactionHistoryRepositoryImpl) FindOne(ctx *fiber.Ctx, tx *
 // findAll
 func (repository *transactionHistoryRepositoryImpl) FindAll(ctx *fiber.Ctx, tx *sql.Tx) ([]entity.ThFinal, error) {
 	sqlScript := `
-	SELECT a.id, a.nominal, a.id_keluarga, a.keterangan, a.created_by, a.id_wilayah, a.id_lingkungan, a.updated_by, a.sub_keterangan, a.created_date, a.updated_date, 
+	SELECT a.id, a.nominal, a.id_keluarga, a.keterangan, a.created_by, a.id_wilayah, a.id_lingkungan, a.updated_by, a.sub_keterangan, a.created_date, a.updated_date, a.bulan, a.tahun,
 		   b.username, 
 		   c.kode_lingkungan, c.nama_lingkungan, 
 		   d.kode_wilayah, d.nama_wilayah
@@ -190,7 +194,7 @@ func (repository *transactionHistoryRepositoryImpl) FindAll(ctx *fiber.Ctx, tx *
 	// Iterasi hasil
 	for result.Next() {
 		dataThRaw := entity.ThRaw{}
-		err := result.Scan(&dataThRaw.Id, &dataThRaw.Nominal, &dataThRaw.IdKeluarga, &dataThRaw.Keterangan, &dataThRaw.CreatorId, &dataThRaw.IdWilayah, &dataThRaw.IdLingkungan, &dataThRaw.UpdatorId, &dataThRaw.SubKeterangan, &dataThRaw.CreatedDate, &dataThRaw.UpdatedDate, &dataThRaw.UserName, &dataThRaw.KodeLingkungan, &dataThRaw.NamaLingkungan, &dataThRaw.KodeWilayah, &dataThRaw.NamaWilayah)
+		err := result.Scan(&dataThRaw.Id, &dataThRaw.Nominal, &dataThRaw.IdKeluarga, &dataThRaw.Keterangan, &dataThRaw.CreatorId, &dataThRaw.IdWilayah, &dataThRaw.IdLingkungan, &dataThRaw.UpdatorId, &dataThRaw.SubKeterangan, &dataThRaw.CreatedDate, &dataThRaw.UpdatedDate, &dataThRaw.Bulan, &dataThRaw.Tahun, &dataThRaw.UserName, &dataThRaw.KodeLingkungan, &dataThRaw.NamaLingkungan, &dataThRaw.KodeWilayah, &dataThRaw.NamaWilayah)
 		if err != nil {
 			return nil, helper.CreateErrorMessage("Failed to scan result", err)
 		}
@@ -214,12 +218,12 @@ func (repository *transactionHistoryRepositoryImpl) FindAll(ctx *fiber.Ctx, tx *
 func (repository *transactionHistoryRepositoryImpl) FindAllWithIdKeluarga(ctx *fiber.Ctx, tx *sql.Tx) ([]entity.ThFinal, error) {
 	idKeluargaStr := ctx.Query("idKeluarga")
 	sqlScript := `
-	SELECT a.id, a.nominal, a.id_keluarga, a.keterangan, a.created_by, a.id_wilayah, a.id_lingkungan, a.updated_by, a.sub_keterangan, a.created_date, a.updated_date, 
+	SELECT a.id, a.nominal, a.id_keluarga, a.keterangan, a.created_by, a.id_wilayah, a.id_lingkungan, a.updated_by, a.sub_keterangan, a.created_date, a.updated_date, a.bulan, a.tahun,
 		   b.username, 
 		   c.kode_lingkungan, c.nama_lingkungan, 
 		   d.kode_wilayah, d.nama_wilayah
 	FROM riwayat_transaksi a
-	JOIN user b ON a.created_by = b.id
+	JOIN users b ON a.created_by = b.id
 	JOIN lingkungan c ON a.id_lingkungan = c.id
 	JOIN wilayah d ON a.id_wilayah = d.id
 	WHERE a.id_keluarga = ?
@@ -235,7 +239,7 @@ func (repository *transactionHistoryRepositoryImpl) FindAllWithIdKeluarga(ctx *f
 
 	for result.Next() {
 		dataThRaw := entity.ThRaw{}
-		err := result.Scan(&dataThRaw.Id, &dataThRaw.Nominal, &dataThRaw.IdKeluarga, &dataThRaw.Keterangan, &dataThRaw.CreatorId, &dataThRaw.IdWilayah, &dataThRaw.IdLingkungan, &dataThRaw.UpdatorId, &dataThRaw.SubKeterangan, &dataThRaw.CreatedDate, &dataThRaw.UpdatedDate, &dataThRaw.UserName, &dataThRaw.KodeLingkungan, &dataThRaw.NamaLingkungan, &dataThRaw.KodeWilayah, &dataThRaw.NamaWilayah)
+		err := result.Scan(&dataThRaw.Id, &dataThRaw.Nominal, &dataThRaw.IdKeluarga, &dataThRaw.Keterangan, &dataThRaw.CreatorId, &dataThRaw.IdWilayah, &dataThRaw.IdLingkungan, &dataThRaw.UpdatorId, &dataThRaw.SubKeterangan, &dataThRaw.CreatedDate, &dataThRaw.UpdatedDate, &dataThRaw.Bulan, &dataThRaw.Tahun, &dataThRaw.UserName, &dataThRaw.KodeLingkungan, &dataThRaw.NamaLingkungan, &dataThRaw.KodeWilayah, &dataThRaw.NamaWilayah)
 		if err != nil {
 			return nil, helper.CreateErrorMessage("Failed to scan result", err)
 		}
@@ -354,17 +358,18 @@ func (repository *transactionHistoryRepositoryImpl) Delete(ctx *fiber.Ctx, tx *s
 
 // Add
 func (repository *transactionHistoryRepositoryImpl) Add(ctx *fiber.Ctx, tx *sql.Tx) (entity.CreatedTh, error) {
-	sqlScript := "INSERT INTO riwayat_transaksi(nominal, id_keluarga, keterangan, created_by, id_wilayah, id_lingkungan, sub_keterangan, created_date) VALUES(?, ?, ?, ?, ?, ?, ?, ?)"
+	sqlScript := "INSERT INTO riwayat_transaksi(nominal, id_keluarga, keterangan, created_by, id_wilayah, id_lingkungan, sub_keterangan, created_date, bulan, tahun) VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"
 	body := ctx.Body()
 	request := new(helper.AddTHRequest)
 	marshalError := json.Unmarshal(body, request)
 	if marshalError != nil {
-		return entity.CreatedTh{}, fiber.NewError(fiber.StatusBadRequest, "Invalid request body")
+		errorMessage := fmt.Sprintf("%s: %v", "Invalid request body", marshalError.Error())
+		return entity.CreatedTh{}, fiber.NewError(fiber.StatusBadRequest, errorMessage)
 	}
 
 	currentTime := time.Now()
 
-	result, err := tx.Exec(sqlScript, request.Nominal, request.IdKeluarga, request.Keterangan, request.CreatedBy, request.IdWilayah, request.IdLingkungan, request.SubKeterangan, currentTime)
+	result, err := tx.Exec(sqlScript, request.Nominal, request.IdKeluarga, request.Keterangan, request.CreatedBy, request.IdWilayah, request.IdLingkungan, request.SubKeterangan, currentTime, request.Bulan, request.Tahun)
 	if err != nil {
 		fmt.Println(err)
 		return entity.CreatedTh{}, helper.CreateErrorMessage("Failed to insert data anggot", err)

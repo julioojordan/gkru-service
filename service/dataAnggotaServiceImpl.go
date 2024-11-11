@@ -122,3 +122,17 @@ func (service *DataAnggotaServiceImpl) FindAll(ctx *fiber.Ctx) (interface{}, err
 	return result, nil
 }
 
+func (service *DataAnggotaServiceImpl) FindAllWithIdKeluarga(ctx *fiber.Ctx) (interface{}, error) {
+	logger, _ := ctx.Locals("logger").(*logrus.Logger)
+	tx, err := service.DB.Begin()
+	helper.PanicIfError(err)
+	defer helper.CommitOrRollback(tx, logger)
+
+	result, err := service.DataAnggotaRepository.FindAllWithIdKeluarga(ctx, tx)
+	if err != nil {
+		return nil, err
+	}
+
+	return result, nil
+}
+

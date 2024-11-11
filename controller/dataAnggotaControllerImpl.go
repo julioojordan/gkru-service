@@ -160,3 +160,23 @@ func (controller *DataAnggotaControllerImpl) FindAll(ctx *fiber.Ctx) error {
 	}).Info("success")
 	return ctx.JSON(res)
 }
+
+func (controller *DataAnggotaControllerImpl) FindAllWithIdKeluarga(ctx *fiber.Ctx) error {
+	logger, _ := ctx.Locals("logger").(*logrus.Logger)
+	dataAnggota, err := controller.DataAnggotaService.FindAllWithIdKeluarga(ctx)
+	if err != nil {
+		return helper.HandleError(ctx, logger, err)
+	}
+	res := entity.WebResponse{
+		Code:   200,
+		Status: "Ok",
+		Data:   dataAnggota,
+	}
+	logger.WithFields(logrus.Fields{
+		"type": "response",
+		"code": 200,
+		"status": utils.StatusMessage(200),
+		"data": res.Data,
+	}).Info("success")
+	return ctx.JSON(res)
+}

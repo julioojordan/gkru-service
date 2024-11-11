@@ -8,6 +8,7 @@ type DataAnggota struct {
 	TanggalLahir  time.Time
 	TanggalBaptis time.Time
 	Keterangan    string
+	JenisKelamin  string
 }
 
 type IdDataAnggota struct {
@@ -21,6 +22,7 @@ type DataAnggotaWithStatus struct {
 	TanggalBaptis time.Time
 	Keterangan    string
 	Status        string
+	JenisKelamin  string
 }
 
 type DataAnggotaWithKeteranganOnly struct {
@@ -32,14 +34,6 @@ type TotalAnggota struct {
 	Total int32
 }
 
-type DataAnggotaResponse struct {
-	Id            int32
-	NamaLengkap   string
-	TanggalLahir  time.Time
-	TanggalBaptis time.Time
-	Keterangan    string
-}
-
 type DataAnggotaComplete struct {
 	Id             int32
 	NamaLengkap    string
@@ -47,6 +41,7 @@ type DataAnggotaComplete struct {
 	TanggalBaptis  time.Time
 	Keterangan     string
 	Status         string
+	JenisKelamin   string
 	IdKeluarga     int32
 	Hubungan       string
 	IdWilayah      int32

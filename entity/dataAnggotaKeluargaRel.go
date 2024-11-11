@@ -17,4 +17,6 @@ type DataAnggotaWithKeluargaRel struct {
 	TanggalLahir  time.Time
 	TanggalBaptis time.Time
 	Keterangan    string
+	Status        string
+	JenisKelamin  string
 }

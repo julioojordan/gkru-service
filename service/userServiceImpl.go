@@ -44,7 +44,7 @@ func (service *UserServiceImpl) FindOne(ctx *fiber.Ctx) (interface{}, error) {
 	authToken, err := authentication.CreateToken(user.Username)
 	helper.PanicIfError(err)
 
-	return helper.ToLoginResponse(authToken), nil
+	return helper.ToLoginResponse(authToken, user), nil
 }
 
 func (service *UserServiceImpl) FindAll(ctx *fiber.Ctx) (interface{}, error) {
@@ -54,6 +54,34 @@ func (service *UserServiceImpl) FindAll(ctx *fiber.Ctx) (interface{}, error) {
 	defer helper.CommitOrRollback(tx, logger)
 
 	result, err := service.UserRepository.FindAll(ctx, tx)
+	if err != nil {
+		return nil, err
+	}
+
+	return result, nil
+}
+
+func (service *UserServiceImpl) Update(ctx *fiber.Ctx) (interface{}, error) {
+	logger, _ := ctx.Locals("logger").(*logrus.Logger)
+	tx, err := service.DB.Begin()
+	helper.PanicIfError(err)
+	defer helper.CommitOrRollback(tx, logger)
+
+	result, err := service.UserRepository.Update(ctx, tx)
+	if err != nil {
+		return nil, err
+	}
+
+	return result, nil
+}
+
+func (service *UserServiceImpl) Add(ctx *fiber.Ctx) (interface{}, error) {
+	logger, _ := ctx.Locals("logger").(*logrus.Logger)
+	tx, err := service.DB.Begin()
+	helper.PanicIfError(err)
+	defer helper.CommitOrRollback(tx, logger)
+
+	result, err := service.UserRepository.Add(ctx, tx)
 	if err != nil {
 		return nil, err
 	}

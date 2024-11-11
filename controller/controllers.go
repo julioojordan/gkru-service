@@ -5,6 +5,8 @@ import "github.com/gofiber/fiber/v2"
 type UserController interface {
 	FindOne(ctx *fiber.Ctx) error
 	FindAll(ctx *fiber.Ctx) error
+	Update(ctx *fiber.Ctx) error
+	Add(ctx *fiber.Ctx) error
 }
 
 type DataKeluargaController interface {
@@ -27,6 +29,7 @@ type DataAnggotaController interface {
 	DeleteOneAnggota(ctx *fiber.Ctx) error
 	DeleteBulkAnggota(ctx *fiber.Ctx) error
 	FindAll(ctx *fiber.Ctx) error
+	FindAllWithIdKeluarga(ctx *fiber.Ctx) error
 	FindOne(ctx *fiber.Ctx) error
 }
 
@@ -47,6 +50,7 @@ type DataLingkunganController interface {
 	Add(ctx *fiber.Ctx) error
 	Update(ctx *fiber.Ctx) error
 	DeleteOne(ctx *fiber.Ctx) error
+	GetTotalLingkungan(ctx *fiber.Ctx) error
 }
 
 type DataWilayahController interface {
@@ -55,6 +59,7 @@ type DataWilayahController interface {
 	Add(ctx *fiber.Ctx) error
 	Update(ctx *fiber.Ctx) error
 	DeleteOne(ctx *fiber.Ctx) error
+	GetTotalWilayah(ctx *fiber.Ctx) error
 }
 
 type Controllers struct {

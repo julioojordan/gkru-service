@@ -22,8 +22,8 @@ func NewDataKeluargaRepository(db *sql.DB) DataKeluargaRepository {
 	return &dataKeluargaRepositoryImpl{}
 }
 
-func (repository *dataKeluargaRepositoryImpl) FindOne(ctx *fiber.Ctx, tx *sql.Tx) (entity.DataKeluargaFinal, error) {
-	dataKeluargaRawScript := "SELECT id, id_wilayah, id_lingkungan, nomor, id_kepala_keluarga, id_keluarga_anggota_rel, alamat FROM data_keluarga WHERE id = ?"
+func (repository *dataKeluargaRepositoryImpl) FindOne(ctx *fiber.Ctx, tx *sql.Tx, db *sql.DB) (entity.DataKeluargaFinal, error) {
+	dataKeluargaRawScript := "SELECT id, id_wilayah, id_lingkungan, nomor, id_kepala_keluarga, alamat FROM data_keluarga WHERE id = ?"
 	idKeluarga := ctx.Params("idKeluarga")
 
 	result, err := tx.Query(dataKeluargaRawScript, idKeluarga)
@@ -33,7 +33,7 @@ func (repository *dataKeluargaRepositoryImpl) FindOne(ctx *fiber.Ctx, tx *sql.Tx
 
 	dataKeluargaRaw := entity.DataKeluargaRaw{}
 	if result.Next() {
-		err := result.Scan(&dataKeluargaRaw.Id, &dataKeluargaRaw.Wilayah, &dataKeluargaRaw.Lingkungan, &dataKeluargaRaw.Nomor, &dataKeluargaRaw.KepalaKeluarga, &dataKeluargaRaw.KKRelation, &dataKeluargaRaw.Alamat)
+		err := result.Scan(&dataKeluargaRaw.Id, &dataKeluargaRaw.Wilayah, &dataKeluargaRaw.Lingkungan, &dataKeluargaRaw.Nomor, &dataKeluargaRaw.KepalaKeluarga, &dataKeluargaRaw.Alamat)
 		if err != nil {
 			return entity.DataKeluargaFinal{}, helper.CreateErrorMessage("Failed to scan result", err)
 		}
@@ -56,30 +56,34 @@ func (repository *dataKeluargaRepositoryImpl) FindOne(ctx *fiber.Ctx, tx *sql.Tx
 		Wilayah:        wilayah,
 	}
 
-	getAnggotaRel, err := repositories.DataAnggotaKeluargaRelRepository.FindKeluargaAnggotaRel(dataKeluargaRaw.Id, tx)
+	getAnggotaRel, err := repositories.DataAnggotaKeluargaRelRepository.FindKeluargaAnggotaRel(dataKeluargaRaw.Id, db)
 	if err != nil {
 		return entity.DataKeluargaFinal{}, helper.CreateErrorMessage("Failed to retrieve anggota relationship data", err)
 	}
 
-	var kepalaKeluarga entity.DataAnggota
-	var anggota []entity.DataAnggota
+	var kepalaKeluarga entity.DataAnggotaWithStatus
+	var anggota []entity.DataAnggotaWithStatus
 
 	for _, anggotaRel := range getAnggotaRel {
 		if anggotaRel.Hubungan == "Kepala Keluarga" {
-			kepalaKeluarga = entity.DataAnggota{
+			kepalaKeluarga = entity.DataAnggotaWithStatus{
 				Id:            anggotaRel.IdAnggota,
 				NamaLengkap:   anggotaRel.NamaLengkap,
 				TanggalLahir:  anggotaRel.TanggalLahir,
 				TanggalBaptis: anggotaRel.TanggalBaptis,
 				Keterangan:    anggotaRel.Keterangan,
+				Status:        anggotaRel.Status,
+				JenisKelamin: anggotaRel.JenisKelamin,
 			}
 		} else {
-			anggota = append(anggota, entity.DataAnggota{
+			anggota = append(anggota, entity.DataAnggotaWithStatus{
 				Id:            anggotaRel.IdAnggota,
 				NamaLengkap:   anggotaRel.NamaLengkap,
 				TanggalLahir:  anggotaRel.TanggalLahir,
 				TanggalBaptis: anggotaRel.TanggalBaptis,
 				Keterangan:    anggotaRel.Keterangan,
+				Status:        anggotaRel.Status,
+				JenisKelamin: anggotaRel.JenisKelamin,
 			})
 		}
 	}
@@ -96,6 +100,7 @@ func (repository *dataKeluargaRepositoryImpl) FindOne(ctx *fiber.Ctx, tx *sql.Tx
 
 	return dataKeluargaFinal, nil
 }
+
 
 func (repository *dataKeluargaRepositoryImpl) CountKeluargaWithParam(ctx *fiber.Ctx, tx *sql.Tx, param string, id int32) (entity.TotalInt, error) {
 	if param == "" {
@@ -125,8 +130,8 @@ func (repository *dataKeluargaRepositoryImpl) CountKeluargaWithParam(ctx *fiber.
 	}
 }
 
-func (repository *dataKeluargaRepositoryImpl) FindAll(ctx *fiber.Ctx, tx *sql.Tx) ([]entity.DataKeluargaFinal, error) {
-	query := "SELECT id, id_wilayah, id_lingkungan, nomor, id_kepala_keluarga, id_keluarga_anggota_rel, alamat FROM data_keluarga"
+func (repository *dataKeluargaRepositoryImpl) FindAll(ctx *fiber.Ctx, tx *sql.Tx, db *sql.DB) ([]entity.DataKeluargaFinal, error) {
+	query := "SELECT id, id_wilayah, id_lingkungan, nomor, id_kepala_keluarga, alamat FROM data_keluarga"
 	var args []interface{}
 	var conditions []string
 
@@ -192,13 +197,13 @@ func (repository *dataKeluargaRepositoryImpl) FindAll(ctx *fiber.Ctx, tx *sql.Tx
 	// Loop through all rows
 	for result.Next() {
 		dataKeluargaRaw := entity.DataKeluargaRaw{}
-		err := result.Scan(&dataKeluargaRaw.Id, &dataKeluargaRaw.Wilayah, &dataKeluargaRaw.Lingkungan, &dataKeluargaRaw.Nomor, &dataKeluargaRaw.KepalaKeluarga, &dataKeluargaRaw.KKRelation, &dataKeluargaRaw.Alamat)
+		err := result.Scan(&dataKeluargaRaw.Id, &dataKeluargaRaw.Wilayah, &dataKeluargaRaw.Lingkungan, &dataKeluargaRaw.Nomor, &dataKeluargaRaw.KepalaKeluarga, &dataKeluargaRaw.Alamat)
 		if err != nil {
 			return nil, helper.CreateErrorMessage("Failed to scan resul", err)
 		}
 
 		// Get lingkungan data
-		getLingkungan, err := repositories.DataLingkunganRepository.FindOneById(dataKeluargaRaw.Lingkungan, tx)
+		getLingkungan, err := repositories.DataLingkunganRepository.FindOneByIdSeparateTx(dataKeluargaRaw.Lingkungan, db)
 		if err != nil {
 			return nil, helper.CreateErrorMessage("Failed to retrieve lingkungan data", err)
 		}
@@ -211,30 +216,34 @@ func (repository *dataKeluargaRepositoryImpl) FindAll(ctx *fiber.Ctx, tx *sql.Tx
 		}
 
 		// Get anggota relasi
-		getAnggotaRel, err := repositories.DataAnggotaKeluargaRelRepository.FindKeluargaAnggotaRel(dataKeluargaRaw.Id, tx)
+		getAnggotaRel, err := repositories.DataAnggotaKeluargaRelRepository.FindKeluargaAnggotaRel(dataKeluargaRaw.Id, db)
 		if err != nil {
 			return nil, helper.CreateErrorMessage("Failed to retrieve anggota relationship data", err)
 		}
 
-		var kepalaKeluarga entity.DataAnggota
-		var anggota []entity.DataAnggota
+		var kepalaKeluarga entity.DataAnggotaWithStatus
+		var anggota []entity.DataAnggotaWithStatus
 
 		for _, anggotaRel := range getAnggotaRel {
 			if anggotaRel.Hubungan == "Kepala Keluarga" {
-				kepalaKeluarga = entity.DataAnggota{
+				kepalaKeluarga = entity.DataAnggotaWithStatus{
 					Id:            anggotaRel.IdAnggota,
 					NamaLengkap:   anggotaRel.NamaLengkap,
 					TanggalLahir:  anggotaRel.TanggalLahir,
 					TanggalBaptis: anggotaRel.TanggalBaptis,
 					Keterangan:    anggotaRel.Keterangan,
+					Status:        anggotaRel.Status,
+					JenisKelamin: anggotaRel.JenisKelamin,
 				}
 			} else {
-				anggota = append(anggota, entity.DataAnggota{
+				anggota = append(anggota, entity.DataAnggotaWithStatus{
 					Id:            anggotaRel.IdAnggota,
 					NamaLengkap:   anggotaRel.NamaLengkap,
 					TanggalLahir:  anggotaRel.TanggalLahir,
 					TanggalBaptis: anggotaRel.TanggalBaptis,
 					Keterangan:    anggotaRel.Keterangan,
+					Status:        anggotaRel.Status,
+					JenisKelamin: anggotaRel.JenisKelamin,
 				})
 			}
 		}
@@ -407,7 +416,7 @@ func (repository *dataKeluargaRepositoryImpl) DeleteDataKeluarga(ctx *fiber.Ctx,
 	var deletedAnggotaIds []int32
 	rows, err := tx.Query("SELECT id_anggota FROM keluarga_anggota_rel WHERE id_keluarga = ?", idKeluarga)
 	if err != nil {
-		return entity.DeletedDataKeluarga{},helper.CreateErrorMessage("Failed to fetch anggota before deletion", err)
+		return entity.DeletedDataKeluarga{}, helper.CreateErrorMessage("Failed to fetch anggota before deletion", err)
 	}
 	defer rows.Close()
 
