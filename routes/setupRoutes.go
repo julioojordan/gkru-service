@@ -203,5 +203,8 @@ func SetupRoutes(app *fiber.App, Customlogger *logrus.Logger) {
 		dataWilayahController := ctx.Locals("controllers").(controller.Controllers).DataWilayahController
 		return dataWilayahController.FindAll(ctx)
 	})
+
+	// ========== STATIS ============
+	app.Static("/uploads", "./uploads")
 	// =========== SETUP ROUTE ===============
 }

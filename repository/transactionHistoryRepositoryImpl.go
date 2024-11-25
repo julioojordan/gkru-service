@@ -6,6 +6,9 @@ import (
 	"fmt"
 	"gkru-service/entity"
 	"gkru-service/helper"
+	"net/url"
+	"os"
+	"path/filepath"
 	"strconv"
 	"strings"
 	"time"
@@ -89,6 +92,11 @@ func mapToThFinal(dataThRaw entity.ThRaw) entity.ThFinal {
 		subKeterangan = dataThRaw.SubKeterangan.String
 	}
 
+	fileBukti := ""
+	if dataThRaw.FileBukti.Valid {
+		fileBukti = dataThRaw.FileBukti.String
+	}
+
 	updatorId := int32(0)
 	if dataThRaw.UpdatorId.Valid {
 		updatorId = int32(dataThRaw.UpdatorId.Int32)
@@ -108,6 +116,7 @@ func mapToThFinal(dataThRaw entity.ThRaw) entity.ThFinal {
 		UpdatedDate:   dataThRaw.UpdatedDate,
 		Bulan:         dataThRaw.Bulan,
 		Tahun:         dataThRaw.Tahun,
+		FileBukti:     fileBukti,
 	}
 }
 
@@ -117,6 +126,8 @@ func (repository *transactionHistoryRepositoryImpl) FindOne(ctx *fiber.Ctx, tx *
 	if err != nil {
 		return entity.ThFinal{}, fiber.NewError(fiber.StatusBadRequest, "Invalid id TH, it must be an integer")
 	}
+
+	// Menambahkan file_bukti ke dalam SELECT statement
 	sqlScript := `
     SELECT 
         a.id, 
@@ -130,8 +141,9 @@ func (repository *transactionHistoryRepositoryImpl) FindOne(ctx *fiber.Ctx, tx *
         a.sub_keterangan, 
         a.created_date, 
         a.updated_date, 
-		a.bulan,
-		a.tahun,
+        a.bulan,
+        a.tahun,
+        a.file_bukti, -- Kolom file_bukti ditambahkan
         b.username, 
         c.kode_lingkungan, 
         c.nama_lingkungan, 
@@ -155,11 +167,33 @@ func (repository *transactionHistoryRepositoryImpl) FindOne(ctx *fiber.Ctx, tx *
 	defer result.Close()
 
 	dataThRaw := entity.ThRaw{}
+
 	if result.Next() {
-		err := result.Scan(&dataThRaw.Id, &dataThRaw.Nominal, &dataThRaw.IdKeluarga, &dataThRaw.Keterangan, &dataThRaw.CreatorId, &dataThRaw.IdWilayah, &dataThRaw.IdLingkungan, &dataThRaw.UpdatorId, &dataThRaw.SubKeterangan, &dataThRaw.CreatedDate, &dataThRaw.UpdatedDate, &dataThRaw.Bulan, &dataThRaw.Tahun, &dataThRaw.UserName, &dataThRaw.KodeLingkungan, &dataThRaw.NamaLingkungan, &dataThRaw.KodeWilayah, &dataThRaw.NamaWilayah)
+		err := result.Scan(
+			&dataThRaw.Id,
+			&dataThRaw.Nominal,
+			&dataThRaw.IdKeluarga,
+			&dataThRaw.Keterangan,
+			&dataThRaw.CreatorId,
+			&dataThRaw.IdWilayah,
+			&dataThRaw.IdLingkungan,
+			&dataThRaw.UpdatorId,
+			&dataThRaw.SubKeterangan,
+			&dataThRaw.CreatedDate,
+			&dataThRaw.UpdatedDate,
+			&dataThRaw.Bulan,
+			&dataThRaw.Tahun,
+			&dataThRaw.FileBukti, // Tambahan kolom file_bukti
+			&dataThRaw.UserName,
+			&dataThRaw.KodeLingkungan,
+			&dataThRaw.NamaLingkungan,
+			&dataThRaw.KodeWilayah,
+			&dataThRaw.NamaWilayah,
+		)
 		if err != nil {
 			return entity.ThFinal{}, helper.CreateErrorMessage("Failed to scan result", err)
 		}
+
 	} else {
 		return entity.ThFinal{}, fiber.NewError(fiber.StatusInternalServerError, "No data found")
 	}
@@ -249,7 +283,7 @@ func (repository *transactionHistoryRepositoryImpl) FindAllWithIdKeluarga(ctx *f
 	}
 
 	if len(thFinals) == 0 {
-		return nil, fiber.NewError(fiber.StatusNotFound, "No data found")
+		return thFinals, nil
 	}
 
 	return thFinals, nil
@@ -358,38 +392,86 @@ func (repository *transactionHistoryRepositoryImpl) Delete(ctx *fiber.Ctx, tx *s
 
 // Add
 func (repository *transactionHistoryRepositoryImpl) Add(ctx *fiber.Ctx, tx *sql.Tx) (entity.CreatedTh, error) {
-	sqlScript := "INSERT INTO riwayat_transaksi(nominal, id_keluarga, keterangan, created_by, id_wilayah, id_lingkungan, sub_keterangan, created_date, bulan, tahun) VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"
-	body := ctx.Body()
-	request := new(helper.AddTHRequest)
-	marshalError := json.Unmarshal(body, request)
-	if marshalError != nil {
-		errorMessage := fmt.Sprintf("%s: %v", "Invalid request body", marshalError.Error())
+	sqlScript := "INSERT INTO riwayat_transaksi(nominal, id_keluarga, keterangan, created_by, id_wilayah, id_lingkungan, sub_keterangan, created_date, bulan, tahun, file_bukti) VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"
+
+	// Parse form data
+	form, err := ctx.MultipartForm()
+	if err != nil {
+		errorMessage := fmt.Sprintf("%s: %v", "Invalid request body", err.Error())
 		return entity.CreatedTh{}, fiber.NewError(fiber.StatusBadRequest, errorMessage)
 	}
 
+	fmt.Println(form)
+
+	// Extract JSON fields from form
+	nominal, _ := strconv.Atoi(form.Value["Nominal"][0])
+	idKeluarga, _ := strconv.Atoi(form.Value["IdKeluarga"][0])
+	keterangan := form.Value["Keterangan"][0]
+	createdBy, _ := strconv.Atoi(form.Value["CreatedBy"][0])
+	idWilayah, _ := strconv.Atoi(form.Value["IdWilayah"][0])
+	idLingkungan, _ := strconv.Atoi(form.Value["IdLingkungan"][0])
+	subKeterangan := form.Value["SubKeterangan"][0]
+	bulan, _ := strconv.Atoi(form.Value["Bulan"][0])
+	tahun, _ := strconv.Atoi(form.Value["Tahun"][0])
 	currentTime := time.Now()
 
-	result, err := tx.Exec(sqlScript, request.Nominal, request.IdKeluarga, request.Keterangan, request.CreatedBy, request.IdWilayah, request.IdLingkungan, request.SubKeterangan, currentTime, request.Bulan, request.Tahun)
+	// Handle file upload
+	fileHeader := form.File["FileBukti"]
+	var filePath string
+	if len(fileHeader) > 0 {
+		file := fileHeader[0]
+
+		// Get root directory
+		rootPath, err := os.Getwd()
+		if err != nil {
+			return entity.CreatedTh{}, fiber.NewError(fiber.StatusInternalServerError, "Failed to get working directory")
+		}
+
+		// Ensure uploads folder exists
+		uploadDir := filepath.Join(rootPath, "uploads")
+		if _, err := os.Stat(uploadDir); os.IsNotExist(err) {
+			if err := os.MkdirAll(uploadDir, os.ModePerm); err != nil {
+				return entity.CreatedTh{}, fiber.NewError(fiber.StatusInternalServerError, "Failed to create upload directory")
+			}
+		}
+
+		// Define destination path
+		destination := filepath.Join(uploadDir, file.Filename)
+
+		// Save the file
+		if err := ctx.SaveFile(file, destination); err != nil {
+			return entity.CreatedTh{}, fiber.NewError(fiber.StatusInternalServerError, "Failed to save file")
+		}
+
+		// Encode file name supaya menghindari jika ada spasi di nama file
+		safeFileName := url.QueryEscape(file.Filename)
+		filePath = "/uploads/" + safeFileName
+		fmt.Println("File saved to:", filePath)
+	}
+
+	// Execute database query
+	result, err := tx.Exec(sqlScript, nominal, idKeluarga, keterangan, createdBy, idWilayah, idLingkungan, subKeterangan, currentTime, bulan, tahun, filePath)
 	if err != nil {
-		fmt.Println(err)
-		return entity.CreatedTh{}, helper.CreateErrorMessage("Failed to insert data anggot", err)
+		errorMessage := fmt.Sprintf("%s: %v", "Failed to insert data", err.Error())
+		return entity.CreatedTh{}, fiber.NewError(fiber.StatusInternalServerError, errorMessage)
 	}
 
 	lastInsertId, err := result.LastInsertId()
 	if err != nil {
-		return entity.CreatedTh{}, helper.CreateErrorMessage("Failed to retrieve last insert ID", err)
+		return entity.CreatedTh{}, fiber.NewError(fiber.StatusInternalServerError, "Failed to retrieve last insert ID")
 	}
 
 	response := entity.CreatedTh{
 		Id:            int32(lastInsertId),
-		Nominal:       request.Nominal,
-		IdKeluarga:    request.IdKeluarga,
-		Keterangan:    request.Keterangan,
-		CreatorId:     request.CreatedBy,
-		IdWilayah:     request.IdWilayah,
-		IdLingkungan:  request.IdLingkungan,
-		SubKeterangan: request.SubKeterangan,
-		CreatedDate:   request.CreatedDate,
+		Nominal:       int32(nominal),
+		IdKeluarga:    int32(idKeluarga),
+		Keterangan:    keterangan,
+		CreatorId:     int32(createdBy),
+		IdWilayah:     int32(idWilayah),
+		IdLingkungan:  int32(idLingkungan),
+		SubKeterangan: subKeterangan,
+		CreatedDate:   currentTime,
+		FileBukti:     filePath,
 	}
 
 	return response, nil

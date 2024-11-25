@@ -19,6 +19,7 @@ type CreatedTh struct {
 	IdLingkungan  int32
 	SubKeterangan string
 	CreatedDate   time.Time
+	FileBukti     string
 }
 
 type ThRaw struct {
@@ -40,6 +41,7 @@ type ThRaw struct {
 	NamaLingkungan string
 	KodeWilayah    string
 	NamaWilayah    string
+	FileBukti      sql.NullString
 }
 
 type ThFinal struct {
@@ -55,7 +57,8 @@ type ThFinal struct {
 	CreatedDate   time.Time
 	UpdatedDate   time.Time
 	Bulan         int32
-	Tahun          int32
+	Tahun         int32
+	FileBukti     string
 }
 
 type UpdatedThFinal struct {
