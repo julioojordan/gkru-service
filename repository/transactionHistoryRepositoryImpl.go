@@ -251,6 +251,8 @@ func (repository *transactionHistoryRepositoryImpl) FindAll(ctx *fiber.Ctx, tx *
 // findAllWithIdKeluarga -> untuk mengecek history pembayaran keluarga
 func (repository *transactionHistoryRepositoryImpl) FindAllWithIdKeluarga(ctx *fiber.Ctx, tx *sql.Tx) ([]entity.ThFinal, error) {
 	idKeluargaStr := ctx.Query("idKeluarga")
+	tahunStr := ctx.Query("tahun")
+
 	sqlScript := `
 	SELECT a.id, a.nominal, a.id_keluarga, a.keterangan, a.created_by, a.id_wilayah, a.id_lingkungan, a.updated_by, a.sub_keterangan, a.created_date, a.updated_date, a.bulan, a.tahun,
 		   b.username, 
@@ -260,13 +262,22 @@ func (repository *transactionHistoryRepositoryImpl) FindAllWithIdKeluarga(ctx *f
 	JOIN users b ON a.created_by = b.id
 	JOIN lingkungan c ON a.id_lingkungan = c.id
 	JOIN wilayah d ON a.id_wilayah = d.id
-	WHERE a.id_keluarga = ?
-	ORDER BY a.created_date ASC`
+	WHERE a.id_keluarga = ?`
 
-	result, err := tx.Query(sqlScript, idKeluargaStr)
-	if err != nil {
-		return nil, helper.CreateErrorMessage("Failed to execute query", err)
+	args := []interface{}{idKeluargaStr}
+
+	if tahunStr != "" {
+		sqlScript += " AND a.tahun = ?"
+		args = append(args, tahunStr)
 	}
+
+	sqlScript += " ORDER BY a.created_date ASC"
+
+	result, err := tx.Query(sqlScript, args...)
+	if err != nil {
+		return nil, err
+	}
+
 	defer result.Close()
 
 	var thFinals []entity.ThFinal
