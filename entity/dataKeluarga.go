@@ -7,6 +7,7 @@ type DataKeluargaRaw struct {
 	Nomor          string
 	KepalaKeluarga int32
 	Alamat         string
+	Status         string
 }
 
 type DataKeluarga struct {
@@ -16,15 +17,6 @@ type DataKeluarga struct {
 	Nomor          string
 	KepalaKeluarga DataAnggota
 	Alamat         string
-}
-
-type UpdatedDataKeluarga struct {
-	Id               int32
-	IdWilayah        int32
-	IdLingkungan     int32
-	Nomor            string
-	Alamat           string
-	IdKepalaKeluarga int32
 }
 
 type DeletedDataKeluarga struct {
@@ -40,6 +32,18 @@ type DataKeluargaFinal struct {
 	KepalaKeluarga DataAnggotaWithStatus
 	Alamat         string
 	Anggota        []DataAnggotaWithStatus
+	Status         string
+}
+
+type UpdatedDataKeluarga struct {
+	Id             int32
+	IdWilayah      int32
+	IdLingkungan   int32
+	Nomor          string
+	Alamat         string
+	KepalaKeluarga DataAnggotaWithStatus
+	Anggota        []DataAnggotaWithStatus
+	Status         string
 }
 
 type TotalKeluarga struct {

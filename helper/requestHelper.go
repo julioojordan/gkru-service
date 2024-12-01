@@ -62,6 +62,7 @@ type UpdateKeluargaRequest struct {
 	IdLingkungan     int32  `json:"idLingkungan"`
 	Nomor            string `json:"nomor"`
 	Alamat           string `json:"alamat"`
+	Status           string `json:"status"`
 	IdKepalaKeluarga int32  `json:"idKepalaKeluarga"`
 	Keterangan       string `json:"keterangan"`
 }

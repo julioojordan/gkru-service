@@ -36,7 +36,7 @@ type DataKeluargaRepository interface {
 	FindAll(ctx *fiber.Ctx, tx *sql.Tx, db *sql.DB) ([]entity.DataKeluargaFinal, error)
 	GetTotalKeluarga(ctx *fiber.Ctx, tx *sql.Tx) (entity.TotalKeluarga, error)
 	AddKeluarga(ctx *fiber.Ctx, tx *sql.Tx) (entity.DataKeluargaRaw, error)
-	UpdateDataKeluarga(ctx *fiber.Ctx, tx *sql.Tx) (entity.UpdatedDataKeluarga, error)
+	UpdateDataKeluarga(ctx *fiber.Ctx, tx *sql.Tx, db *sql.DB) (entity.UpdatedDataKeluarga, error)
 	DeleteDataKeluarga(ctx *fiber.Ctx, tx *sql.Tx) (entity.DeletedDataKeluarga, error)
 	CountKeluargaWithParam(ctx *fiber.Ctx, tx *sql.Tx, from string, id int32) (entity.TotalInt, error)
 }

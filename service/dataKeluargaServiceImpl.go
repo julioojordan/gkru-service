@@ -86,7 +86,7 @@ func (service *DataKeluargaServiceImpl) UpdateDataKeluarga(ctx *fiber.Ctx) (inte
 	helper.PanicIfError(err)
 	defer helper.CommitOrRollback(tx, logger)
 
-	result, err := service.DataKeluargaRepository.UpdateDataKeluarga(ctx, tx)
+	result, err := service.DataKeluargaRepository.UpdateDataKeluarga(ctx, tx, service.DB)
 	if err != nil {
 		return nil, err
 	}

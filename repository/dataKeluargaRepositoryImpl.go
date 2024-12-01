@@ -23,7 +23,7 @@ func NewDataKeluargaRepository(db *sql.DB) DataKeluargaRepository {
 }
 
 func (repository *dataKeluargaRepositoryImpl) FindOne(ctx *fiber.Ctx, tx *sql.Tx, db *sql.DB) (entity.DataKeluargaFinal, error) {
-	dataKeluargaRawScript := "SELECT id, id_wilayah, id_lingkungan, nomor, id_kepala_keluarga, alamat FROM data_keluarga WHERE id = ?"
+	dataKeluargaRawScript := "SELECT id, id_wilayah, id_lingkungan, nomor, id_kepala_keluarga, alamat, status FROM data_keluarga WHERE id = ?"
 	idKeluarga := ctx.Params("idKeluarga")
 
 	result, err := tx.Query(dataKeluargaRawScript, idKeluarga)
@@ -33,7 +33,7 @@ func (repository *dataKeluargaRepositoryImpl) FindOne(ctx *fiber.Ctx, tx *sql.Tx
 
 	dataKeluargaRaw := entity.DataKeluargaRaw{}
 	if result.Next() {
-		err := result.Scan(&dataKeluargaRaw.Id, &dataKeluargaRaw.Wilayah, &dataKeluargaRaw.Lingkungan, &dataKeluargaRaw.Nomor, &dataKeluargaRaw.KepalaKeluarga, &dataKeluargaRaw.Alamat)
+		err := result.Scan(&dataKeluargaRaw.Id, &dataKeluargaRaw.Wilayah, &dataKeluargaRaw.Lingkungan, &dataKeluargaRaw.Nomor, &dataKeluargaRaw.KepalaKeluarga, &dataKeluargaRaw.Alamat, &dataKeluargaRaw.Status)
 		if err != nil {
 			return entity.DataKeluargaFinal{}, helper.CreateErrorMessage("Failed to scan result", err)
 		}
@@ -73,7 +73,7 @@ func (repository *dataKeluargaRepositoryImpl) FindOne(ctx *fiber.Ctx, tx *sql.Tx
 				TanggalBaptis: anggotaRel.TanggalBaptis,
 				Keterangan:    anggotaRel.Keterangan,
 				Status:        anggotaRel.Status,
-				JenisKelamin: anggotaRel.JenisKelamin,
+				JenisKelamin:  anggotaRel.JenisKelamin,
 			}
 		} else {
 			anggota = append(anggota, entity.DataAnggotaWithStatus{
@@ -83,7 +83,7 @@ func (repository *dataKeluargaRepositoryImpl) FindOne(ctx *fiber.Ctx, tx *sql.Tx
 				TanggalBaptis: anggotaRel.TanggalBaptis,
 				Keterangan:    anggotaRel.Keterangan,
 				Status:        anggotaRel.Status,
-				JenisKelamin: anggotaRel.JenisKelamin,
+				JenisKelamin:  anggotaRel.JenisKelamin,
 			})
 		}
 	}
@@ -96,11 +96,11 @@ func (repository *dataKeluargaRepositoryImpl) FindOne(ctx *fiber.Ctx, tx *sql.Tx
 		KepalaKeluarga: kepalaKeluarga,
 		Alamat:         dataKeluargaRaw.Alamat,
 		Anggota:        anggota,
+		Status:         dataKeluargaRaw.Status,
 	}
 
 	return dataKeluargaFinal, nil
 }
-
 
 func (repository *dataKeluargaRepositoryImpl) CountKeluargaWithParam(ctx *fiber.Ctx, tx *sql.Tx, param string, id int32) (entity.TotalInt, error) {
 	if param == "" {
@@ -131,7 +131,7 @@ func (repository *dataKeluargaRepositoryImpl) CountKeluargaWithParam(ctx *fiber.
 }
 
 func (repository *dataKeluargaRepositoryImpl) FindAll(ctx *fiber.Ctx, tx *sql.Tx, db *sql.DB) ([]entity.DataKeluargaFinal, error) {
-	query := "SELECT id, id_wilayah, id_lingkungan, nomor, id_kepala_keluarga, alamat FROM data_keluarga"
+	query := "SELECT id, id_wilayah, id_lingkungan, nomor, id_kepala_keluarga, alamat, status FROM data_keluarga"
 	var args []interface{}
 	var conditions []string
 
@@ -197,7 +197,7 @@ func (repository *dataKeluargaRepositoryImpl) FindAll(ctx *fiber.Ctx, tx *sql.Tx
 	// Loop through all rows
 	for result.Next() {
 		dataKeluargaRaw := entity.DataKeluargaRaw{}
-		err := result.Scan(&dataKeluargaRaw.Id, &dataKeluargaRaw.Wilayah, &dataKeluargaRaw.Lingkungan, &dataKeluargaRaw.Nomor, &dataKeluargaRaw.KepalaKeluarga, &dataKeluargaRaw.Alamat)
+		err := result.Scan(&dataKeluargaRaw.Id, &dataKeluargaRaw.Wilayah, &dataKeluargaRaw.Lingkungan, &dataKeluargaRaw.Nomor, &dataKeluargaRaw.KepalaKeluarga, &dataKeluargaRaw.Alamat, &dataKeluargaRaw.Status)
 		if err != nil {
 			return nil, helper.CreateErrorMessage("Failed to scan resul", err)
 		}
@@ -233,7 +233,7 @@ func (repository *dataKeluargaRepositoryImpl) FindAll(ctx *fiber.Ctx, tx *sql.Tx
 					TanggalBaptis: anggotaRel.TanggalBaptis,
 					Keterangan:    anggotaRel.Keterangan,
 					Status:        anggotaRel.Status,
-					JenisKelamin: anggotaRel.JenisKelamin,
+					JenisKelamin:  anggotaRel.JenisKelamin,
 				}
 			} else {
 				anggota = append(anggota, entity.DataAnggotaWithStatus{
@@ -243,7 +243,7 @@ func (repository *dataKeluargaRepositoryImpl) FindAll(ctx *fiber.Ctx, tx *sql.Tx
 					TanggalBaptis: anggotaRel.TanggalBaptis,
 					Keterangan:    anggotaRel.Keterangan,
 					Status:        anggotaRel.Status,
-					JenisKelamin: anggotaRel.JenisKelamin,
+					JenisKelamin:  anggotaRel.JenisKelamin,
 				})
 			}
 		}
@@ -257,6 +257,7 @@ func (repository *dataKeluargaRepositoryImpl) FindAll(ctx *fiber.Ctx, tx *sql.Tx
 			KepalaKeluarga: kepalaKeluarga,
 			Alamat:         dataKeluargaRaw.Alamat,
 			Anggota:        anggota,
+			Status:         dataKeluargaRaw.Status,
 		}
 
 		// Add to list
@@ -332,7 +333,7 @@ func (repository *dataKeluargaRepositoryImpl) AddKeluarga(ctx *fiber.Ctx, tx *sq
 	return newDataKeluarga, nil
 }
 
-func (repository *dataKeluargaRepositoryImpl) UpdateDataKeluarga(ctx *fiber.Ctx, tx *sql.Tx) (entity.UpdatedDataKeluarga, error) {
+func (repository *dataKeluargaRepositoryImpl) UpdateDataKeluarga(ctx *fiber.Ctx, tx *sql.Tx, db *sql.DB) (entity.UpdatedDataKeluarga, error) {
 	sqlScript := "UPDATE data_keluarga SET"
 	isKepalaKeluargaUpdated := false
 	repositories := ctx.Locals("repositories").(Repositories)
@@ -367,6 +368,10 @@ func (repository *dataKeluargaRepositoryImpl) UpdateDataKeluarga(ctx *fiber.Ctx,
 		setClauses = append(setClauses, "alamat = ?")
 		params = append(params, request.Alamat)
 	}
+	if request.Status != "" {
+		setClauses = append(setClauses, "status = ?")
+		params = append(params, request.Status)
+	}
 	if request.IdKepalaKeluarga != 0 {
 		setClauses = append(setClauses, "id_kepala_keluarga = ?")
 		params = append(params, request.IdKepalaKeluarga)
@@ -379,6 +384,7 @@ func (repository *dataKeluargaRepositoryImpl) UpdateDataKeluarga(ctx *fiber.Ctx,
 
 	sqlScript += " " + strings.Join(setClauses, ", ") + " WHERE id = ?"
 	fmt.Println(sqlScript)
+	fmt.Println(params)
 	params = append(params, idKeluarga)
 
 	_, err = tx.Exec(sqlScript, params...)
@@ -387,6 +393,10 @@ func (repository *dataKeluargaRepositoryImpl) UpdateDataKeluarga(ctx *fiber.Ctx,
 	}
 
 	//update relasi kepala keluarga di db misalkan ada body request untuk update kepala keluarga
+	// TO DO ada beberapa case yang masih kurang ->
+	// case 1 ayah meniggal -> istri auto updated jadi kepala keluarga
+	// case 2 ibu meninggal -> anak/anggota tertua auto updated jadi kepala keluarga
+	// case 3 tidak ada yanng meninggal tapi data kepala keluarga terupdate -> old kepala keluarga statusnya jadi "anggota" (karena tidak tahu sebelumnya dia istri atau ayah atau bagaimana jadi di default ke "anggota" saja)
 	if isKepalaKeluargaUpdated {
 		_, err := repositories.DataAnggotaRepository.UpdateKeteranganAnggota(ctx, tx)
 		if err != nil {
@@ -394,13 +404,47 @@ func (repository *dataKeluargaRepositoryImpl) UpdateDataKeluarga(ctx *fiber.Ctx,
 		}
 	}
 
+	getAnggotaRel, err := repositories.DataAnggotaKeluargaRelRepository.FindKeluargaAnggotaRel(int32(idKeluarga), db)
+	if err != nil {
+		return entity.UpdatedDataKeluarga{}, helper.CreateErrorMessage("Failed to retrieve anggota relationship data", err)
+	}
+
+	var kepalaKeluarga entity.DataAnggotaWithStatus
+	var anggota []entity.DataAnggotaWithStatus
+
+	for _, anggotaRel := range getAnggotaRel {
+		if anggotaRel.Hubungan == "Kepala Keluarga" {
+			kepalaKeluarga = entity.DataAnggotaWithStatus{
+				Id:            anggotaRel.IdAnggota,
+				NamaLengkap:   anggotaRel.NamaLengkap,
+				TanggalLahir:  anggotaRel.TanggalLahir,
+				TanggalBaptis: anggotaRel.TanggalBaptis,
+				Keterangan:    anggotaRel.Keterangan,
+				Status:        anggotaRel.Status,
+				JenisKelamin:  anggotaRel.JenisKelamin,
+			}
+		} else {
+			anggota = append(anggota, entity.DataAnggotaWithStatus{
+				Id:            anggotaRel.IdAnggota,
+				NamaLengkap:   anggotaRel.NamaLengkap,
+				TanggalLahir:  anggotaRel.TanggalLahir,
+				TanggalBaptis: anggotaRel.TanggalBaptis,
+				Keterangan:    anggotaRel.Keterangan,
+				Status:        anggotaRel.Status,
+				JenisKelamin:  anggotaRel.JenisKelamin,
+			})
+		}
+	}
+
 	newDataKeluarga := entity.UpdatedDataKeluarga{
-		Id:               int32(idKeluarga),
-		IdWilayah:        request.IdWilayah,
-		IdLingkungan:     request.IdLingkungan,
-		Nomor:            request.Nomor,
-		IdKepalaKeluarga: request.IdKepalaKeluarga,
-		Alamat:           request.Alamat,
+		Id:             int32(idKeluarga),
+		IdWilayah:      request.IdWilayah,
+		IdLingkungan:   request.IdLingkungan,
+		Nomor:          request.Nomor,
+		KepalaKeluarga: kepalaKeluarga,
+		Alamat:         request.Alamat,
+		Status:         request.Status,
+		Anggota:        anggota,
 	}
 
 	return newDataKeluarga, nil
