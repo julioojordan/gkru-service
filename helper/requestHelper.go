@@ -2,6 +2,7 @@ package helper
 
 import (
 	"gkru-service/entity"
+	"gkru-service/customType"
 	"time"
 )
 
@@ -39,12 +40,12 @@ type UserRequest struct {
 }
 
 type AddUserRequest struct {
-	Username        string    `json:"username"`
-	Password        string    `json:"password"`
-	KetuaLingkungan int32     `json:"ketuaLingkungan"`
-	KetuaWilayah    int32     `json:"ketuaWilayah"`
-	UpdatedBy       int32     `json:"updatedBy"`
-	CreatedBy       int32     `json:"createdBy"`
+	Username        string `json:"username"`
+	Password        string `json:"password"`
+	KetuaLingkungan int32  `json:"ketuaLingkungan"`
+	KetuaWilayah    int32  `json:"ketuaWilayah"`
+	UpdatedBy       int32  `json:"updatedBy"`
+	CreatedBy       int32  `json:"createdBy"`
 }
 type DeleteAnggotaRequest struct {
 	SelectedAnggota []entity.DataAnggotaComplete `json:"selectedAnggota"`
@@ -91,15 +92,15 @@ type AddTHRequest struct {
 }
 
 type UpdateAnggotaRequest struct {
-	Id            int32     `json:"idAnggota"`
-	NamaLengkap   string    `json:"namaLengkap"`
-	TanggalLahir  time.Time `json:"tanggalLahir"`
-	TanggalBaptis time.Time `json:"tanggalBaptis"`
-	Keterangan    string    `json:"keterangan"`
-	Status        string    `json:"status"`
-	Hubungan      string    `json:"hubungan"`
-	IdKeluarga    int32     `json:"idKeluarga"`
-	JenisKelamin  string    `json:"jenisKelamin"`
+	Id            int32  `json:"idAnggota"`
+	NamaLengkap   string `json:"namaLengkap"`
+	TanggalLahir  customType.CustomTime `json:"tanggalLahir"`
+	TanggalBaptis customType.CustomTime `json:"tanggalBaptis"`
+	Keterangan    string `json:"keterangan"`
+	Status        string `json:"status"`
+	Hubungan      string `json:"hubungan"`
+	IdKeluarga    int32  `json:"idKeluarga"`
+	JenisKelamin  string `json:"jenisKelamin"`
 }
 type UpdateKeteranganAnggotaRequest struct {
 	Id         int32  `json:"idKepalaKeluarga"`

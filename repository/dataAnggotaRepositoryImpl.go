@@ -382,11 +382,11 @@ func (repository *dataAnggotaRepositoryImpl) UpdateAnggota(ctx *fiber.Ctx, tx *s
 	}
 	if !request.TanggalLahir.IsZero() {
 		setClauses = append(setClauses, "tanggal_lahir = ?")
-		params = append(params, request.TanggalLahir)
+		params = append(params, request.TanggalLahir.ToTime())
 	}
 	if !request.TanggalBaptis.IsZero() {
 		setClauses = append(setClauses, "tanggal_baptis = ?")
-		params = append(params, request.TanggalBaptis)
+		params = append(params, request.TanggalBaptis.ToTime())
 	}
 	if request.Keterangan != "" { //apakah keterangan seperti istri, anak, dll bisa diupdate lewat sini ya nanti ? atau cuman dari update kelluarga saja misalkan ada perubahan data kepala keluarga ???? KEMUNGKINAN BESAR TIDAK PERLU
 		setClauses = append(setClauses, "keterangan = ?")
@@ -441,6 +441,7 @@ func (repository *dataAnggotaRepositoryImpl) UpdateAnggota(ctx *fiber.Ctx, tx *s
 		TanggalBaptis: request.TanggalBaptis,
 		Keterangan:    request.Keterangan,
 		Status:        request.Status,
+		JenisKelamin:  request.JenisKelamin,
 	}
 
 	return newDataAnggota, nil

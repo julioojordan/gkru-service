@@ -1,6 +1,8 @@
 package entity
 
-import "time"
+import (
+	"gkru-service/customType"
+)
 
 type DataAnggotaKeluargaRel struct {
 	Id         int32
@@ -14,8 +16,8 @@ type DataAnggotaWithKeluargaRel struct {
 	Hubungan      string
 	IdAnggota     int32
 	NamaLengkap   string
-	TanggalLahir  time.Time
-	TanggalBaptis time.Time
+	TanggalLahir  customType.CustomTime
+	TanggalBaptis customType.CustomTime
 	Keterangan    string
 	Status        string
 	JenisKelamin  string
