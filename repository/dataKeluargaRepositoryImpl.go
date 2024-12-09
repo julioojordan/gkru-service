@@ -265,9 +265,9 @@ func (repository *dataKeluargaRepositoryImpl) FindAll(ctx *fiber.Ctx, tx *sql.Tx
 	}
 
 	// If no rows were found, return an empty list
-	if len(dataKeluargaList) == 0 {
-		return nil, fiber.NewError(fiber.StatusNotFound, "No Data Keluarga found")
-	}
+	// if len(dataKeluargaList) == 0 {
+	// 	return nil, fiber.NewError(fiber.StatusNotFound, "No Data Keluarga found")
+	// }
 
 	return dataKeluargaList, nil
 }

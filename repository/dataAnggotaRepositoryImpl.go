@@ -189,9 +189,10 @@ func (repository *dataAnggotaRepositoryImpl) FindAll(ctx *fiber.Ctx, tx *sql.Tx)
 	}
 
 	// If no rows were found, return an empty list
-	if len(dataAnggotaList) == 0 {
-		return nil, fiber.NewError(fiber.StatusNotFound, "No Data Anggota found")
-	}
+	// no need to throw error when not found
+	// if len(dataAnggotaList) == 0 {
+	// 	return nil, fiber.NewError(fiber.StatusNotFound, "No Data Anggota found")
+	// }
 
 	return dataAnggotaList, nil
 }
@@ -289,9 +290,9 @@ func (repository *dataAnggotaRepositoryImpl) FindAllWithIdKeluarga(ctx *fiber.Ct
 	}
 
 	// If no rows were found, return an empty list
-	if len(dataAnggotaList) == 0 {
-		return nil, fiber.NewError(fiber.StatusNotFound, "No Data Anggota found")
-	}
+	// if len(dataAnggotaList) == 0 {
+	// 	return nil, fiber.NewError(fiber.StatusNotFound, "No Data Anggota found")
+	// }
 
 	return dataAnggotaList, nil
 }

@@ -239,9 +239,9 @@ func (repository *transactionHistoryRepositoryImpl) FindAll(ctx *fiber.Ctx, tx *
 	}
 
 	// Jika tidak ada data
-	if len(thFinals) == 0 {
-		return nil, fiber.NewError(fiber.StatusNotFound, "No data found")
-	}
+	// if len(thFinals) == 0 {
+	// 	return nil, fiber.NewError(fiber.StatusNotFound, "No data found")
+	// }
 
 	return thFinals, nil
 }
@@ -293,9 +293,9 @@ func (repository *transactionHistoryRepositoryImpl) FindAllWithIdKeluarga(ctx *f
 		thFinals = append(thFinals, thFinal)
 	}
 
-	if len(thFinals) == 0 {
-		return thFinals, nil
-	}
+	// if len(thFinals) == 0 {
+	// 	return thFinals, nil
+	// }
 
 	return thFinals, nil
 }

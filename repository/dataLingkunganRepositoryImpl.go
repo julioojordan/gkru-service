@@ -138,9 +138,9 @@ func (repository *dataLingkunganRepositoryImpl) FindAll(ctx *fiber.Ctx, tx *sql.
 		data = append(data, lingkungan)
 	} 
 	
-	if len(data) == 0 {
-		return nil, fiber.NewError(fiber.StatusNotFound, "lingkungan is not found")
-	}
+	// if len(data) == 0 {
+	// 	return nil, fiber.NewError(fiber.StatusNotFound, "lingkungan is not found")
+	// }
 	
 	return data, nil
 }

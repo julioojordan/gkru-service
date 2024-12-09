@@ -72,9 +72,9 @@ func (repository *dataWilayahRepositoryImpl) FindAll(ctx *fiber.Ctx, tx *sql.Tx)
 		dataList = append(dataList, wilayah)
 	}
 
-	if len(dataList) == 0 {
-		return nil, fiber.NewError(fiber.StatusNotFound, "lingkungan is not found")
-	}
+	// if len(dataList) == 0 {
+	// 	return nil, fiber.NewError(fiber.StatusNotFound, "wilayah is not found")
+	// }
 
 	return dataList, nil
 }

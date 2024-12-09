@@ -71,9 +71,9 @@ func (repository *userRepositoryImpl) FindAll(ctx *fiber.Ctx, tx *sql.Tx) ([]ent
 		users = append(users, user)
 	}
 
-	if len(users) == 0 {
-		return nil, fiber.NewError(fiber.StatusNotFound, "No users found")
-	}
+	// if len(users) == 0 {
+	// 	return nil, fiber.NewError(fiber.StatusNotFound, "No users found")
+	// }
 
 	return users, nil
 }
