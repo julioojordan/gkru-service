@@ -107,7 +107,7 @@ func (repository *dataKeluargaRepositoryImpl) CountKeluargaWithParam(ctx *fiber.
 		param = "lingkungan"
 	}
 
-	dataKeluargaRawScript := "SELECT COUNT(*) FROM data_keluarga WHERE id_lingkunan = ?"
+	dataKeluargaRawScript := "SELECT COUNT(*) FROM data_keluarga WHERE id_lingkungan = ?"
 	if param == "wilayah" {
 		dataKeluargaRawScript = "SELECT COUNT(*) FROM data_keluarga WHERE id_wilayah = ?"
 	}

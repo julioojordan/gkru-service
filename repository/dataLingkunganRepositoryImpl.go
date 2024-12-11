@@ -231,7 +231,7 @@ func (repository *dataLingkunganRepositoryImpl) Update(ctx *fiber.Ctx, tx *sql.T
 
 func (repository *dataLingkunganRepositoryImpl) DeleteOne(ctx *fiber.Ctx, tx *sql.Tx) (entity.IdDataLingkungan, error) {
 	repositories := ctx.Locals("repositories").(Repositories)
-	sqlScript := "DELETE lingkungan WHERE id = ?"
+	sqlScript := "DELETE FROM lingkungan WHERE id = ?"
 	idLingkungan, err := strconv.Atoi(ctx.Params("idLingkungan"))
 	if err != nil {
 		return entity.IdDataLingkungan{}, fiber.NewError(fiber.StatusBadRequest, "Invalid id Lingkungan, it must be an integer")
@@ -244,7 +244,7 @@ func (repository *dataLingkunganRepositoryImpl) DeleteOne(ctx *fiber.Ctx, tx *sq
 	}
 
 	if totalKeluarga.Total != 0 {
-		return entity.IdDataLingkungan{}, helper.CreateErrorMessage("Failed to delete data lingkungan karena data lingkungan masih digunakan oleh KK", err)
+		return entity.IdDataLingkungan{},fiber.NewError(fiber.StatusInternalServerError, "Failed to delete data lingkungan karena data lingkungan masih digunakan oleh KK")
 	}
 
 	// Executing the update statement
@@ -263,6 +263,28 @@ func (repository *dataLingkunganRepositoryImpl) DeleteOne(ctx *fiber.Ctx, tx *sq
 func (repository *dataLingkunganRepositoryImpl) GetTotalLingkungan(ctx *fiber.Ctx, tx *sql.Tx) (entity.TotalInt, error) {
 	sqlScript := "SELECT COUNT(*) FROM lingkungan"
 	result, err := tx.Query(sqlScript)
+	if err != nil {
+		return entity.TotalInt{}, helper.CreateErrorMessage("Failed to execute query", err)
+	}
+	defer result.Close()
+
+	totalInt := entity.TotalInt{}
+	if result.Next() {
+		err := result.Scan(&totalInt.Total)
+		if err != nil {
+			return entity.TotalInt{}, helper.CreateErrorMessage("Failed to scan result", err)
+		}
+		return totalInt, nil
+	} else {
+		return entity.TotalInt{}, fiber.NewError(fiber.StatusInternalServerError, "No data found")
+	}
+}
+
+
+
+func (repository *dataLingkunganRepositoryImpl) CountLingkunganWithIdWilayah(ctx *fiber.Ctx, tx *sql.Tx, idWilayah int32) (entity.TotalInt, error) {
+	sqlScript := "SELECT COUNT(*) FROM lingkungan WHERE id_wilayah = ?"
+	result, err := tx.Query(sqlScript, idWilayah)
 	if err != nil {
 		return entity.TotalInt{}, helper.CreateErrorMessage("Failed to execute query", err)
 	}

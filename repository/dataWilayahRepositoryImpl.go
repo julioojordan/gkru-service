@@ -160,10 +160,20 @@ func (repository *dataWilayahRepositoryImpl) Update(ctx *fiber.Ctx, tx *sql.Tx) 
 
 func (repository *dataWilayahRepositoryImpl) DeleteOne(ctx *fiber.Ctx, tx *sql.Tx) (entity.IdInt, error) {
 	repositories := ctx.Locals("repositories").(Repositories)
-	sqlScript := "DELETE wilayah WHERE id = ?"
+	sqlScript := "DELETE FROM wilayah WHERE id = ?"
 	idWilayah, err := strconv.Atoi(ctx.Params("idWilayah"))
 	if err != nil {
 		return entity.IdInt{}, fiber.NewError(fiber.StatusBadRequest, "Invalid id Wilayah, it must be an integer")
+	}
+
+	//check if ada lingkungan yang masih dalam wilayah yang bersangkutan -> jika ada throw error
+	totalLingkungan, errTotalLingkungan := repositories.DataLingkunganRepository.CountLingkunganWithIdWilayah(ctx, tx, int32(idWilayah))
+	if errTotalLingkungan != nil {
+		return entity.IdInt{}, errTotalLingkungan
+	}
+
+	if totalLingkungan.Total != 0 {
+		return entity.IdInt{}, fiber.NewError(fiber.StatusInternalServerError, "Failed to delete data wilayah karena data wilayah masih digunakan oleh beberapa lingkungan")
 	}
 
 	//check if kk masih ada yang pakai wilayah yang ingin di delete -> jika ada throw error
@@ -173,7 +183,7 @@ func (repository *dataWilayahRepositoryImpl) DeleteOne(ctx *fiber.Ctx, tx *sql.T
 	}
 
 	if totalKeluarga.Total != 0 {
-		return entity.IdInt{}, helper.CreateErrorMessage("Failed to delete data wilayah karena data wilayah masih digunakan oleh KK", err)
+		return entity.IdInt{},fiber.NewError(fiber.StatusInternalServerError,"Failed to delete data wilayah karena data wilayah masih digunakan oleh KK")
 	}
 
 	// Executing the update statement

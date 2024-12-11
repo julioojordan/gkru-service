@@ -66,6 +66,7 @@ type DataLingkunganRepository interface {
 	Update(ctx *fiber.Ctx, tx *sql.Tx) (entity.DataLingkunganWithIdWilayah, error)
 	DeleteOne(ctx *fiber.Ctx, tx *sql.Tx) (entity.IdDataLingkungan, error)
 	GetTotalLingkungan(ctx *fiber.Ctx, tx *sql.Tx) (entity.TotalInt, error)
+	CountLingkunganWithIdWilayah(ctx *fiber.Ctx, tx *sql.Tx, idWilayah int32) (entity.TotalInt, error)
 }
 
 type DataWilayahRepository interface {

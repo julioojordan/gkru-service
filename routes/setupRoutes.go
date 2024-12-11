@@ -183,10 +183,6 @@ func SetupRoutes(app *fiber.App, Customlogger *logrus.Logger) {
 		dataWilayahController := ctx.Locals("controllers").(controller.Controllers).DataWilayahController
 		return dataWilayahController.DeleteOne(ctx)
 	})
-	app.Get("/wilayah/delete", func(ctx *fiber.Ctx) error {
-		dataWilayahController := ctx.Locals("controllers").(controller.Controllers).DataWilayahController
-		return dataWilayahController.FindAll(ctx)
-	})
 	app.Get("/wilayah/getTotal", func(ctx *fiber.Ctx) error {
 		dataWilayahController := ctx.Locals("controllers").(controller.Controllers).DataWilayahController
 		return dataWilayahController.GetTotalWilayah(ctx)
