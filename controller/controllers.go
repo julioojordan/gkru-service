@@ -7,6 +7,7 @@ type UserController interface {
 	FindAll(ctx *fiber.Ctx) error
 	Update(ctx *fiber.Ctx) error
 	Add(ctx *fiber.Ctx) error
+	DeleteOne(ctx *fiber.Ctx) error
 }
 
 type DataKeluargaController interface {

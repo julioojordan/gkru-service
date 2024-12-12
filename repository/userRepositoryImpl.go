@@ -164,3 +164,22 @@ func (repository *userRepositoryImpl) Add(ctx *fiber.Ctx, tx *sql.Tx) (entity.Id
 
 	return response, nil
 }
+
+func (repository *userRepositoryImpl) DeleteOne(ctx *fiber.Ctx, tx *sql.Tx) (entity.IdInt, error) {
+	sqlScript := "DELETE FROM users WHERE id = ?"
+	idUser, err := strconv.Atoi(ctx.Params("idUser"))
+	if err != nil {
+		return entity.IdInt{}, fiber.NewError(fiber.StatusBadRequest, "Invalid id User, it must be an integer")
+	}
+
+	_, err = tx.Exec(sqlScript, idUser)
+	if err != nil {
+		return entity.IdInt{}, helper.CreateErrorMessage("Failed to delete data user", err)
+	}
+
+	response := entity.IdInt{
+		Id: int32(idUser),
+	}
+
+	return response, nil
+}

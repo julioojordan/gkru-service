@@ -98,3 +98,23 @@ func (controller *UserControllerImpl) Add(ctx *fiber.Ctx) error {
 	}).Info("success")
 	return ctx.JSON(res)
 }
+
+func (controller *UserControllerImpl) DeleteOne(ctx *fiber.Ctx) error {
+	logger, _ := ctx.Locals("logger").(*logrus.Logger)
+	dataWilayah, err := controller.UserService.DeleteOne(ctx)
+	if err != nil {
+		return helper.HandleError(ctx, logger, err)
+	}
+	res := entity.WebResponse{
+		Code:   200,
+		Status: "Ok",
+		Data:   dataWilayah,
+	}
+	logger.WithFields(logrus.Fields{
+		"type": "response",
+		"code": 200,
+		"status": utils.StatusMessage(200),
+		"data": res.Data,
+	}).Info("success")
+	return ctx.JSON(res)
+}

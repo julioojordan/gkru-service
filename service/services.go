@@ -9,6 +9,7 @@ type UserService interface {
 	FindAll(ctx *fiber.Ctx) (interface{}, error)
 	Update(ctx *fiber.Ctx) (interface{}, error)
 	Add(ctx *fiber.Ctx) (interface{}, error)
+	DeleteOne(ctx *fiber.Ctx) (interface{}, error)
 }
 
 type WealthService interface {

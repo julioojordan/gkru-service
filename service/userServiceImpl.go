@@ -88,3 +88,17 @@ func (service *UserServiceImpl) Add(ctx *fiber.Ctx) (interface{}, error) {
 
 	return result, nil
 }
+
+func (service *UserServiceImpl) DeleteOne(ctx *fiber.Ctx) (interface{}, error) {
+	logger, _ := ctx.Locals("logger").(*logrus.Logger)
+	tx, err := service.DB.Begin()
+	helper.PanicIfError(err)
+	defer helper.CommitOrRollback(tx, logger)
+
+	result, err := service.UserRepository.DeleteOne(ctx, tx)
+	if err != nil {
+		return nil, err
+	}
+
+	return result, nil
+}

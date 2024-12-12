@@ -43,6 +43,10 @@ func SetupRoutes(app *fiber.App, Customlogger *logrus.Logger) {
 		userController := ctx.Locals("controllers").(controller.Controllers).UserController
 		return userController.Update(ctx)
 	})
+	app.Delete("/user/:idUser/delete", func(ctx *fiber.Ctx) error {
+		userController := ctx.Locals("controllers").(controller.Controllers).UserController
+		return userController.DeleteOne(ctx)
+	})
 
 	// =========== KELUARGA ===============
 	app.Get("/keluarga/getTotal", func(ctx *fiber.Ctx) error {

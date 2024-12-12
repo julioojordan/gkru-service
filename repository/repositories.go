@@ -14,6 +14,7 @@ type UserRepository interface {
 	FindAll(ctx *fiber.Ctx, tx *sql.Tx) ([]entity.User, error)
 	Update(ctx *fiber.Ctx, tx *sql.Tx) (entity.User, error)
 	Add(ctx *fiber.Ctx, tx *sql.Tx) (entity.IdInt, error)
+	DeleteOne(ctx *fiber.Ctx, tx *sql.Tx) (entity.IdInt, error)
 }
 
 type WealthRepository interface {
