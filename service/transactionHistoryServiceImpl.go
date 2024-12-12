@@ -2,7 +2,6 @@ package service
 
 import (
 	"database/sql"
-	"fmt"
 	"gkru-service/helper"
 	"gkru-service/repository"
 
@@ -32,7 +31,6 @@ func (service *TransactionHistoryServiceImpl) GetTotalIncome(ctx *fiber.Ctx) (in
 	defer helper.CommitOrRollback(tx, logger)
 
 	totalWealth, err := service.TransactionHistoryRepository.GetTotalIncome(ctx, tx)
-	fmt.Println("total Income", totalWealth)
 	if err != nil {
 		return nil, err
 	}

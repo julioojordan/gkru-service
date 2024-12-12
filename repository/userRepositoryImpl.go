@@ -35,7 +35,7 @@ func (repository *userRepositoryImpl) FindOne(ctx *fiber.Ctx, tx *sql.Tx) (entit
 
 	result, err := tx.Query(sqlScript, request.Username, request.Password)
 	if err != nil {
-		return entity.User{}, helper.CreateErrorMessage("Failed to execute query", err)
+		return entity.User{}, helper.CreateErrorMessage("Gagal mengeksekusi query", err)
 	}
 	defer result.Close()
 
@@ -43,7 +43,7 @@ func (repository *userRepositoryImpl) FindOne(ctx *fiber.Ctx, tx *sql.Tx) (entit
 	if result.Next() {
 		err := result.Scan(&user.Id, &user.Username, &user.KetuaLingkungan, &user.KetuaWilayah)
 		if err != nil {
-			return user, helper.CreateErrorMessage("Failed to scan result", err)
+			return user, helper.CreateErrorMessage("Gagal untuk scan result", err)
 		}
 		return user, nil
 	} else {
@@ -56,7 +56,7 @@ func (repository *userRepositoryImpl) FindAll(ctx *fiber.Ctx, tx *sql.Tx) ([]ent
 
 	result, err := tx.Query(sqlScript)
 	if err != nil {
-		return []entity.User{}, helper.CreateErrorMessage("Failed to execute query", err)
+		return []entity.User{}, helper.CreateErrorMessage("Gagal mengeksekusi query", err)
 	}
 	defer result.Close()
 
@@ -66,7 +66,7 @@ func (repository *userRepositoryImpl) FindAll(ctx *fiber.Ctx, tx *sql.Tx) ([]ent
 		user := entity.User{}
 		err := result.Scan(&user.Id, &user.Username, &user.KetuaLingkungan, &user.KetuaWilayah)
 		if err != nil {
-			return nil, helper.CreateErrorMessage("Failed to scan result", err)
+			return nil, helper.CreateErrorMessage("Gagal untuk scan result", err)
 		}
 		users = append(users, user)
 	}
@@ -124,7 +124,7 @@ func (repository *userRepositoryImpl) Update(ctx *fiber.Ctx, tx *sql.Tx) (entity
 	// Executing the update statement
 	_, err = tx.Exec(sqlScript, params...)
 	if err != nil {
-		return entity.User{}, helper.CreateErrorMessage("Failed to update data user", err)
+		return entity.User{}, helper.CreateErrorMessage("Gagal untuk update data user", err)
 	}
 
 	response := entity.User{
@@ -150,16 +150,16 @@ func (repository *userRepositoryImpl) Add(ctx *fiber.Ctx, tx *sql.Tx) (entity.Id
 
 	result, err := tx.Exec(sqlScript, request.Username, request.Password, request.KetuaLingkungan, request.KetuaWilayah, currentTime, currentTime, request.CreatedBy, request.UpdatedBy)
 	if err != nil {
-		return entity.IdInt{}, helper.CreateErrorMessage("Failed to insert data user", err)
+		return entity.IdInt{}, helper.CreateErrorMessage("Gagal memasukan data user", err)
 	}
 
 	lastInsertId, err := result.LastInsertId()
 	if err != nil {
-		return entity.IdInt{}, helper.CreateErrorMessage("Failed to retrieve last inserted ID", err)
+		return entity.IdInt{}, helper.CreateErrorMessage("Gagal untuk retrieve last inserted ID", err)
 	}
 
 	response := entity.IdInt{
-		Id:             int32(lastInsertId),
+		Id: int32(lastInsertId),
 	}
 
 	return response, nil
@@ -174,7 +174,7 @@ func (repository *userRepositoryImpl) DeleteOne(ctx *fiber.Ctx, tx *sql.Tx) (ent
 
 	_, err = tx.Exec(sqlScript, idUser)
 	if err != nil {
-		return entity.IdInt{}, helper.CreateErrorMessage("Failed to delete data user", err)
+		return entity.IdInt{}, helper.CreateErrorMessage("Gagal untuk delete data user", err)
 	}
 
 	response := entity.IdInt{

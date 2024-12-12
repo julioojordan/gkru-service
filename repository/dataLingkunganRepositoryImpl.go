@@ -82,7 +82,7 @@ func (repository *dataLingkunganRepositoryImpl) FindOneWithParam(ctx *fiber.Ctx,
 	sqlScript := "SELECT l.id, l.kode_lingkungan, l.nama_lingkungan, w.id, w.kode_wilayah, w.nama_wilayah FROM lingkungan l JOIN wilayah w ON l.id_wilayah = w.id WHERE l.id = ?"
 	result, err := tx.Query(sqlScript, idLingkungan)
 	if err != nil {
-		return entity.DataLingkungan{}, helper.CreateErrorMessage("Failed to execute query", err)
+		return entity.DataLingkungan{}, helper.CreateErrorMessage("Gagal mengeksekusi query", err)
 	}
 	defer result.Close()
 
@@ -90,7 +90,7 @@ func (repository *dataLingkunganRepositoryImpl) FindOneWithParam(ctx *fiber.Ctx,
 	if result.Next() {
 		err := result.Scan(&raw.Id, &raw.KodeLingkungan, &raw.NamaLingkungan, &raw.IdWilayah, &raw.KodeWilayah, &raw.NamaWilayah)
 		if err != nil {
-			return entity.DataLingkungan{}, helper.CreateErrorMessage("Failed to scan result", err)
+			return entity.DataLingkungan{}, helper.CreateErrorMessage("Gagal untuk scan result", err)
 		}
 		wilayah := entity.DataWilayah{
 			Id:          raw.IdWilayah,
@@ -113,7 +113,7 @@ func (repository *dataLingkunganRepositoryImpl) FindAll(ctx *fiber.Ctx, tx *sql.
 	sqlScript := "SELECT l.id, l.kode_lingkungan, l.nama_lingkungan, w.id, w.kode_wilayah, w.nama_wilayah FROM lingkungan l JOIN wilayah w ON l.id_wilayah = w.id ORDER BY w.id ASC"
 	result, err := tx.Query(sqlScript)
 	if err != nil {
-		return []entity.DataLingkungan{}, helper.CreateErrorMessage("Failed to execute query", err)
+		return []entity.DataLingkungan{}, helper.CreateErrorMessage("Gagal mengeksekusi query", err)
 	}
 	defer result.Close()
 
@@ -122,7 +122,7 @@ func (repository *dataLingkunganRepositoryImpl) FindAll(ctx *fiber.Ctx, tx *sql.
 		raw := entity.DataLingkunganRaw{}
 		err := result.Scan(&raw.Id, &raw.KodeLingkungan, &raw.NamaLingkungan, &raw.IdWilayah, &raw.KodeWilayah, &raw.NamaWilayah)
 		if err != nil {
-			return []entity.DataLingkungan{}, helper.CreateErrorMessage("Failed to scan result", err)
+			return []entity.DataLingkungan{}, helper.CreateErrorMessage("Gagal untuk scan result", err)
 		}
 		wilayah := entity.DataWilayah{
 			Id:          raw.IdWilayah,
@@ -136,12 +136,12 @@ func (repository *dataLingkunganRepositoryImpl) FindAll(ctx *fiber.Ctx, tx *sql.
 			Wilayah:        wilayah,
 		}
 		data = append(data, lingkungan)
-	} 
-	
+	}
+
 	// if len(data) == 0 {
 	// 	return nil, fiber.NewError(fiber.StatusNotFound, "lingkungan is not found")
 	// }
-	
+
 	return data, nil
 }
 
@@ -156,12 +156,12 @@ func (repository *dataLingkunganRepositoryImpl) Add(ctx *fiber.Ctx, tx *sql.Tx) 
 
 	result, err := tx.Exec(sqlScript, request.KodeLingkungan, request.NamaLingkungan, request.Wilayah)
 	if err != nil {
-		return entity.DataLingkunganWithIdWilayah{}, helper.CreateErrorMessage("Failed to insert data lingkungan", err)
+		return entity.DataLingkunganWithIdWilayah{}, helper.CreateErrorMessage("Gagal memasukan data lingkungan", err)
 	}
 
 	lastInsertId, err := result.LastInsertId()
 	if err != nil {
-		return entity.DataLingkunganWithIdWilayah{}, helper.CreateErrorMessage("Failed to retrieve last inserted ID", err)
+		return entity.DataLingkunganWithIdWilayah{}, helper.CreateErrorMessage("Gagal untuk retrieve last inserted ID", err)
 	}
 
 	response := entity.DataLingkunganWithIdWilayah{
@@ -216,7 +216,7 @@ func (repository *dataLingkunganRepositoryImpl) Update(ctx *fiber.Ctx, tx *sql.T
 	// Executing the update statement
 	_, err = tx.Exec(sqlScript, params...)
 	if err != nil {
-		return entity.DataLingkunganWithIdWilayah{}, helper.CreateErrorMessage("Failed to update data lingkungan", err)
+		return entity.DataLingkunganWithIdWilayah{}, helper.CreateErrorMessage("Gagal untuk update data lingkungan", err)
 	}
 
 	response := entity.DataLingkunganWithIdWilayah{
@@ -244,13 +244,13 @@ func (repository *dataLingkunganRepositoryImpl) DeleteOne(ctx *fiber.Ctx, tx *sq
 	}
 
 	if totalKeluarga.Total != 0 {
-		return entity.IdDataLingkungan{},fiber.NewError(fiber.StatusInternalServerError, "Failed to delete data lingkungan karena data lingkungan masih digunakan oleh KK")
+		return entity.IdDataLingkungan{}, fiber.NewError(fiber.StatusInternalServerError, "Gagal untuk delete data lingkungan karena data lingkungan masih digunakan oleh KK")
 	}
 
 	// Executing the update statement
 	_, err = tx.Exec(sqlScript, idLingkungan)
 	if err != nil {
-		return entity.IdDataLingkungan{}, helper.CreateErrorMessage("Failed to delete data lingkungan", err)
+		return entity.IdDataLingkungan{}, helper.CreateErrorMessage("Gagal untuk delete data lingkungan", err)
 	}
 
 	response := entity.IdDataLingkungan{
@@ -264,7 +264,7 @@ func (repository *dataLingkunganRepositoryImpl) GetTotalLingkungan(ctx *fiber.Ct
 	sqlScript := "SELECT COUNT(*) FROM lingkungan"
 	result, err := tx.Query(sqlScript)
 	if err != nil {
-		return entity.TotalInt{}, helper.CreateErrorMessage("Failed to execute query", err)
+		return entity.TotalInt{}, helper.CreateErrorMessage("Gagal mengeksekusi query", err)
 	}
 	defer result.Close()
 
@@ -272,21 +272,19 @@ func (repository *dataLingkunganRepositoryImpl) GetTotalLingkungan(ctx *fiber.Ct
 	if result.Next() {
 		err := result.Scan(&totalInt.Total)
 		if err != nil {
-			return entity.TotalInt{}, helper.CreateErrorMessage("Failed to scan result", err)
+			return entity.TotalInt{}, helper.CreateErrorMessage("Gagal untuk scan result", err)
 		}
 		return totalInt, nil
 	} else {
-		return entity.TotalInt{}, fiber.NewError(fiber.StatusInternalServerError, "No data found")
+		return entity.TotalInt{}, fiber.NewError(fiber.StatusInternalServerError, "Data Tidak Ditemukan")
 	}
 }
-
-
 
 func (repository *dataLingkunganRepositoryImpl) CountLingkunganWithIdWilayah(ctx *fiber.Ctx, tx *sql.Tx, idWilayah int32) (entity.TotalInt, error) {
 	sqlScript := "SELECT COUNT(*) FROM lingkungan WHERE id_wilayah = ?"
 	result, err := tx.Query(sqlScript, idWilayah)
 	if err != nil {
-		return entity.TotalInt{}, helper.CreateErrorMessage("Failed to execute query", err)
+		return entity.TotalInt{}, helper.CreateErrorMessage("Gagal mengeksekusi query", err)
 	}
 	defer result.Close()
 
@@ -294,10 +292,10 @@ func (repository *dataLingkunganRepositoryImpl) CountLingkunganWithIdWilayah(ctx
 	if result.Next() {
 		err := result.Scan(&totalInt.Total)
 		if err != nil {
-			return entity.TotalInt{}, helper.CreateErrorMessage("Failed to scan result", err)
+			return entity.TotalInt{}, helper.CreateErrorMessage("Gagal untuk scan result", err)
 		}
 		return totalInt, nil
 	} else {
-		return entity.TotalInt{}, fiber.NewError(fiber.StatusInternalServerError, "No data found")
+		return entity.TotalInt{}, fiber.NewError(fiber.StatusInternalServerError, "Data Tidak Ditemukan")
 	}
 }

@@ -2,7 +2,6 @@ package service
 
 import (
 	"database/sql"
-	"fmt"
 	"gkru-service/authentication"
 	"gkru-service/helper"
 	"gkru-service/repository"
@@ -34,7 +33,6 @@ func (service *UserServiceImpl) FindOne(ctx *fiber.Ctx) (interface{}, error) {
 
 	user, err := service.UserRepository.FindOne(ctx, tx)
 	if err != nil {
-		fmt.Println("err", err)
 		if err.Error() != "user is not found" {
 			return nil, fiber.ErrInternalServerError
 		}

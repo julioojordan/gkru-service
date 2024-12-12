@@ -66,7 +66,6 @@ func SetupRoutes(app *fiber.App, Customlogger *logrus.Logger) {
 		return dataKeluargaController.DeleteDataKeluarga(ctx)
 	})
 	app.Get("/keluarga/:idKeluarga", func(ctx *fiber.Ctx) error {
-		fmt.Println("masuk /Keluarga/:idKeluarga")
 		dataKeluargaController := ctx.Locals("controllers").(controller.Controllers).DataKeluargaController
 		return dataKeluargaController.FindOne(ctx)
 	})
@@ -87,7 +86,6 @@ func SetupRoutes(app *fiber.App, Customlogger *logrus.Logger) {
 		return transactionHistoryController.Add(ctx)
 	})
 	app.Get("/history/getTotalIncome", func(ctx *fiber.Ctx) error {
-		fmt.Println("masuk /history/getTotalIncome")
 		transactionHistoryController := ctx.Locals("controllers").(controller.Controllers).TransactionHistoryController
 		return transactionHistoryController.GetTotalIncome(ctx)
 	})

@@ -33,7 +33,7 @@ func (repository *transactionHistoryRepositoryImpl) GetTotalIncome(ctx *fiber.Ct
 	   AND YEAR(tanggal) = YEAR(CURRENT_DATE);*/
 	result, err := helper.AddLingkunganOrWilayahQueryHelper(idWilayah, idLingkungan, sqlScript, tx)
 	if err != nil {
-		return entity.AmountHistory{}, helper.CreateErrorMessage("Failed to execute query", err)
+		return entity.AmountHistory{}, helper.CreateErrorMessage("Gagal mengeksekusi query", err)
 	}
 	defer result.Close()
 
@@ -42,10 +42,10 @@ func (repository *transactionHistoryRepositoryImpl) GetTotalIncome(ctx *fiber.Ct
 	if result.Next() {
 		err := result.Scan(&AmountHistory.Nominal)
 		if err != nil {
-			return AmountHistory, helper.CreateErrorMessage("Failed to scan result", err)
+			return AmountHistory, helper.CreateErrorMessage("Gagal untuk scan result", err)
 		}
 	} else {
-		return AmountHistory, fiber.NewError(fiber.StatusInternalServerError, "No Data Found")
+		return AmountHistory, fiber.NewError(fiber.StatusInternalServerError, "Data Tidak Ditemukan")
 	}
 
 	return AmountHistory, nil
@@ -61,7 +61,7 @@ func (repository *transactionHistoryRepositoryImpl) GetTotalOutcome(ctx *fiber.C
 	   AND YEAR(tanggal) = YEAR(CURRENT_DATE);*/
 	result, err := helper.AddLingkunganOrWilayahQueryHelper(idWilayah, idLingkungan, sqlScript, tx)
 	if err != nil {
-		return entity.AmountHistory{}, helper.CreateErrorMessage("Failed to execute query", err)
+		return entity.AmountHistory{}, helper.CreateErrorMessage("Gagal mengeksekusi query", err)
 	}
 	defer result.Close()
 	var nominal sql.NullInt64
@@ -69,7 +69,7 @@ func (repository *transactionHistoryRepositoryImpl) GetTotalOutcome(ctx *fiber.C
 	if result.Next() {
 		err := result.Scan(&nominal)
 		if err != nil {
-			return entity.AmountHistory{}, helper.CreateErrorMessage("Failed to scan result", err)
+			return entity.AmountHistory{}, helper.CreateErrorMessage("Gagal untuk scan result", err)
 		}
 		AmountHistory := entity.AmountHistory{
 			Nominal: int32(0),
@@ -80,7 +80,7 @@ func (repository *transactionHistoryRepositoryImpl) GetTotalOutcome(ctx *fiber.C
 
 		return AmountHistory, nil
 	} else {
-		return entity.AmountHistory{}, fiber.NewError(fiber.StatusInternalServerError, "No Data Found")
+		return entity.AmountHistory{}, fiber.NewError(fiber.StatusInternalServerError, "Data Tidak Ditemukan")
 	}
 }
 
@@ -162,7 +162,7 @@ func (repository *transactionHistoryRepositoryImpl) FindOne(ctx *fiber.Ctx, tx *
 
 	result, err := tx.Query(sqlScript, idTh)
 	if err != nil {
-		return entity.ThFinal{}, helper.CreateErrorMessage("Failed to execute query", err)
+		return entity.ThFinal{}, helper.CreateErrorMessage("Gagal mengeksekusi query", err)
 	}
 	defer result.Close()
 
@@ -191,11 +191,11 @@ func (repository *transactionHistoryRepositoryImpl) FindOne(ctx *fiber.Ctx, tx *
 			&dataThRaw.NamaWilayah,
 		)
 		if err != nil {
-			return entity.ThFinal{}, helper.CreateErrorMessage("Failed to scan result", err)
+			return entity.ThFinal{}, helper.CreateErrorMessage("Gagal untuk scan result", err)
 		}
 
 	} else {
-		return entity.ThFinal{}, fiber.NewError(fiber.StatusInternalServerError, "No data found")
+		return entity.ThFinal{}, fiber.NewError(fiber.StatusInternalServerError, "Data Tidak Ditemukan")
 	}
 
 	response := mapToThFinal(dataThRaw)
@@ -219,7 +219,7 @@ func (repository *transactionHistoryRepositoryImpl) FindAll(ctx *fiber.Ctx, tx *
 	// Eksekusi query
 	result, err := tx.Query(sqlScript)
 	if err != nil {
-		return nil, helper.CreateErrorMessage("Failed to execute query", err)
+		return nil, helper.CreateErrorMessage("Gagal mengeksekusi query", err)
 	}
 	defer result.Close()
 
@@ -230,7 +230,7 @@ func (repository *transactionHistoryRepositoryImpl) FindAll(ctx *fiber.Ctx, tx *
 		dataThRaw := entity.ThRaw{}
 		err := result.Scan(&dataThRaw.Id, &dataThRaw.Nominal, &dataThRaw.IdKeluarga, &dataThRaw.Keterangan, &dataThRaw.CreatorId, &dataThRaw.IdWilayah, &dataThRaw.IdLingkungan, &dataThRaw.UpdatorId, &dataThRaw.SubKeterangan, &dataThRaw.CreatedDate, &dataThRaw.UpdatedDate, &dataThRaw.Bulan, &dataThRaw.Tahun, &dataThRaw.UserName, &dataThRaw.KodeLingkungan, &dataThRaw.NamaLingkungan, &dataThRaw.KodeWilayah, &dataThRaw.NamaWilayah)
 		if err != nil {
-			return nil, helper.CreateErrorMessage("Failed to scan result", err)
+			return nil, helper.CreateErrorMessage("Gagal untuk scan result", err)
 		}
 
 		// Gunakan fungsi mapping
@@ -240,7 +240,7 @@ func (repository *transactionHistoryRepositoryImpl) FindAll(ctx *fiber.Ctx, tx *
 
 	// Jika tidak ada data
 	// if len(thFinals) == 0 {
-	// 	return nil, fiber.NewError(fiber.StatusNotFound, "No data found")
+	// 	return nil, fiber.NewError(fiber.StatusNotFound, "Data Tidak Ditemukan")
 	// }
 
 	return thFinals, nil
@@ -286,7 +286,7 @@ func (repository *transactionHistoryRepositoryImpl) FindAllWithIdKeluarga(ctx *f
 		dataThRaw := entity.ThRaw{}
 		err := result.Scan(&dataThRaw.Id, &dataThRaw.Nominal, &dataThRaw.IdKeluarga, &dataThRaw.Keterangan, &dataThRaw.CreatorId, &dataThRaw.IdWilayah, &dataThRaw.IdLingkungan, &dataThRaw.UpdatorId, &dataThRaw.SubKeterangan, &dataThRaw.CreatedDate, &dataThRaw.UpdatedDate, &dataThRaw.Bulan, &dataThRaw.Tahun, &dataThRaw.UserName, &dataThRaw.KodeLingkungan, &dataThRaw.NamaLingkungan, &dataThRaw.KodeWilayah, &dataThRaw.NamaWilayah)
 		if err != nil {
-			return nil, helper.CreateErrorMessage("Failed to scan result", err)
+			return nil, helper.CreateErrorMessage("Gagal untuk scan result", err)
 		}
 
 		thFinal := mapToThFinal(dataThRaw)
@@ -311,7 +311,6 @@ func (repository *transactionHistoryRepositoryImpl) Update(ctx *fiber.Ctx, tx *s
 	request := new(helper.UpdateTHRequest)
 	marshalError := json.Unmarshal(body, request)
 	if marshalError != nil {
-		fmt.Println(marshalError)
 		return entity.UpdatedThFinal{}, fiber.NewError(fiber.StatusBadRequest, "Invalid request body")
 	}
 
@@ -361,8 +360,7 @@ func (repository *transactionHistoryRepositoryImpl) Update(ctx *fiber.Ctx, tx *s
 	// Executing the update statement
 	_, err = tx.Exec(sqlScript, params...)
 	if err != nil {
-		fmt.Println(err)
-		return entity.UpdatedThFinal{}, helper.CreateErrorMessage("Failed to update data riwayat transaksi", err)
+		return entity.UpdatedThFinal{}, helper.CreateErrorMessage("Gagal untuk update data riwayat transaksi", err)
 	}
 
 	response := entity.UpdatedThFinal{
@@ -390,8 +388,7 @@ func (repository *transactionHistoryRepositoryImpl) Delete(ctx *fiber.Ctx, tx *s
 	// Executing the update statement
 	_, err = tx.Exec(sqlScript, idTh)
 	if err != nil {
-		fmt.Println(err)
-		return entity.IdInt{}, helper.CreateErrorMessage("Failed to delete data riwayat transaksi", err)
+		return entity.IdInt{}, helper.CreateErrorMessage("Gagal untuk delete data riwayat transaksi", err)
 	}
 
 	response := entity.IdInt{
@@ -411,8 +408,6 @@ func (repository *transactionHistoryRepositoryImpl) Add(ctx *fiber.Ctx, tx *sql.
 		errorMessage := fmt.Sprintf("%s: %v", "Invalid request body", err.Error())
 		return entity.CreatedTh{}, fiber.NewError(fiber.StatusBadRequest, errorMessage)
 	}
-
-	fmt.Println(form)
 
 	// Extract JSON fields from form
 	nominal, _ := strconv.Atoi(form.Value["Nominal"][0])
@@ -435,14 +430,14 @@ func (repository *transactionHistoryRepositoryImpl) Add(ctx *fiber.Ctx, tx *sql.
 		// Get root directory
 		rootPath, err := os.Getwd()
 		if err != nil {
-			return entity.CreatedTh{}, fiber.NewError(fiber.StatusInternalServerError, "Failed to get working directory")
+			return entity.CreatedTh{}, fiber.NewError(fiber.StatusInternalServerError, "Gagal untuk get working directory")
 		}
 
 		// Ensure uploads folder exists
 		uploadDir := filepath.Join(rootPath, "uploads")
 		if _, err := os.Stat(uploadDir); os.IsNotExist(err) {
 			if err := os.MkdirAll(uploadDir, os.ModePerm); err != nil {
-				return entity.CreatedTh{}, fiber.NewError(fiber.StatusInternalServerError, "Failed to create upload directory")
+				return entity.CreatedTh{}, fiber.NewError(fiber.StatusInternalServerError, "Gagal untuk create upload directory")
 			}
 		}
 
@@ -451,25 +446,24 @@ func (repository *transactionHistoryRepositoryImpl) Add(ctx *fiber.Ctx, tx *sql.
 
 		// Save the file
 		if err := ctx.SaveFile(file, destination); err != nil {
-			return entity.CreatedTh{}, fiber.NewError(fiber.StatusInternalServerError, "Failed to save file")
+			return entity.CreatedTh{}, fiber.NewError(fiber.StatusInternalServerError, "Gagal untuk save file")
 		}
 
 		// Encode file name supaya menghindari jika ada spasi di nama file
 		safeFileName := url.QueryEscape(file.Filename)
 		filePath = "/uploads/" + safeFileName
-		fmt.Println("File saved to:", filePath)
 	}
 
 	// Execute database query
 	result, err := tx.Exec(sqlScript, nominal, idKeluarga, keterangan, createdBy, idWilayah, idLingkungan, subKeterangan, currentTime, bulan, tahun, filePath)
 	if err != nil {
-		errorMessage := fmt.Sprintf("%s: %v", "Failed to insert data", err.Error())
+		errorMessage := fmt.Sprintf("%s: %v", "Gagal memasukan data", err.Error())
 		return entity.CreatedTh{}, fiber.NewError(fiber.StatusInternalServerError, errorMessage)
 	}
 
 	lastInsertId, err := result.LastInsertId()
 	if err != nil {
-		return entity.CreatedTh{}, fiber.NewError(fiber.StatusInternalServerError, "Failed to retrieve last insert ID")
+		return entity.CreatedTh{}, fiber.NewError(fiber.StatusInternalServerError, "Gagal mendapatkan ID data yang terakhir dimasukan")
 	}
 
 	response := entity.CreatedTh{

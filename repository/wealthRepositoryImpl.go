@@ -19,18 +19,18 @@ func NewWealthRepository(db *sql.DB) WealthRepository {
 
 func (repository *wealthRepositoryImpl) GetTotal(ctx *fiber.Ctx, tx *sql.Tx) (entity.TotalWealth, error) {
 	sqlScript := "SELECT SUM(total) FROM wealth"
-	result, err :=tx.Query(sqlScript)
-	helper.PanicIfError(err);
+	result, err := tx.Query(sqlScript)
+	helper.PanicIfError(err)
 	defer result.Close()
-	
+
 	totalWealth := entity.TotalWealth{}
-	if result.Next(){
+	if result.Next() {
 		err := result.Scan(&totalWealth.Total)
 		if err != nil {
-			return totalWealth, helper.CreateErrorMessage("Failed to scan result", err)
+			return totalWealth, helper.CreateErrorMessage("Gagal untuk scan result", err)
 		}
 		return totalWealth, nil
-	} else{
-		return totalWealth, fiber.NewError(fiber.StatusInternalServerError , "Error Internal")
+	} else {
+		return totalWealth, fiber.NewError(fiber.StatusInternalServerError, "Error Internal")
 	}
 }

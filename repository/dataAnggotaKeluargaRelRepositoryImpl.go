@@ -2,7 +2,6 @@ package repository
 
 import (
 	"database/sql"
-	"fmt"
 
 	"gkru-service/entity"
 	"gkru-service/helper"
@@ -24,9 +23,6 @@ func (repository *dataAnggotaKeluargaRelRepositoryImpl) FindKeluargaAnggotaRel(i
 	helper.PanicIfError(err)
 	defer rows.Close()
 
-	
-	fmt.Println("FindKeluargaAnggotaRel 1")
-
 	var results []entity.DataAnggotaWithKeluargaRel
 	for rows.Next() {
 		data := entity.DataAnggotaWithKeluargaRel{}
@@ -36,7 +32,7 @@ func (repository *dataAnggotaKeluargaRelRepositoryImpl) FindKeluargaAnggotaRel(i
 	}
 
 	if len(results) == 0 {
-		return nil, fiber.NewError(fiber.StatusNotFound, "Data is not found")
+		return nil, fiber.NewError(fiber.StatusNotFound, "Data Tidak Ditemukan")
 	}
 
 	return results, nil

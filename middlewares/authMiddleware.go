@@ -11,14 +11,12 @@ import (
 func AuthMiddleware(c *fiber.Ctx) error {
 	auth := c.Get("Authorization")
 	if auth == "" {
-		fmt.Println("missing Auth Header")
 		return c.Status(fiber.StatusUnauthorized).SendString("unauthorized")
 	}
 
 	tokenString := auth[len("Bearer "):]
 	err := authentication.VerifyToken(tokenString)
 	if err != nil {
-		fmt.Println("invalid token")
 		return c.Status(fiber.StatusUnauthorized).SendString("unauthorized 2")
 	}
 

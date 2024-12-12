@@ -23,7 +23,7 @@ func (repository *dataAnggotaRepositoryImpl) GetTotalAnggota(ctx *fiber.Ctx, tx 
 	sqlScript := "SELECT COUNT(*) FROM data_anggota where status='HIDUP'"
 	result, err := tx.Query(sqlScript)
 	if err != nil {
-		return entity.TotalAnggota{}, helper.CreateErrorMessage("Failed to execute query", err)
+		return entity.TotalAnggota{}, helper.CreateErrorMessage("Gagal mengeksekusi query", err)
 	}
 	defer result.Close()
 
@@ -31,11 +31,11 @@ func (repository *dataAnggotaRepositoryImpl) GetTotalAnggota(ctx *fiber.Ctx, tx 
 	if result.Next() {
 		err := result.Scan(&totalAnggota.Total)
 		if err != nil {
-			return entity.TotalAnggota{}, helper.CreateErrorMessage("Failed to scan result", err)
+			return entity.TotalAnggota{}, helper.CreateErrorMessage("Gagal untuk scan result", err)
 		}
 		return totalAnggota, nil
 	} else {
-		return entity.TotalAnggota{}, fiber.NewError(fiber.StatusInternalServerError, "No data found")
+		return entity.TotalAnggota{}, fiber.NewError(fiber.StatusInternalServerError, "Data Tidak Ditemukan")
 	}
 }
 
@@ -44,28 +44,25 @@ func (repository *dataAnggotaRepositoryImpl) AddAnggota(ctx *fiber.Ctx, tx *sql.
 	body := ctx.Body()
 	request := new(helper.AddAnggotaRequest)
 	err := json.Unmarshal(body, request)
-	fmt.Println(request)
 	if err != nil {
-		fmt.Println(err)
 		return entity.DataAnggota{}, fiber.NewError(fiber.StatusBadRequest, "Invalid request body")
 	}
 
 	// to do kalo misal request.Keterangan = Kepala keluarga harusnya ada yang nambahin ke data Keluarga juga (?) -> ditambahin di view list keluarga aja ntar
 	result, err := tx.Exec(sqlScript, request.NamaLengkap, request.TanggalLahir, request.TanggalBaptis, request.Keterangan, request.Status, request.JenisKelamin)
 	if err != nil {
-		fmt.Println(err)
-		return entity.DataAnggota{}, helper.CreateErrorMessage("Failed to insert data anggota", err)
+		return entity.DataAnggota{}, helper.CreateErrorMessage("Gagal memasukan data anggota", err)
 	}
 
 	lastInsertId, err := result.LastInsertId()
 	if err != nil {
-		return entity.DataAnggota{}, helper.CreateErrorMessage("Failed to retrieve last insert ID", err)
+		return entity.DataAnggota{}, helper.CreateErrorMessage("Gagal mendapatkan ID data yang terakhir dimasukan", err)
 	}
 
 	sqlScriptRelData := "INSERT INTO keluarga_anggota_rel (id_keluarga, id_anggota, hubungan) VALUES(?, ?, ?)"
 	_, err = tx.Exec(sqlScriptRelData, request.IdKeluarga, lastInsertId, request.Hubungan)
 	if err != nil {
-		return entity.DataAnggota{}, helper.CreateErrorMessage("Failed to insert keluarga anggota relation data", err)
+		return entity.DataAnggota{}, helper.CreateErrorMessage("Gagal memasukan keluarga anggota relation data", err)
 	}
 
 	newDataAnggota := entity.DataAnggota{
@@ -98,10 +95,10 @@ func (repository *dataAnggotaRepositoryImpl) FindOne(ctx *fiber.Ctx, tx *sql.Tx)
 	if result.Next() {
 		err := result.Scan(&dataAnggotaComplete.Id, &dataAnggotaComplete.NamaLengkap, &dataAnggotaComplete.TanggalLahir, &dataAnggotaComplete.TanggalBaptis, &dataAnggotaComplete.Keterangan, &dataAnggotaComplete.Status, &dataAnggotaComplete.JenisKelamin, &dataAnggotaComplete.IdKeluarga, &dataAnggotaComplete.Hubungan, &dataAnggotaComplete.IdWilayah, &dataAnggotaComplete.IdLingkungan, &dataAnggotaComplete.KodeLingkungan, &dataAnggotaComplete.NamaLingkungan, &dataAnggotaComplete.KodeWilayah, &dataAnggotaComplete.NamaWilayah)
 		if err != nil {
-			return entity.DataAnggotaComplete{}, helper.CreateErrorMessage("Failed to scan result", err)
+			return entity.DataAnggotaComplete{}, helper.CreateErrorMessage("Gagal untuk scan result", err)
 		}
 	} else {
-		return entity.DataAnggotaComplete{}, fiber.NewError(fiber.StatusInternalServerError, "No data found")
+		return entity.DataAnggotaComplete{}, fiber.NewError(fiber.StatusInternalServerError, "Data Tidak Ditemukan")
 	}
 
 	return dataAnggotaComplete, nil
@@ -170,7 +167,7 @@ func (repository *dataAnggotaRepositoryImpl) FindAll(ctx *fiber.Ctx, tx *sql.Tx)
 
 	result, err := tx.Query(query, args...)
 	if err != nil {
-		errorMessage := fmt.Sprintf("Failed to execute query: %v", err.Error())
+		errorMessage := fmt.Sprintf("Gagal mengeksekusi query: %v", err.Error())
 		return nil, fiber.NewError(fiber.StatusInternalServerError, errorMessage)
 	}
 	defer result.Close()
@@ -181,7 +178,7 @@ func (repository *dataAnggotaRepositoryImpl) FindAll(ctx *fiber.Ctx, tx *sql.Tx)
 		dataAnggotaComplete := entity.DataAnggotaComplete{}
 		err := result.Scan(&dataAnggotaComplete.Id, &dataAnggotaComplete.NamaLengkap, &dataAnggotaComplete.TanggalLahir, &dataAnggotaComplete.TanggalBaptis, &dataAnggotaComplete.Keterangan, &dataAnggotaComplete.Status, &dataAnggotaComplete.JenisKelamin, &dataAnggotaComplete.IdKeluarga, &dataAnggotaComplete.Hubungan, &dataAnggotaComplete.IdWilayah, &dataAnggotaComplete.IdLingkungan, &dataAnggotaComplete.KodeLingkungan, &dataAnggotaComplete.NamaLingkungan, &dataAnggotaComplete.KodeWilayah, &dataAnggotaComplete.NamaWilayah)
 		if err != nil {
-			return nil, helper.CreateErrorMessage("Failed to scan result", err)
+			return nil, helper.CreateErrorMessage("Gagal untuk scan result", err)
 		}
 
 		// Add to list
@@ -271,7 +268,7 @@ func (repository *dataAnggotaRepositoryImpl) FindAllWithIdKeluarga(ctx *fiber.Ct
 
 	result, err := tx.Query(query, args...)
 	if err != nil {
-		errorMessage := fmt.Sprintf("Failed to execute query: %v", err.Error())
+		errorMessage := fmt.Sprintf("Gagal mengeksekusi query: %v", err.Error())
 		return nil, fiber.NewError(fiber.StatusInternalServerError, errorMessage)
 	}
 	defer result.Close()
@@ -282,7 +279,7 @@ func (repository *dataAnggotaRepositoryImpl) FindAllWithIdKeluarga(ctx *fiber.Ct
 		dataAnggotaComplete := entity.DataAnggotaComplete{}
 		err := result.Scan(&dataAnggotaComplete.Id, &dataAnggotaComplete.NamaLengkap, &dataAnggotaComplete.TanggalLahir, &dataAnggotaComplete.TanggalBaptis, &dataAnggotaComplete.Keterangan, &dataAnggotaComplete.Status, &dataAnggotaComplete.JenisKelamin, &dataAnggotaComplete.IdKeluarga, &dataAnggotaComplete.Hubungan, &dataAnggotaComplete.IdWilayah, &dataAnggotaComplete.IdLingkungan, &dataAnggotaComplete.KodeLingkungan, &dataAnggotaComplete.NamaLingkungan, &dataAnggotaComplete.KodeWilayah, &dataAnggotaComplete.NamaWilayah)
 		if err != nil {
-			return nil, helper.CreateErrorMessage("Failed to scan result", err)
+			return nil, helper.CreateErrorMessage("Gagal untuk scan result", err)
 		}
 
 		// Add to list
@@ -311,7 +308,7 @@ func (repository *dataAnggotaRepositoryImpl) UpdateKepalaKeluarga(ctx *fiber.Ctx
 
 	result, err := tx.Query(getIstriScript, idKeluarga, likeCondition)
 	if err != nil {
-		return helper.CreateErrorMessage("Failed to execute select query", err)
+		return helper.CreateErrorMessage("Gagal untuk execute select query", err)
 	}
 	defer result.Close()
 	idAnggotaResult := entity.IdDataAnggota{}
@@ -319,7 +316,7 @@ func (repository *dataAnggotaRepositoryImpl) UpdateKepalaKeluarga(ctx *fiber.Ctx
 	for result.Next() {
 		err := result.Scan(&idAnggotaResult.Id)
 		if err != nil {
-			return helper.CreateErrorMessage("Failed to scan result", err)
+			return helper.CreateErrorMessage("Gagal untuk scan result", err)
 		}
 		dataFound = true
 	}
@@ -328,14 +325,14 @@ func (repository *dataAnggotaRepositoryImpl) UpdateKepalaKeluarga(ctx *fiber.Ctx
 	if !dataFound {
 		oldestResult, err := tx.Query(getOldestAnggotaScript, idKeluarga)
 		if err != nil {
-			return helper.CreateErrorMessage("Failed to execute select query for oldest member", err)
+			return helper.CreateErrorMessage("Gagal untuk execute select query for oldest member", err)
 		}
 		defer oldestResult.Close()
 
 		if oldestResult.Next() {
 			err := oldestResult.Scan(&idAnggotaResult.Id)
 			if err != nil {
-				return helper.CreateErrorMessage("Failed to scan result for oldest member", err)
+				return helper.CreateErrorMessage("Gagal untuk scan result for oldest member", err)
 			}
 		} else {
 			// Jika tidak ada anggota di keluarga
@@ -346,13 +343,13 @@ func (repository *dataAnggotaRepositoryImpl) UpdateKepalaKeluarga(ctx *fiber.Ctx
 	//update data anggota
 	_, err = tx.Exec(updateDataAnggotasqlScript, idAnggotaResult.Id)
 	if err != nil {
-		return helper.CreateErrorMessage("Failed to update Kepala Keluarga", err)
+		return helper.CreateErrorMessage("Gagal untuk update Kepala Keluarga", err)
 	}
 
 	//update relationn
 	_, err = tx.Exec(udpateDataRelationScript, idAnggotaResult.Id)
 	if err != nil {
-		return helper.CreateErrorMessage("Failed to update data keluarga_anggota_rel", err)
+		return helper.CreateErrorMessage("Gagal untuk update data keluarga_anggota_rel", err)
 	}
 
 	return nil
@@ -369,7 +366,6 @@ func (repository *dataAnggotaRepositoryImpl) UpdateAnggota(ctx *fiber.Ctx, tx *s
 	request := new(helper.UpdateAnggotaRequest)
 	marshalError := json.Unmarshal(body, request)
 	if marshalError != nil {
-		fmt.Println(marshalError)
 		return entity.DataAnggotaWithStatus{}, fiber.NewError(fiber.StatusBadRequest, "Invalid request body")
 	}
 
@@ -414,8 +410,7 @@ func (repository *dataAnggotaRepositoryImpl) UpdateAnggota(ctx *fiber.Ctx, tx *s
 	// Executing the update statement
 	_, err = tx.Exec(sqlScript, params...)
 	if err != nil {
-		fmt.Println(err)
-		return entity.DataAnggotaWithStatus{}, helper.CreateErrorMessage("Failed to update data anggota", err)
+		return entity.DataAnggotaWithStatus{}, helper.CreateErrorMessage("Gagal untuk update data anggota", err)
 	}
 
 	// kalau request.keterangan ada -> [PENTING] request.hubungan dibuat keisi otomatis ya nanti di FE misalkan awalnya istri diubah ke kepala keluarga (?) -> hubungan diubah jadi kepala kelaurga keterangan di data anggota tetap istri
@@ -424,7 +419,7 @@ func (repository *dataAnggotaRepositoryImpl) UpdateAnggota(ctx *fiber.Ctx, tx *s
 		sqlScriptRelData := "UPDATE keluarga_anggota_rel SET hubungan = ? WHERE id_anggota = ?"
 		_, err = tx.Exec(sqlScriptRelData, request.Hubungan, idAnggota)
 		if err != nil {
-			return entity.DataAnggotaWithStatus{}, helper.CreateErrorMessage("Failed to update data keluarga_anggota_rel", err)
+			return entity.DataAnggotaWithStatus{}, helper.CreateErrorMessage("Gagal untuk update data keluarga_anggota_rel", err)
 		}
 	}
 
@@ -453,7 +448,6 @@ func (repository *dataAnggotaRepositoryImpl) UpdateKeteranganAnggota(ctx *fiber.
 	sqlScriptRelData := "UPDATE keluarga_anggota_rel SET hubungan = ? WHERE id_anggota = ?"
 	body := ctx.Body()
 	request := new(helper.UpdateKeteranganAnggotaRequest)
-	fmt.Println(request)
 	marshalError := json.Unmarshal(body, request)
 	if marshalError != nil {
 		return entity.DataAnggotaWithKeteranganOnly{}, fiber.NewError(fiber.StatusBadRequest, "Invalid request body")
@@ -462,11 +456,11 @@ func (repository *dataAnggotaRepositoryImpl) UpdateKeteranganAnggota(ctx *fiber.
 	// Update data anggota
 	_, err := tx.Exec(sqlScript, request.Keterangan, request.Id)
 	if err != nil {
-		return entity.DataAnggotaWithKeteranganOnly{}, helper.CreateErrorMessage("Failed to update data anggota", err)
+		return entity.DataAnggotaWithKeteranganOnly{}, helper.CreateErrorMessage("Gagal untuk update data anggota", err)
 	}
 	_, err = tx.Exec(sqlScriptRelData, "Kepala Keluarga", request.Id)
 	if err != nil {
-		return entity.DataAnggotaWithKeteranganOnly{}, helper.CreateErrorMessage("Failed to update data keluarga_anggota_rel", err)
+		return entity.DataAnggotaWithKeteranganOnly{}, helper.CreateErrorMessage("Gagal untuk update data keluarga_anggota_rel", err)
 	}
 
 	newDataAnggota := entity.DataAnggotaWithKeteranganOnly{
@@ -492,13 +486,13 @@ func (repository *dataAnggotaRepositoryImpl) DeleteOneAnggota(ctx *fiber.Ctx, tx
 	sqlScript := "DELETE keluarga_anggota_rel WHERE id_anggota = ?"
 	_, err := tx.Exec(sqlScript, idAnggota)
 	if err != nil {
-		return entity.IdDataAnggota{}, helper.CreateErrorMessage("Failed to delete data keluarga anggota rel", err)
+		return entity.IdDataAnggota{}, helper.CreateErrorMessage("Gagal untuk delete data keluarga anggota rel", err)
 	}
 
 	sqlScript = "DELETE data_anggota WHERE id = ?"
 	_, err = tx.Exec(sqlScript, idAnggota)
 	if err != nil {
-		return entity.IdDataAnggota{}, helper.CreateErrorMessage("Failed to delete data anggota", err)
+		return entity.IdDataAnggota{}, helper.CreateErrorMessage("Gagal untuk delete data anggota", err)
 	}
 
 	//step 2: misalkan yang di delete adalah kepala keluarga -> maka istri langsung jadi kepala keluarga baru atau anak yang paling tua
@@ -542,14 +536,14 @@ func (repository *dataAnggotaRepositoryImpl) DeleteBulkAnggota(ctx *fiber.Ctx, t
 	sqlScript := fmt.Sprintf("DELETE FROM keluarga_anggota_rel WHERE id_anggota IN (%s)", placeholderString)
 	_, err := tx.Exec(sqlScript, helper.ConvertToInterfaceSlice(idsToDelete)...)
 	if err != nil {
-		return []entity.IdDataAnggota{}, helper.CreateErrorMessage("Failed to delete data keluarga anggota rel", err)
+		return []entity.IdDataAnggota{}, helper.CreateErrorMessage("Gagal untuk delete data keluarga anggota rel", err)
 	}
 
 	// Delete records from data_anggota
 	sqlScript = fmt.Sprintf("DELETE FROM data_anggota WHERE id IN (%s)", placeholderString)
 	_, err = tx.Exec(sqlScript, helper.ConvertToInterfaceSlice(idsToDelete)...)
 	if err != nil {
-		return []entity.IdDataAnggota{}, helper.CreateErrorMessage("Failed to delete data anggota", err)
+		return []entity.IdDataAnggota{}, helper.CreateErrorMessage("Gagal untuk delete data anggota", err)
 	}
 
 	// Check if any of the deleted members was the kepala keluarga and update if needed
