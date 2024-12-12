@@ -3,12 +3,8 @@ package repository
 import (
 	"database/sql"
 	"encoding/json"
-	"fmt"
 	"strconv"
 	"strings"
-
-	// "encoding/json"
-	// "fmt"
 	"gkru-service/entity"
 	"gkru-service/helper"
 

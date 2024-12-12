@@ -1,7 +1,6 @@
 package middlewares
 
 import (
-	"fmt"
 	"gkru-service/authentication"
 
 	"github.com/gofiber/fiber/v2"

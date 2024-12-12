@@ -1,7 +1,6 @@
 package routes
 
 import (
-	"fmt"
 	"gkru-service/controller"
 	"gkru-service/middlewares"
 
