@@ -33,9 +33,6 @@ func (service *UserServiceImpl) FindOne(ctx *fiber.Ctx) (interface{}, error) {
 
 	user, err := service.UserRepository.FindOne(ctx, tx)
 	if err != nil {
-		if err.Error() != "user is not found" {
-			return nil, fiber.ErrInternalServerError
-		}
 		return nil, err
 	}
 
