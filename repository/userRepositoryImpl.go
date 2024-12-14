@@ -47,7 +47,7 @@ func (repository *userRepositoryImpl) FindOne(ctx *fiber.Ctx, tx *sql.Tx) (entit
 		}
 		return user, nil
 	} else {
-		return user, fiber.NewError(fiber.StatusNotFound, "user is not found")
+		return user, fiber.NewError(fiber.StatusNotFound, "user tidak ditemukan")
 	}
 }
 

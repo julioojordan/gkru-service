@@ -3,10 +3,10 @@ package repository
 import (
 	"database/sql"
 	"encoding/json"
-	"strconv"
-	"strings"
 	"gkru-service/entity"
 	"gkru-service/helper"
+	"strconv"
+	"strings"
 
 	"github.com/gofiber/fiber/v2"
 )
@@ -316,6 +316,13 @@ func (repository *dataKeluargaRepositoryImpl) AddKeluarga(ctx *fiber.Ctx, tx *sq
 		return entity.DataKeluargaRaw{}, helper.CreateErrorMessage("Gagal mendapatkan ID data yang terakhir dimasukan", err)
 	}
 
+	//case misal abis add kepala keluarga -> di db ntar nilai relation data id_keluarga = 0 jadi perlu di update disini
+	sqlUpdateScript := "UPDATE keluarga_anggota_rel set id_keluarga = ? where id_anggota = ?"
+	_, err = tx.Exec(sqlUpdateScript, lastInsertId, kepalaKeluarga.Id)
+	if err != nil {
+		return entity.DataKeluargaRaw{}, helper.CreateErrorMessage("Gagal untuk update data relasi kepala keluarga", err)
+	}
+
 	// todo: note harusnya insert lingkungan dulu baru wilayah ya
 	newDataKeluarga := entity.DataKeluargaRaw{
 		Id:             int32(lastInsertId),
@@ -371,7 +378,6 @@ func (repository *dataKeluargaRepositoryImpl) UpdateDataKeluarga(ctx *fiber.Ctx,
 	if request.IdKepalaKeluarga != 0 {
 		setClauses = append(setClauses, "id_kepala_keluarga = ?")
 		params = append(params, request.IdKepalaKeluarga)
-		isKepalaKeluargaUpdated = true
 	}
 
 	if len(setClauses) == 0 {
@@ -386,6 +392,11 @@ func (repository *dataKeluargaRepositoryImpl) UpdateDataKeluarga(ctx *fiber.Ctx,
 		return entity.UpdatedDataKeluarga{}, helper.CreateErrorMessage("Gagal untuk update data keluarga", err)
 	}
 
+	//cek apakah ada update di idKepala keluarga dan apakah valuenya berbeda dengan yang old atau tidak
+	if (request.IdKepalaKeluarga != request.OldIdKepalaKeluarga) && (request.IdKepalaKeluarga != 0){
+		isKepalaKeluargaUpdated = true
+	}
+
 	//update relasi kepala keluarga di db misalkan ada body request untuk update kepala keluarga
 	// TO DO ada beberapa case yang masih kurang ->
 	// case 1 ayah meniggal -> istri auto updated jadi kepala keluarga
@@ -396,6 +407,11 @@ func (repository *dataKeluargaRepositoryImpl) UpdateDataKeluarga(ctx *fiber.Ctx,
 		if err != nil {
 			return entity.UpdatedDataKeluarga{}, helper.CreateErrorMessage("Gagal untuk update keterangan relasi dan hubungan", err)
 		}
+	}
+	// sepertinya perlu di commit dulu disini
+	errorCommit := tx.Commit()
+	if errorCommit != nil {
+		return entity.UpdatedDataKeluarga{}, helper.CreateErrorMessage("Error when commiting transaction", errorCommit)
 	}
 
 	getAnggotaRel, err := repositories.DataAnggotaKeluargaRelRepository.FindKeluargaAnggotaRel(int32(idKeluarga), db)

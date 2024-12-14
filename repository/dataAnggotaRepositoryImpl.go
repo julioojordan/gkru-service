@@ -295,9 +295,20 @@ func (repository *dataAnggotaRepositoryImpl) FindAllWithIdKeluarga(ctx *fiber.Ct
 }
 
 // method akan dipanggil jika current kepala keluarga status nya di edit dari hidup ke mati
-func (repository *dataAnggotaRepositoryImpl) UpdateKepalaKeluarga(ctx *fiber.Ctx, tx *sql.Tx, idKeluarga int32) error {
-	getIstriScript := "SELECT id FROM data_anggota WHERE id_keluarga = ? AND keterangan LIKE ?"
-	getOldestAnggotaScript := "SELECT id FROM data_anggota WHERE id_keluarga = ? ORDER BY tanggal_lahir ASC LIMIT 1"
+func (repository *dataAnggotaRepositoryImpl) UpdateKepalaKeluarga(ctx *fiber.Ctx, tx *sql.Tx, idKeluarga int32, idAnggota *int32) error {
+	getIstriScript := `SELECT a.id FROM data_anggota a 
+	JOIN keluarga_anggota_rel b
+	ON a.id = b.id_anggota
+	WHERE b.id_keluarga = ? 
+	AND a.keterangan LIKE ?`
+	getOldestAnggotaScript := `SELECT a.id FROM data_anggota a 
+	JOIN keluarga_anggota_rel b
+	ON a.id = b.id_anggota
+	WHERE b.id_keluarga = ?
+	AND a.keterangan NOT LIKE "%Kepala Keluarga%"
+	AND a.status = 'HIDUP'
+	ORDER BY tanggal_lahir 
+	ASC LIMIT 1`
 	updateDataAnggotasqlScript := `
 		UPDATE data_anggota 
 		SET keterangan = 'Kepala Keluarga' 
@@ -308,13 +319,13 @@ func (repository *dataAnggotaRepositoryImpl) UpdateKepalaKeluarga(ctx *fiber.Ctx
 
 	result, err := tx.Query(getIstriScript, idKeluarga, likeCondition)
 	if err != nil {
-		return helper.CreateErrorMessage("Gagal untuk execute select query", err)
+		return helper.CreateErrorMessage("Gagal untuk execute select query for istri", err)
 	}
-	defer result.Close()
 	idAnggotaResult := entity.IdDataAnggota{}
 	dataFound := false
 	for result.Next() {
 		err := result.Scan(&idAnggotaResult.Id)
+		result.Close()
 		if err != nil {
 			return helper.CreateErrorMessage("Gagal untuk scan result", err)
 		}
@@ -325,31 +336,51 @@ func (repository *dataAnggotaRepositoryImpl) UpdateKepalaKeluarga(ctx *fiber.Ctx
 	if !dataFound {
 		oldestResult, err := tx.Query(getOldestAnggotaScript, idKeluarga)
 		if err != nil {
-			return helper.CreateErrorMessage("Gagal untuk execute select query for oldest member", err)
+			return helper.CreateErrorMessage("Gagal untuk execute select query untuk anggota tertua", err)
 		}
-		defer oldestResult.Close()
 
 		if oldestResult.Next() {
 			err := oldestResult.Scan(&idAnggotaResult.Id)
+			oldestResult.Close()
 			if err != nil {
-				return helper.CreateErrorMessage("Gagal untuk scan result for oldest member", err)
+				return helper.CreateErrorMessage("Gagal untuk scan result untuk anggota tertua", err)
 			}
 		} else {
-			// Jika tidak ada anggota di keluarga
-			return fiber.NewError(fiber.StatusNotFound, "No eligible members found to be Kepala Keluarga")
+			// kayanya sini perlu dibuat bila tidak ada yang eligible otomatis keluarganya di non aktifkan ? atau sementara biarkan dulu
+			return fiber.NewError(fiber.StatusNotFound, "Tidak ada anggota yang bisa menjadi Kepala Keluarga lagi")
 		}
 	}
 
-	//update data anggota
+	//update data kepala keluarga yang baru
 	_, err = tx.Exec(updateDataAnggotasqlScript, idAnggotaResult.Id)
 	if err != nil {
 		return helper.CreateErrorMessage("Gagal untuk update Kepala Keluarga", err)
 	}
 
-	//update relationn
+	//update relation kepala keluarga yang baru 
 	_, err = tx.Exec(udpateDataRelationScript, idAnggotaResult.Id)
 	if err != nil {
 		return helper.CreateErrorMessage("Gagal untuk update data keluarga_anggota_rel", err)
+	}
+
+	//update data_keluarga ke id kepala keluarga yang baru 
+	_, err = tx.Exec("UPDATE data_keluarga SET id_kepala_keluarga = ? WHERE id = ?", idAnggotaResult.Id, idKeluarga)
+	if err != nil {
+		return helper.CreateErrorMessage("Gagal untuk update id kepala keluarga di data keluarga", err)
+	}
+
+	// jika dari update bukan delete -> misal update status dari hidup -> meniggal, nanti keterangan di data anggota akan menjadi "anggota"
+	if idAnggota != nil {
+		fmt.Println("masuk sini")
+		_, err = tx.Exec("UPDATE data_anggota SET keterangan = 'Anggota' WHERE id = ?", idAnggota)
+		if err != nil {
+			return helper.CreateErrorMessage("Gagal untuk update keterangan di data anggota", err)
+		}
+
+		_, err = tx.Exec("UPDATE keluarga_anggota_rel SET hubungan = 'Anggota' WHERE id_anggota = ?", idAnggota)
+		if err != nil {
+			return helper.CreateErrorMessage("Gagal untuk update keterangan di relasi", err)
+		}
 	}
 
 	return nil
@@ -423,8 +454,8 @@ func (repository *dataAnggotaRepositoryImpl) UpdateAnggota(ctx *fiber.Ctx, tx *s
 		}
 	}
 
-	if request.Status == "MENINGGAL" {
-		errUpdateKepalaKeluarga := repository.UpdateKepalaKeluarga(ctx, tx, request.IdKeluarga)
+	if request.Status == "MENINGGAL" && request.IsKepalaKeluarga { 
+		errUpdateKepalaKeluarga := repository.UpdateKepalaKeluarga(ctx, tx, request.IdKeluarga, &request.Id)
 		if errUpdateKepalaKeluarga != nil {
 			return entity.DataAnggotaWithStatus{}, errUpdateKepalaKeluarga
 		}
@@ -454,13 +485,23 @@ func (repository *dataAnggotaRepositoryImpl) UpdateKeteranganAnggota(ctx *fiber.
 	}
 
 	// Update data anggota
-	_, err := tx.Exec(sqlScript, request.Keterangan, request.Id)
+	_, err := tx.Exec(sqlScript, "Kepala Keluarga", request.Id)
 	if err != nil {
-		return entity.DataAnggotaWithKeteranganOnly{}, helper.CreateErrorMessage("Gagal untuk update data anggota", err)
+		return entity.DataAnggotaWithKeteranganOnly{}, helper.CreateErrorMessage("Gagal untuk update data keplaa keluarga di data anggota", err)
 	}
 	_, err = tx.Exec(sqlScriptRelData, "Kepala Keluarga", request.Id)
 	if err != nil {
-		return entity.DataAnggotaWithKeteranganOnly{}, helper.CreateErrorMessage("Gagal untuk update data keluarga_anggota_rel", err)
+		return entity.DataAnggotaWithKeteranganOnly{}, helper.CreateErrorMessage("Gagal untuk update data kepala keluarga lama di  keluarga_anggota_rel", err)
+	}
+
+	// update keterangan old kepala keluarga
+	_, err = tx.Exec("UPDATE data_anggota SET keterangan = ? where id = ?", "Anggota", request.OldId)
+	if err != nil {
+		return entity.DataAnggotaWithKeteranganOnly{}, helper.CreateErrorMessage("Gagal untuk update data keplaa keluarga lama di data anggota", err)
+	}
+	_, err = tx.Exec("UPDATE keluarga_anggota_rel SET hubungan = ? WHERE id_anggota = ?", "Anggota", request.OldId)
+	if err != nil {
+		return entity.DataAnggotaWithKeteranganOnly{}, helper.CreateErrorMessage("Gagal untuk update data kepala keluarga lama di keluarga_anggota_rel", err)
 	}
 
 	newDataAnggota := entity.DataAnggotaWithKeteranganOnly{
@@ -477,30 +518,31 @@ func (repository *dataAnggotaRepositoryImpl) DeleteOneAnggota(ctx *fiber.Ctx, tx
 		return entity.IdDataAnggota{}, fiber.NewError(fiber.StatusBadRequest, "Invalid id anggota, it must be an integer")
 	}
 
-	// Step 1: Ambil ID anggota dari tabel keluarga_anggota_rel
+	// Step 1: Ambil ID anggota dari tabel keluarga_anggota_rel dan delete
 	dataAnggota, errDataAnggota := repository.FindOne(ctx, tx)
 	if errDataAnggota != nil {
 		return entity.IdDataAnggota{}, errDataAnggota
 	}
 
-	sqlScript := "DELETE keluarga_anggota_rel WHERE id_anggota = ?"
+	sqlScript := "DELETE FROM keluarga_anggota_rel WHERE id_anggota = ?"
 	_, err := tx.Exec(sqlScript, idAnggota)
 	if err != nil {
 		return entity.IdDataAnggota{}, helper.CreateErrorMessage("Gagal untuk delete data keluarga anggota rel", err)
 	}
 
-	sqlScript = "DELETE data_anggota WHERE id = ?"
-	_, err = tx.Exec(sqlScript, idAnggota)
-	if err != nil {
-		return entity.IdDataAnggota{}, helper.CreateErrorMessage("Gagal untuk delete data anggota", err)
-	}
-
 	//step 2: misalkan yang di delete adalah kepala keluarga -> maka istri langsung jadi kepala keluarga baru atau anak yang paling tua
 	if dataAnggota.Hubungan == "Kepala Keluarga" { //pakai Hubungan dari data anngota keluarga rel karena bisa jadi anggota dengan status istri atau anak tertua adalah kepala keluarga
-		errUpdateKepalaKeluarga := repository.UpdateKepalaKeluarga(ctx, tx, dataAnggota.IdKeluarga)
+		errUpdateKepalaKeluarga := repository.UpdateKepalaKeluarga(ctx, tx, dataAnggota.IdKeluarga, nil)
 		if errUpdateKepalaKeluarga != nil {
 			return entity.IdDataAnggota{}, errUpdateKepalaKeluarga
 		}
+	}
+	
+	// step 3 baru delete data anggota setelah semua kunci tamu diperbarui
+	sqlScript = "DELETE FROM data_anggota WHERE id = ?"
+	_, err = tx.Exec(sqlScript, idAnggota)
+	if err != nil {
+		return entity.IdDataAnggota{}, helper.CreateErrorMessage("Gagal untuk delete data anggota", err)
 	}
 
 	res := entity.IdDataAnggota{
@@ -549,7 +591,7 @@ func (repository *dataAnggotaRepositoryImpl) DeleteBulkAnggota(ctx *fiber.Ctx, t
 	// Check if any of the deleted members was the kepala keluarga and update if needed
 	for _, anggota := range request.SelectedAnggota {
 		if anggota.Hubungan == "Kepala Keluarga" {
-			errUpdateKepalaKeluarga := repository.UpdateKepalaKeluarga(ctx, tx, anggota.IdKeluarga)
+			errUpdateKepalaKeluarga := repository.UpdateKepalaKeluarga(ctx, tx, anggota.IdKeluarga, nil)
 			if errUpdateKepalaKeluarga != nil {
 				return []entity.IdDataAnggota{}, errUpdateKepalaKeluarga
 			}

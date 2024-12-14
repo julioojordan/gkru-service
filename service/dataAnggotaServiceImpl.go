@@ -56,12 +56,12 @@ func (service *DataAnggotaServiceImpl) UpdateAnggota(ctx *fiber.Ctx) (interface{
 	logger, _ := ctx.Locals("logger").(*logrus.Logger)
 	tx, err := service.DB.Begin()
 	helper.PanicIfError(err)
-	defer helper.CommitOrRollback(tx, logger)
-
+	
 	result, err := service.DataAnggotaRepository.UpdateAnggota(ctx, tx)
 	if err != nil {
 		return nil, err
 	}
+	defer helper.CommitOrRollback2(tx, logger, err)
 
 	return result, nil
 }
@@ -70,12 +70,12 @@ func (service *DataAnggotaServiceImpl) DeleteOneAnggota(ctx *fiber.Ctx) (interfa
 	logger, _ := ctx.Locals("logger").(*logrus.Logger)
 	tx, err := service.DB.Begin()
 	helper.PanicIfError(err)
-	defer helper.CommitOrRollback(tx, logger)
 
 	result, err := service.DataAnggotaRepository.DeleteOneAnggota(ctx, tx)
 	if err != nil {
 		return nil, err
 	}
+	defer helper.CommitOrRollback2(tx, logger, err)
 
 	return result, nil
 }
