@@ -27,6 +27,7 @@ type TransactionHistoryRepository interface {
 	FindOne(ctx *fiber.Ctx, tx *sql.Tx) (entity.ThFinal, error)
 	FindAll(ctx *fiber.Ctx, tx *sql.Tx) ([]entity.ThFinal, error)
 	FindAllWithIdKeluarga(ctx *fiber.Ctx, tx *sql.Tx) ([]entity.ThFinal, error)
+	FindAllWithKeluargaContext(ctx *fiber.Ctx, tx *sql.Tx) ([]entity.ThFinal2, error)
 	Update(ctx *fiber.Ctx, tx *sql.Tx) (entity.UpdatedThFinal, error)
 	Delete(ctx *fiber.Ctx, tx *sql.Tx) (entity.IdInt, error)
 	Add(ctx *fiber.Ctx, tx *sql.Tx) (entity.CreatedTh, error)

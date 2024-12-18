@@ -325,12 +325,12 @@ func (repository *dataAnggotaRepositoryImpl) UpdateKepalaKeluarga(ctx *fiber.Ctx
 	dataFound := false
 	for result.Next() {
 		err := result.Scan(&idAnggotaResult.Id)
-		result.Close()
 		if err != nil {
 			return helper.CreateErrorMessage("Gagal untuk scan result", err)
 		}
 		dataFound = true
 	}
+	result.Close()
 
 	// Jika tidak ada anggota dengan keterangan "Istri", pilih anggota dengan tanggal lahir tertua
 	if !dataFound {
@@ -341,7 +341,6 @@ func (repository *dataAnggotaRepositoryImpl) UpdateKepalaKeluarga(ctx *fiber.Ctx
 
 		if oldestResult.Next() {
 			err := oldestResult.Scan(&idAnggotaResult.Id)
-			oldestResult.Close()
 			if err != nil {
 				return helper.CreateErrorMessage("Gagal untuk scan result untuk anggota tertua", err)
 			}
@@ -349,6 +348,7 @@ func (repository *dataAnggotaRepositoryImpl) UpdateKepalaKeluarga(ctx *fiber.Ctx
 			// kayanya sini perlu dibuat bila tidak ada yang eligible otomatis keluarganya di non aktifkan ? atau sementara biarkan dulu
 			return fiber.NewError(fiber.StatusNotFound, "Tidak ada anggota yang bisa menjadi Kepala Keluarga lagi")
 		}
+		oldestResult.Close()
 	}
 
 	//update data kepala keluarga yang baru

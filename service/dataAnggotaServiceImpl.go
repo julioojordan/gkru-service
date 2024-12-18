@@ -56,12 +56,15 @@ func (service *DataAnggotaServiceImpl) UpdateAnggota(ctx *fiber.Ctx) (interface{
 	logger, _ := ctx.Locals("logger").(*logrus.Logger)
 	tx, err := service.DB.Begin()
 	helper.PanicIfError(err)
+
+	defer func() {
+        helper.CommitOrRollback2(tx, logger, err) // Selalu panggil CommitOrRollback2
+    }()
 	
 	result, err := service.DataAnggotaRepository.UpdateAnggota(ctx, tx)
 	if err != nil {
 		return nil, err
 	}
-	defer helper.CommitOrRollback2(tx, logger, err)
 
 	return result, nil
 }
