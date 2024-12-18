@@ -44,6 +44,30 @@ type ThRaw struct {
 	FileBukti      sql.NullString
 }
 
+// pakai nama kepala keluarga
+type ThRaw2 struct {
+	Id                 int32
+	Nominal            int32
+	IdKeluarga         int32
+	Keterangan         string
+	CreatorId          int32
+	IdWilayah          int32
+	IdLingkungan       int32
+	UpdatorId          sql.NullInt32
+	SubKeterangan      sql.NullString
+	CreatedDate        time.Time
+	UpdatedDate        time.Time
+	Bulan              int32
+	Tahun              int32
+	UserName           string
+	KodeLingkungan     string
+	NamaLingkungan     string
+	KodeWilayah        string
+	NamaWilayah        string
+	FileBukti          sql.NullString
+	NamaKepalaKeluarga string
+}
+
 type ThFinal struct {
 	Id            int32
 	Nominal       int32
@@ -59,6 +83,25 @@ type ThFinal struct {
 	Bulan         int32
 	Tahun         int32
 	FileBukti     string
+}
+
+// th final with nama kepala keluarga
+type ThFinal2 struct {
+	Id                 int32
+	Nominal            int32
+	IdKeluarga         int32
+	Keterangan         string
+	Creator            User
+	Wilayah            DataWilayah
+	Lingkungan         DataLingkunganWithIdWilayah
+	UpdatorId          int32
+	SubKeterangan      string
+	CreatedDate        time.Time
+	UpdatedDate        time.Time
+	Bulan              int32
+	Tahun              int32
+	FileBukti          string
+	NamaKepalaKeluarga string
 }
 
 type UpdatedThFinal struct {

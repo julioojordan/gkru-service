@@ -33,6 +33,7 @@ type TransactionHistoryService interface {
 	FindOne(ctx *fiber.Ctx) (interface{}, error)
 	FindAll(ctx *fiber.Ctx) (interface{}, error)
 	FindAllWithIdKeluarga(ctx *fiber.Ctx) (interface{}, error)
+	FindAllWithKeluargaContext(ctx *fiber.Ctx) (interface{}, error)
 	Update(ctx *fiber.Ctx) (interface{}, error)
 	Delete(ctx *fiber.Ctx) (interface{}, error)
 	Add(ctx *fiber.Ctx) (interface{}, error)

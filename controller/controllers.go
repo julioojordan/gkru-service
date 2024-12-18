@@ -40,6 +40,7 @@ type TransactionHistoryController interface {
 	FindOne(ctx *fiber.Ctx) error
 	FindAll(ctx *fiber.Ctx) error
 	FindAllWithIdKeluarga(ctx *fiber.Ctx) error
+	FindAllWithKeluargaContext(ctx *fiber.Ctx) error
 	Update(ctx *fiber.Ctx) error
 	Delete(ctx *fiber.Ctx) error
 	Add(ctx *fiber.Ctx) error

@@ -120,6 +120,43 @@ func mapToThFinal(dataThRaw entity.ThRaw) entity.ThFinal {
 	}
 }
 
+// Tambahkan fungsi untuk mapping dari ThRaw ke ThFinal
+func mapToThFinal2(dataThRaw entity.ThRaw2) entity.ThFinal2 {
+	// Set nilai default jika NULL
+	subKeterangan := ""
+	if dataThRaw.SubKeterangan.Valid {
+		subKeterangan = dataThRaw.SubKeterangan.String
+	}
+
+	fileBukti := ""
+	if dataThRaw.FileBukti.Valid {
+		fileBukti = dataThRaw.FileBukti.String
+	}
+
+	updatorId := int32(0)
+	if dataThRaw.UpdatorId.Valid {
+		updatorId = int32(dataThRaw.UpdatorId.Int32)
+	}
+
+	return entity.ThFinal2{
+		Id:            dataThRaw.Id,
+		Nominal:       dataThRaw.Nominal,
+		IdKeluarga:    dataThRaw.IdKeluarga,
+		Keterangan:    dataThRaw.Keterangan,
+		Creator:       entity.User{Id: dataThRaw.CreatorId, Username: dataThRaw.UserName},
+		Wilayah:       entity.DataWilayah{Id: dataThRaw.IdWilayah, KodeWilayah: dataThRaw.KodeWilayah, NamaWilayah: dataThRaw.NamaWilayah},
+		Lingkungan:    entity.DataLingkunganWithIdWilayah{Id: dataThRaw.IdLingkungan, KodeLingkungan: dataThRaw.KodeLingkungan, NamaLingkungan: dataThRaw.NamaLingkungan, Wilayah: dataThRaw.IdWilayah},
+		UpdatorId:     updatorId,
+		SubKeterangan: subKeterangan,
+		CreatedDate:   dataThRaw.CreatedDate,
+		UpdatedDate:   dataThRaw.UpdatedDate,
+		Bulan:         dataThRaw.Bulan,
+		Tahun:         dataThRaw.Tahun,
+		FileBukti:     fileBukti,
+		NamaKepalaKeluarga: dataThRaw.NamaKepalaKeluarga,
+	}
+}
+
 // findOne
 func (repository *transactionHistoryRepositoryImpl) FindOne(ctx *fiber.Ctx, tx *sql.Tx) (entity.ThFinal, error) {
 	idTh, err := strconv.Atoi(ctx.Params("idTh"))
@@ -242,6 +279,72 @@ func (repository *transactionHistoryRepositoryImpl) FindAll(ctx *fiber.Ctx, tx *
 	// if len(thFinals) == 0 {
 	// 	return nil, fiber.NewError(fiber.StatusNotFound, "Data Tidak Ditemukan")
 	// }
+
+	return thFinals, nil
+}
+
+func (repository *transactionHistoryRepositoryImpl) FindAllWithKeluargaContext(ctx *fiber.Ctx, tx *sql.Tx) ([]entity.ThFinal2, error) {
+	tahun := ctx.Query("tahun")
+	sqlScript := `
+		SELECT 
+		a.id, 
+		a.nominal, 
+		a.id_keluarga, 
+		a.keterangan, 
+		a.created_by, 
+		a.id_wilayah, 
+		a.id_lingkungan, 
+		a.updated_by, 
+		a.sub_keterangan, 
+		a.created_date, 
+		a.updated_date, 
+		a.bulan, 
+		a.tahun,
+		b.username, 
+		c.kode_lingkungan, 
+		c.nama_lingkungan, 
+		d.kode_wilayah, 
+		d.nama_wilayah,
+		f.nama_lengkap AS nama_kepala_keluarga
+	FROM 
+		riwayat_transaksi a
+	LEFT JOIN users b 
+		ON a.created_by = b.id
+	LEFT JOIN lingkungan c 
+		ON a.id_lingkungan = c.id
+	LEFT JOIN wilayah d 
+		ON a.id_wilayah = d.id
+	LEFT JOIN data_keluarga e 
+		ON a.id_keluarga = e.id
+	LEFT JOIN data_anggota f 
+		ON e.id_kepala_keluarga = f.id
+	WHERE
+		YEAR(a.created_date) = ?
+	ORDER BY 
+		a.created_date ASC;
+	`
+
+	// Eksekusi query
+	result, err := tx.Query(sqlScript, tahun)
+	if err != nil {
+		return nil, helper.CreateErrorMessage("Gagal mengeksekusi query", err)
+	}
+	defer result.Close()
+
+	var thFinals []entity.ThFinal2
+
+	// Iterasi hasil
+	for result.Next() {
+		dataThRaw := entity.ThRaw2{}
+		err := result.Scan(&dataThRaw.Id, &dataThRaw.Nominal, &dataThRaw.IdKeluarga, &dataThRaw.Keterangan, &dataThRaw.CreatorId, &dataThRaw.IdWilayah, &dataThRaw.IdLingkungan, &dataThRaw.UpdatorId, &dataThRaw.SubKeterangan, &dataThRaw.CreatedDate, &dataThRaw.UpdatedDate, &dataThRaw.Bulan, &dataThRaw.Tahun, &dataThRaw.UserName, &dataThRaw.KodeLingkungan, &dataThRaw.NamaLingkungan, &dataThRaw.KodeWilayah, &dataThRaw.NamaWilayah, &dataThRaw.NamaKepalaKeluarga)
+		if err != nil {
+			return nil, helper.CreateErrorMessage("Gagal untuk scan result", err)
+		}
+
+		// Gunakan fungsi mapping
+		thFinal := mapToThFinal2(dataThRaw)
+		thFinals = append(thFinals, thFinal)
+	}
 
 	return thFinals, nil
 }

@@ -66,6 +66,20 @@ func (service *TransactionHistoryServiceImpl) FindAll(ctx *fiber.Ctx) (interface
 	return totalWealth, nil
 }
 
+func (service *TransactionHistoryServiceImpl) FindAllWithKeluargaContext(ctx *fiber.Ctx) (interface{}, error) {
+	logger, _ := ctx.Locals("logger").(*logrus.Logger)
+	tx, err := service.DB.Begin()
+	helper.PanicIfError(err)
+	defer helper.CommitOrRollback(tx, logger)
+
+	totalWealth, err := service.TransactionHistoryRepository.FindAllWithKeluargaContext(ctx, tx)
+	if err != nil {
+		return nil, err
+	}
+
+	return totalWealth, nil
+}
+
 func (service *TransactionHistoryServiceImpl) FindOne(ctx *fiber.Ctx) (interface{}, error) {
 	logger, _ := ctx.Locals("logger").(*logrus.Logger)
 	tx, err := service.DB.Begin()

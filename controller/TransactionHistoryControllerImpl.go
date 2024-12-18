@@ -109,6 +109,25 @@ func (controller *TransactionHistoryControllerImpl) FindAll(ctx *fiber.Ctx) erro
 	return ctx.JSON(res)
 }
 
+func (controller *TransactionHistoryControllerImpl) FindAllWithKeluargaContext(ctx *fiber.Ctx) error {
+	logger, _ := ctx.Locals("logger").(*logrus.Logger)
+	totalOutcome, err := controller.TransactionHistoryService.FindAllWithKeluargaContext(ctx)
+	if err != nil {
+		return helper.HandleError(ctx, logger, err)
+	}
+	res := entity.WebResponse{
+		Code:   200,
+		Status: "Ok",
+		Data:   totalOutcome,
+	}
+	logger.WithFields(logrus.Fields{
+		"type": "response",
+		"code": 200,
+		"status": utils.StatusMessage(200),
+	}).Info("success")
+	return ctx.JSON(res)
+}
+
 func (controller *TransactionHistoryControllerImpl) FindAllWithIdKeluarga(ctx *fiber.Ctx) error {
 	logger, _ := ctx.Locals("logger").(*logrus.Logger)
 	totalOutcome, err := controller.TransactionHistoryService.FindAllWithIdKeluarga(ctx)

@@ -101,6 +101,10 @@ func SetupRoutes(app *fiber.App, Customlogger *logrus.Logger) {
 			return transactionHistoryController.FindAll(ctx)
 		}
 	})
+	app.Get("/historyWithContext", func(ctx *fiber.Ctx) error {
+		transactionHistoryController := ctx.Locals("controllers").(controller.Controllers).TransactionHistoryController
+		return transactionHistoryController.FindAllWithKeluargaContext(ctx)
+	})
 	app.Patch("/history/:idTh/update", func(ctx *fiber.Ctx) error {
 		transactionHistoryController := ctx.Locals("controllers").(controller.Controllers).TransactionHistoryController
 		return transactionHistoryController.Update(ctx)
