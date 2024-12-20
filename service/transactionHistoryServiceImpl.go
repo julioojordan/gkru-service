@@ -28,7 +28,9 @@ func (service *TransactionHistoryServiceImpl) GetTotalIncome(ctx *fiber.Ctx) (in
 	logger, _ := ctx.Locals("logger").(*logrus.Logger)
 	tx, err := service.DB.Begin()
 	helper.PanicIfError(err)
-	defer helper.CommitOrRollback(tx, logger)
+	defer func() {
+		helper.CommitOrRollback2(tx, logger, err) // Selalu panggil CommitOrRollback2
+	}()
 
 	totalWealth, err := service.TransactionHistoryRepository.GetTotalIncome(ctx, tx)
 	if err != nil {
@@ -42,7 +44,9 @@ func (service *TransactionHistoryServiceImpl) GetTotalOutcome(ctx *fiber.Ctx) (i
 	logger, _ := ctx.Locals("logger").(*logrus.Logger)
 	tx, err := service.DB.Begin()
 	helper.PanicIfError(err)
-	defer helper.CommitOrRollback(tx, logger)
+	defer func() {
+		helper.CommitOrRollback2(tx, logger, err) // Selalu panggil CommitOrRollback2
+	}()
 
 	totalWealth, err := service.TransactionHistoryRepository.GetTotalOutcome(ctx, tx)
 	if err != nil {
@@ -56,7 +60,9 @@ func (service *TransactionHistoryServiceImpl) FindAll(ctx *fiber.Ctx) (interface
 	logger, _ := ctx.Locals("logger").(*logrus.Logger)
 	tx, err := service.DB.Begin()
 	helper.PanicIfError(err)
-	defer helper.CommitOrRollback(tx, logger)
+	defer func() {
+		helper.CommitOrRollback2(tx, logger, err) // Selalu panggil CommitOrRollback2
+	}()
 
 	totalWealth, err := service.TransactionHistoryRepository.FindAll(ctx, tx)
 	if err != nil {
@@ -70,7 +76,9 @@ func (service *TransactionHistoryServiceImpl) FindAllWithKeluargaContext(ctx *fi
 	logger, _ := ctx.Locals("logger").(*logrus.Logger)
 	tx, err := service.DB.Begin()
 	helper.PanicIfError(err)
-	defer helper.CommitOrRollback(tx, logger)
+	defer func() {
+		helper.CommitOrRollback2(tx, logger, err) // Selalu panggil CommitOrRollback2
+	}()
 
 	totalWealth, err := service.TransactionHistoryRepository.FindAllWithKeluargaContext(ctx, tx)
 	if err != nil {
@@ -84,7 +92,9 @@ func (service *TransactionHistoryServiceImpl) FindOne(ctx *fiber.Ctx) (interface
 	logger, _ := ctx.Locals("logger").(*logrus.Logger)
 	tx, err := service.DB.Begin()
 	helper.PanicIfError(err)
-	defer helper.CommitOrRollback(tx, logger)
+	defer func() {
+		helper.CommitOrRollback2(tx, logger, err) // Selalu panggil CommitOrRollback2
+	}()
 
 	totalWealth, err := service.TransactionHistoryRepository.FindOne(ctx, tx)
 	if err != nil {
@@ -98,7 +108,9 @@ func (service *TransactionHistoryServiceImpl) FindAllWithIdKeluarga(ctx *fiber.C
 	logger, _ := ctx.Locals("logger").(*logrus.Logger)
 	tx, err := service.DB.Begin()
 	helper.PanicIfError(err)
-	defer helper.CommitOrRollback(tx, logger)
+	defer func() {
+		helper.CommitOrRollback2(tx, logger, err) // Selalu panggil CommitOrRollback2
+	}()
 
 	totalWealth, err := service.TransactionHistoryRepository.FindAllWithIdKeluarga(ctx, tx)
 	if err != nil {
@@ -112,7 +124,9 @@ func (service *TransactionHistoryServiceImpl) Update(ctx *fiber.Ctx) (interface{
 	logger, _ := ctx.Locals("logger").(*logrus.Logger)
 	tx, err := service.DB.Begin()
 	helper.PanicIfError(err)
-	defer helper.CommitOrRollback(tx, logger)
+	defer func() {
+		helper.CommitOrRollback2(tx, logger, err) // Selalu panggil CommitOrRollback2
+	}()
 
 	totalWealth, err := service.TransactionHistoryRepository.Update(ctx, tx)
 	if err != nil {
@@ -126,7 +140,9 @@ func (service *TransactionHistoryServiceImpl) Delete(ctx *fiber.Ctx) (interface{
 	logger, _ := ctx.Locals("logger").(*logrus.Logger)
 	tx, err := service.DB.Begin()
 	helper.PanicIfError(err)
-	defer helper.CommitOrRollback(tx, logger)
+	defer func() {
+		helper.CommitOrRollback2(tx, logger, err) // Selalu panggil CommitOrRollback2
+	}()
 
 	totalWealth, err := service.TransactionHistoryRepository.Delete(ctx, tx)
 	if err != nil {
@@ -140,7 +156,9 @@ func (service *TransactionHistoryServiceImpl) Add(ctx *fiber.Ctx) (interface{}, 
 	logger, _ := ctx.Locals("logger").(*logrus.Logger)
 	tx, err := service.DB.Begin()
 	helper.PanicIfError(err)
-	defer helper.CommitOrRollback(tx, logger)
+	defer func() {
+		helper.CommitOrRollback2(tx, logger, err) // Selalu panggil CommitOrRollback2
+	}()
 
 	totalWealth, err := service.TransactionHistoryRepository.Add(ctx, tx)
 	if err != nil {

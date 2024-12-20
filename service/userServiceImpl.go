@@ -29,7 +29,9 @@ func (service *UserServiceImpl) FindOne(ctx *fiber.Ctx) (interface{}, error) {
 	logger, _ := ctx.Locals("logger").(*logrus.Logger)
 	tx, err := service.DB.Begin()
 	helper.PanicIfError(err)
-	defer helper.CommitOrRollback(tx, logger)
+	defer func() {
+		helper.CommitOrRollback2(tx, logger, err) // Selalu panggil CommitOrRollback2
+	}()
 
 	user, err := service.UserRepository.FindOne(ctx, tx)
 	if err != nil {
@@ -46,7 +48,9 @@ func (service *UserServiceImpl) FindAll(ctx *fiber.Ctx) (interface{}, error) {
 	logger, _ := ctx.Locals("logger").(*logrus.Logger)
 	tx, err := service.DB.Begin()
 	helper.PanicIfError(err)
-	defer helper.CommitOrRollback(tx, logger)
+	defer func() {
+		helper.CommitOrRollback2(tx, logger, err) // Selalu panggil CommitOrRollback2
+	}()
 
 	result, err := service.UserRepository.FindAll(ctx, tx)
 	if err != nil {
@@ -60,7 +64,9 @@ func (service *UserServiceImpl) Update(ctx *fiber.Ctx) (interface{}, error) {
 	logger, _ := ctx.Locals("logger").(*logrus.Logger)
 	tx, err := service.DB.Begin()
 	helper.PanicIfError(err)
-	defer helper.CommitOrRollback(tx, logger)
+	defer func() {
+		helper.CommitOrRollback2(tx, logger, err) // Selalu panggil CommitOrRollback2
+	}()
 
 	result, err := service.UserRepository.Update(ctx, tx)
 	if err != nil {
@@ -74,7 +80,9 @@ func (service *UserServiceImpl) Add(ctx *fiber.Ctx) (interface{}, error) {
 	logger, _ := ctx.Locals("logger").(*logrus.Logger)
 	tx, err := service.DB.Begin()
 	helper.PanicIfError(err)
-	defer helper.CommitOrRollback(tx, logger)
+	defer func() {
+		helper.CommitOrRollback2(tx, logger, err) // Selalu panggil CommitOrRollback2
+	}()
 
 	result, err := service.UserRepository.Add(ctx, tx)
 	if err != nil {
@@ -88,7 +96,9 @@ func (service *UserServiceImpl) DeleteOne(ctx *fiber.Ctx) (interface{}, error) {
 	logger, _ := ctx.Locals("logger").(*logrus.Logger)
 	tx, err := service.DB.Begin()
 	helper.PanicIfError(err)
-	defer helper.CommitOrRollback(tx, logger)
+	defer func() {
+		helper.CommitOrRollback2(tx, logger, err) // Selalu panggil CommitOrRollback2
+	}()
 
 	result, err := service.UserRepository.DeleteOne(ctx, tx)
 	if err != nil {

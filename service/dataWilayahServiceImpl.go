@@ -28,7 +28,9 @@ func (service *DataWilayahServiceImpl) FindOne(ctx *fiber.Ctx) (interface{}, err
 	logger, _ := ctx.Locals("logger").(*logrus.Logger)
 	tx, err := service.DB.Begin()
 	helper.PanicIfError(err)
-	defer helper.CommitOrRollback(tx, logger)
+	defer func() {
+		helper.CommitOrRollback2(tx, logger, err) // Selalu panggil CommitOrRollback2
+	}()
 
 	result, err := service.DataWilayahRepository.FindOne(ctx, tx)
 	if err != nil {
@@ -42,7 +44,9 @@ func (service *DataWilayahServiceImpl) FindAll(ctx *fiber.Ctx) (interface{}, err
 	logger, _ := ctx.Locals("logger").(*logrus.Logger)
 	tx, err := service.DB.Begin()
 	helper.PanicIfError(err)
-	defer helper.CommitOrRollback(tx, logger)
+	defer func() {
+		helper.CommitOrRollback2(tx, logger, err) // Selalu panggil CommitOrRollback2
+	}()
 
 	result, err := service.DataWilayahRepository.FindAll(ctx, tx)
 	if err != nil {
@@ -56,7 +60,9 @@ func (service *DataWilayahServiceImpl) Add(ctx *fiber.Ctx) (interface{}, error) 
 	logger, _ := ctx.Locals("logger").(*logrus.Logger)
 	tx, err := service.DB.Begin()
 	helper.PanicIfError(err)
-	defer helper.CommitOrRollback(tx, logger)
+	defer func() {
+		helper.CommitOrRollback2(tx, logger, err) // Selalu panggil CommitOrRollback2
+	}()
 
 	result, err := service.DataWilayahRepository.Add(ctx, tx)
 	if err != nil {
@@ -70,7 +76,9 @@ func (service *DataWilayahServiceImpl) Update(ctx *fiber.Ctx) (interface{}, erro
 	logger, _ := ctx.Locals("logger").(*logrus.Logger)
 	tx, err := service.DB.Begin()
 	helper.PanicIfError(err)
-	defer helper.CommitOrRollback(tx, logger)
+	defer func() {
+		helper.CommitOrRollback2(tx, logger, err) // Selalu panggil CommitOrRollback2
+	}()
 
 	result, err := service.DataWilayahRepository.Update(ctx, tx)
 	if err != nil {
@@ -84,7 +92,9 @@ func (service *DataWilayahServiceImpl) DeleteOne(ctx *fiber.Ctx) (interface{}, e
 	logger, _ := ctx.Locals("logger").(*logrus.Logger)
 	tx, err := service.DB.Begin()
 	helper.PanicIfError(err)
-	defer helper.CommitOrRollback(tx, logger)
+	defer func() {
+		helper.CommitOrRollback2(tx, logger, err) // Selalu panggil CommitOrRollback2
+	}()
 
 	result, err := service.DataWilayahRepository.DeleteOne(ctx, tx)
 	if err != nil {
@@ -98,7 +108,9 @@ func (service *DataWilayahServiceImpl) GetTotalWilayah(ctx *fiber.Ctx) (interfac
 	logger, _ := ctx.Locals("logger").(*logrus.Logger)
 	tx, err := service.DB.Begin()
 	helper.PanicIfError(err)
-	defer helper.CommitOrRollback(tx, logger)
+	defer func() {
+		helper.CommitOrRollback2(tx, logger, err) // Selalu panggil CommitOrRollback2
+	}()
 
 	result, err := service.DataWilayahRepository.GetTotalWilayah(ctx, tx)
 	if err != nil {

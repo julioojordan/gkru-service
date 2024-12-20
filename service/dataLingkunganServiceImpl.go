@@ -28,7 +28,9 @@ func (service *DataLingkunganServiceImpl) FindOneWithParam(ctx *fiber.Ctx) (inte
 	logger, _ := ctx.Locals("logger").(*logrus.Logger)
 	tx, err := service.DB.Begin()
 	helper.PanicIfError(err)
-	defer helper.CommitOrRollback(tx, logger)
+	defer func() {
+		helper.CommitOrRollback2(tx, logger, err) // Selalu panggil CommitOrRollback2
+	}()
 
 	result, err := service.DataLingkunganRepository.FindOneWithParam(ctx, tx)
 	if err != nil {
@@ -42,7 +44,9 @@ func (service *DataLingkunganServiceImpl) FindAll(ctx *fiber.Ctx) (interface{}, 
 	logger, _ := ctx.Locals("logger").(*logrus.Logger)
 	tx, err := service.DB.Begin()
 	helper.PanicIfError(err)
-	defer helper.CommitOrRollback(tx, logger)
+	defer func() {
+		helper.CommitOrRollback2(tx, logger, err) // Selalu panggil CommitOrRollback2
+	}()
 
 	result, err := service.DataLingkunganRepository.FindAll(ctx, tx)
 	if err != nil {
@@ -56,7 +60,9 @@ func (service *DataLingkunganServiceImpl) Add(ctx *fiber.Ctx) (interface{}, erro
 	logger, _ := ctx.Locals("logger").(*logrus.Logger)
 	tx, err := service.DB.Begin()
 	helper.PanicIfError(err)
-	defer helper.CommitOrRollback(tx, logger)
+	defer func() {
+		helper.CommitOrRollback2(tx, logger, err) // Selalu panggil CommitOrRollback2
+	}()
 
 	result, err := service.DataLingkunganRepository.Add(ctx, tx)
 	if err != nil {
@@ -70,7 +76,9 @@ func (service *DataLingkunganServiceImpl) Update(ctx *fiber.Ctx) (interface{}, e
 	logger, _ := ctx.Locals("logger").(*logrus.Logger)
 	tx, err := service.DB.Begin()
 	helper.PanicIfError(err)
-	defer helper.CommitOrRollback(tx, logger)
+	defer func() {
+		helper.CommitOrRollback2(tx, logger, err) // Selalu panggil CommitOrRollback2
+	}()
 
 	result, err := service.DataLingkunganRepository.Update(ctx, tx)
 	if err != nil {
@@ -84,7 +92,9 @@ func (service *DataLingkunganServiceImpl) DeleteOne(ctx *fiber.Ctx) (interface{}
 	logger, _ := ctx.Locals("logger").(*logrus.Logger)
 	tx, err := service.DB.Begin()
 	helper.PanicIfError(err)
-	defer helper.CommitOrRollback(tx, logger)
+	defer func() {
+		helper.CommitOrRollback2(tx, logger, err) // Selalu panggil CommitOrRollback2
+	}()
 
 	result, err := service.DataLingkunganRepository.DeleteOne(ctx, tx)
 	if err != nil {
@@ -98,7 +108,9 @@ func (service *DataLingkunganServiceImpl) GetTotalLingkungan(ctx *fiber.Ctx) (in
 	logger, _ := ctx.Locals("logger").(*logrus.Logger)
 	tx, err := service.DB.Begin()
 	helper.PanicIfError(err)
-	defer helper.CommitOrRollback(tx, logger)
+	defer func() {
+		helper.CommitOrRollback2(tx, logger, err) // Selalu panggil CommitOrRollback2
+	}()
 
 	result, err := service.DataLingkunganRepository.GetTotalLingkungan(ctx, tx)
 	if err != nil {

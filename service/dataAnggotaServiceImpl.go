@@ -12,15 +12,15 @@ import (
 
 type DataAnggotaServiceImpl struct {
 	DataAnggotaRepository repository.DataAnggotaRepository
-	DB             *sql.DB
-	Validate       *validator.Validate
+	DB                    *sql.DB
+	Validate              *validator.Validate
 }
 
 func NewDataAnggotaService(dataAnggotaRepository repository.DataAnggotaRepository, DB *sql.DB, validate *validator.Validate) DataAnggotaService {
 	return &DataAnggotaServiceImpl{
 		DataAnggotaRepository: dataAnggotaRepository,
-		DB:             DB,
-		Validate:       validate,
+		DB:                    DB,
+		Validate:              validate,
 	}
 }
 
@@ -28,7 +28,9 @@ func (service *DataAnggotaServiceImpl) AddAnggota(ctx *fiber.Ctx) (interface{}, 
 	logger, _ := ctx.Locals("logger").(*logrus.Logger)
 	tx, err := service.DB.Begin()
 	helper.PanicIfError(err)
-	defer helper.CommitOrRollback(tx, logger)
+	defer func() {
+		helper.CommitOrRollback2(tx, logger, err) // Selalu panggil CommitOrRollback2
+	}()
 
 	result, err := service.DataAnggotaRepository.AddAnggota(ctx, tx)
 	if err != nil {
@@ -42,7 +44,9 @@ func (service *DataAnggotaServiceImpl) GetTotalAnggota(ctx *fiber.Ctx) (interfac
 	logger, _ := ctx.Locals("logger").(*logrus.Logger)
 	tx, err := service.DB.Begin()
 	helper.PanicIfError(err)
-	defer helper.CommitOrRollback(tx, logger)
+	defer func() {
+		helper.CommitOrRollback2(tx, logger, err) // Selalu panggil CommitOrRollback2
+	}()
 
 	result, err := service.DataAnggotaRepository.GetTotalAnggota(ctx, tx)
 	if err != nil {
@@ -58,9 +62,9 @@ func (service *DataAnggotaServiceImpl) UpdateAnggota(ctx *fiber.Ctx) (interface{
 	helper.PanicIfError(err)
 
 	defer func() {
-        helper.CommitOrRollback2(tx, logger, err) // Selalu panggil CommitOrRollback2
-    }()
-	
+		helper.CommitOrRollback2(tx, logger, err) // Selalu panggil CommitOrRollback2
+	}()
+
 	result, err := service.DataAnggotaRepository.UpdateAnggota(ctx, tx)
 	if err != nil {
 		return nil, err
@@ -87,7 +91,9 @@ func (service *DataAnggotaServiceImpl) DeleteBulkAnggota(ctx *fiber.Ctx) (interf
 	logger, _ := ctx.Locals("logger").(*logrus.Logger)
 	tx, err := service.DB.Begin()
 	helper.PanicIfError(err)
-	defer helper.CommitOrRollback(tx, logger)
+	defer func() {
+		helper.CommitOrRollback2(tx, logger, err) // Selalu panggil CommitOrRollback2
+	}()
 
 	result, err := service.DataAnggotaRepository.DeleteBulkAnggota(ctx, tx)
 	if err != nil {
@@ -101,7 +107,9 @@ func (service *DataAnggotaServiceImpl) FindOne(ctx *fiber.Ctx) (interface{}, err
 	logger, _ := ctx.Locals("logger").(*logrus.Logger)
 	tx, err := service.DB.Begin()
 	helper.PanicIfError(err)
-	defer helper.CommitOrRollback(tx, logger)
+	defer func() {
+		helper.CommitOrRollback2(tx, logger, err) // Selalu panggil CommitOrRollback2
+	}()
 
 	result, err := service.DataAnggotaRepository.FindOne(ctx, tx)
 	if err != nil {
@@ -115,7 +123,9 @@ func (service *DataAnggotaServiceImpl) FindAll(ctx *fiber.Ctx) (interface{}, err
 	logger, _ := ctx.Locals("logger").(*logrus.Logger)
 	tx, err := service.DB.Begin()
 	helper.PanicIfError(err)
-	defer helper.CommitOrRollback(tx, logger)
+	defer func() {
+		helper.CommitOrRollback2(tx, logger, err) // Selalu panggil CommitOrRollback2
+	}()
 
 	result, err := service.DataAnggotaRepository.FindAll(ctx, tx)
 	if err != nil {
@@ -129,7 +139,9 @@ func (service *DataAnggotaServiceImpl) FindAllWithIdKeluarga(ctx *fiber.Ctx) (in
 	logger, _ := ctx.Locals("logger").(*logrus.Logger)
 	tx, err := service.DB.Begin()
 	helper.PanicIfError(err)
-	defer helper.CommitOrRollback(tx, logger)
+	defer func() {
+		helper.CommitOrRollback2(tx, logger, err) // Selalu panggil CommitOrRollback2
+	}()
 
 	result, err := service.DataAnggotaRepository.FindAllWithIdKeluarga(ctx, tx)
 	if err != nil {
@@ -138,4 +150,3 @@ func (service *DataAnggotaServiceImpl) FindAllWithIdKeluarga(ctx *fiber.Ctx) (in
 
 	return result, nil
 }
-

@@ -28,7 +28,9 @@ func (service *DataKeluargaServiceImpl) FindOne(ctx *fiber.Ctx) (interface{}, er
 	logger, _ := ctx.Locals("logger").(*logrus.Logger)
 	tx, err := service.DB.Begin()
 	helper.PanicIfError(err)
-	defer helper.CommitOrRollback(tx, logger)
+	defer func() {
+		helper.CommitOrRollback2(tx, logger, err) // Selalu panggil CommitOrRollback2
+	}()
 
 	dataKeluarga, err := service.DataKeluargaRepository.FindOne(ctx, tx, service.DB)
 	if err != nil {
@@ -42,7 +44,9 @@ func (service *DataKeluargaServiceImpl) FindAll(ctx *fiber.Ctx) (interface{}, er
 	logger, _ := ctx.Locals("logger").(*logrus.Logger)
 	tx, err := service.DB.Begin()
 	helper.PanicIfError(err)
-	defer helper.CommitOrRollback(tx, logger)
+	defer func() {
+		helper.CommitOrRollback2(tx, logger, err) // Selalu panggil CommitOrRollback2
+	}()
 
 	dataKeluarga, err := service.DataKeluargaRepository.FindAll(ctx, tx, service.DB)
 	if err != nil {
@@ -56,7 +60,9 @@ func (service *DataKeluargaServiceImpl) AddKeluarga(ctx *fiber.Ctx) (interface{}
 	logger, _ := ctx.Locals("logger").(*logrus.Logger)
 	tx, err := service.DB.Begin()
 	helper.PanicIfError(err)
-	defer helper.CommitOrRollback(tx, logger)
+	defer func() {
+		helper.CommitOrRollback2(tx, logger, err) // Selalu panggil CommitOrRollback2
+	}()
 
 	result, err := service.DataKeluargaRepository.AddKeluarga(ctx, tx)
 	if err != nil {
@@ -70,7 +76,9 @@ func (service *DataKeluargaServiceImpl) GetTotalKeluarga(ctx *fiber.Ctx) (interf
 	logger, _ := ctx.Locals("logger").(*logrus.Logger)
 	tx, err := service.DB.Begin()
 	helper.PanicIfError(err)
-	defer helper.CommitOrRollback(tx, logger)
+	defer func() {
+		helper.CommitOrRollback2(tx, logger, err) // Selalu panggil CommitOrRollback2
+	}()
 
 	result, err := service.DataKeluargaRepository.GetTotalKeluarga(ctx, tx)
 	if err != nil {
@@ -84,7 +92,9 @@ func (service *DataKeluargaServiceImpl) UpdateDataKeluarga(ctx *fiber.Ctx) (inte
 	logger, _ := ctx.Locals("logger").(*logrus.Logger)
 	tx, err := service.DB.Begin()
 	helper.PanicIfError(err)
-	defer helper.CommitOrRollback(tx, logger)
+	defer func() {
+		helper.CommitOrRollback2(tx, logger, err) // Selalu panggil CommitOrRollback2
+	}()
 
 	result, err := service.DataKeluargaRepository.UpdateDataKeluarga(ctx, tx, service.DB)
 	if err != nil {
@@ -98,7 +108,9 @@ func (service *DataKeluargaServiceImpl) DeleteDataKeluarga(ctx *fiber.Ctx) (inte
 	logger, _ := ctx.Locals("logger").(*logrus.Logger)
 	tx, err := service.DB.Begin()
 	helper.PanicIfError(err)
-	defer helper.CommitOrRollback(tx, logger)
+	defer func() {
+		helper.CommitOrRollback2(tx, logger, err) // Selalu panggil CommitOrRollback2
+	}()
 
 	result, err := service.DataKeluargaRepository.DeleteDataKeluarga(ctx, tx)
 	if err != nil {
