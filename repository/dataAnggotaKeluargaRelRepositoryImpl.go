@@ -17,7 +17,7 @@ func NewDataAnggotaKeluargaRelRepository(db *sql.DB) DataAnggotaKeluargaRelRepos
 }
 
 func (repository *dataAnggotaKeluargaRelRepositoryImpl) FindKeluargaAnggotaRel(id int32, db *sql.DB) ([]entity.DataAnggotaWithKeluargaRel, error) {
-	sqlScript := "SELECT a.id, a.hubungan, a.id_anggota, b.nama_lengkap, b.tanggal_lahir, b.tanggal_baptis, b.keterangan, b.status, b.jenis_kelamin FROM keluarga_anggota_rel a JOIN data_anggota b ON a.id_anggota = b.id WHERE a.id_keluarga = ?"
+	sqlScript := "SELECT a.id, a.hubungan, a.id_anggota, b.nama_lengkap, b.tanggal_lahir, b.tanggal_baptis, b.keterangan, b.status, b.jenis_kelamin, b.no_telp FROM keluarga_anggota_rel a JOIN data_anggota b ON a.id_anggota = b.id WHERE a.id_keluarga = ?"
 
 	rows, err := db.Query(sqlScript, id)
 	helper.PanicIfError(err)
@@ -26,7 +26,7 @@ func (repository *dataAnggotaKeluargaRelRepositoryImpl) FindKeluargaAnggotaRel(i
 	var results []entity.DataAnggotaWithKeluargaRel
 	for rows.Next() {
 		data := entity.DataAnggotaWithKeluargaRel{}
-		err := rows.Scan(&data.Id, &data.Hubungan, &data.IdAnggota, &data.NamaLengkap, &data.TanggalLahir, &data.TanggalBaptis, &data.Keterangan, &data.Status, &data.JenisKelamin)
+		err := rows.Scan(&data.Id, &data.Hubungan, &data.IdAnggota, &data.NamaLengkap, &data.TanggalLahir, &data.TanggalBaptis, &data.Keterangan, &data.Status, &data.JenisKelamin, &data.NoTelp)
 		helper.PanicIfError(err)
 		results = append(results, data)
 	}

@@ -40,7 +40,7 @@ func (repository *dataAnggotaRepositoryImpl) GetTotalAnggota(ctx *fiber.Ctx, tx 
 }
 
 func (repository *dataAnggotaRepositoryImpl) AddAnggota(ctx *fiber.Ctx, tx *sql.Tx) (entity.DataAnggota, error) {
-	sqlScript := "INSERT INTO data_anggota(nama_lengkap, tanggal_lahir, tanggal_baptis, keterangan, status, jenis_kelamin) VALUES(?, ?, ?, ?, ?, ?)"
+	sqlScript := "INSERT INTO data_anggota(nama_lengkap, tanggal_lahir, tanggal_baptis, keterangan, status, jenis_kelamin, no_telp) VALUES(?, ?, ?, ?, ?, ?, ?)"
 	body := ctx.Body()
 	request := new(helper.AddAnggotaRequest)
 	err := json.Unmarshal(body, request)
@@ -49,7 +49,7 @@ func (repository *dataAnggotaRepositoryImpl) AddAnggota(ctx *fiber.Ctx, tx *sql.
 	}
 
 	// to do kalo misal request.Keterangan = Kepala keluarga harusnya ada yang nambahin ke data Keluarga juga (?) -> ditambahin di view list keluarga aja ntar
-	result, err := tx.Exec(sqlScript, request.NamaLengkap, request.TanggalLahir, request.TanggalBaptis, request.Keterangan, request.Status, request.JenisKelamin)
+	result, err := tx.Exec(sqlScript, request.NamaLengkap, request.TanggalLahir, request.TanggalBaptis, request.Keterangan, request.Status, request.JenisKelamin, request.NoTelp)
 	if err != nil {
 		return entity.DataAnggota{}, helper.CreateErrorMessage("Gagal memasukan data anggota", err)
 	}
@@ -77,7 +77,7 @@ func (repository *dataAnggotaRepositoryImpl) AddAnggota(ctx *fiber.Ctx, tx *sql.
 }
 
 func (repository *dataAnggotaRepositoryImpl) FindOne(ctx *fiber.Ctx, tx *sql.Tx) (entity.DataAnggotaComplete, error) {
-	query := `SELECT a.id, a.nama_lengkap, a.tanggal_lahir, a.tanggal_baptis, a.keterangan, a.status, a.jenis_kelamin, b.id_keluarga, b.hubungan, c.id_wilayah, c.id_lingkungan, d.kode_lingkungan, d.nama_lingkungan, e.kode_wilayah, e.nama_wilayah FROM data_anggota a 
+	query := `SELECT a.id, a.nama_lengkap, a.tanggal_lahir, a.tanggal_baptis, a.keterangan, a.status, a.jenis_kelamin, a.no_telp, b.id_keluarga, b.hubungan, c.id_wilayah, c.id_lingkungan, d.kode_lingkungan, d.nama_lingkungan, e.kode_wilayah, e.nama_wilayah FROM data_anggota a 
 	JOIN keluarga_anggota_rel b ON a.id = b.id_anggota 
 	JOIN data_keluarga c ON b.id_keluarga = c.id
 	JOIN lingkungan d ON c.id_lingkungan = d.id
@@ -93,7 +93,7 @@ func (repository *dataAnggotaRepositoryImpl) FindOne(ctx *fiber.Ctx, tx *sql.Tx)
 
 	dataAnggotaComplete := entity.DataAnggotaComplete{}
 	if result.Next() {
-		err := result.Scan(&dataAnggotaComplete.Id, &dataAnggotaComplete.NamaLengkap, &dataAnggotaComplete.TanggalLahir, &dataAnggotaComplete.TanggalBaptis, &dataAnggotaComplete.Keterangan, &dataAnggotaComplete.Status, &dataAnggotaComplete.JenisKelamin, &dataAnggotaComplete.IdKeluarga, &dataAnggotaComplete.Hubungan, &dataAnggotaComplete.IdWilayah, &dataAnggotaComplete.IdLingkungan, &dataAnggotaComplete.KodeLingkungan, &dataAnggotaComplete.NamaLingkungan, &dataAnggotaComplete.KodeWilayah, &dataAnggotaComplete.NamaWilayah)
+		err := result.Scan(&dataAnggotaComplete.Id, &dataAnggotaComplete.NamaLengkap, &dataAnggotaComplete.TanggalLahir, &dataAnggotaComplete.TanggalBaptis, &dataAnggotaComplete.Keterangan, &dataAnggotaComplete.Status, &dataAnggotaComplete.JenisKelamin, &dataAnggotaComplete.NoTelp, &dataAnggotaComplete.IdKeluarga, &dataAnggotaComplete.Hubungan, &dataAnggotaComplete.IdWilayah, &dataAnggotaComplete.IdLingkungan, &dataAnggotaComplete.KodeLingkungan, &dataAnggotaComplete.NamaLingkungan, &dataAnggotaComplete.KodeWilayah, &dataAnggotaComplete.NamaWilayah)
 		if err != nil {
 			return entity.DataAnggotaComplete{}, helper.CreateErrorMessage("Gagal untuk scan result", err)
 		}
@@ -106,7 +106,7 @@ func (repository *dataAnggotaRepositoryImpl) FindOne(ctx *fiber.Ctx, tx *sql.Tx)
 
 func (repository *dataAnggotaRepositoryImpl) FindAll(ctx *fiber.Ctx, tx *sql.Tx) ([]entity.DataAnggotaComplete, error) {
 	// note -> id lingkungan & wilayah kemungkinan untuk filter di data table nanti
-	query := `SELECT a.id, a.nama_lengkap, a.tanggal_lahir, a.tanggal_baptis, a.keterangan, a.status, a.jenis_kelamin, b.id_keluarga, b.hubungan, c.id_wilayah, c.id_lingkungan, d.kode_lingkungan, d.nama_lingkungan, e.kode_wilayah, e.nama_wilayah FROM data_anggota a 
+	query := `SELECT a.id, a.nama_lengkap, a.tanggal_lahir, a.tanggal_baptis, a.keterangan, a.status, a.jenis_kelamin, a.no_telp, b.id_keluarga, b.hubungan, c.id_wilayah, c.id_lingkungan, d.kode_lingkungan, d.nama_lingkungan, e.kode_wilayah, e.nama_wilayah FROM data_anggota a 
 	JOIN keluarga_anggota_rel b ON a.id = b.id_anggota 
 	JOIN data_keluarga c ON b.id_keluarga = c.id
 	JOIN lingkungan d ON c.id_lingkungan = d.id
@@ -176,7 +176,7 @@ func (repository *dataAnggotaRepositoryImpl) FindAll(ctx *fiber.Ctx, tx *sql.Tx)
 
 	for result.Next() {
 		dataAnggotaComplete := entity.DataAnggotaComplete{}
-		err := result.Scan(&dataAnggotaComplete.Id, &dataAnggotaComplete.NamaLengkap, &dataAnggotaComplete.TanggalLahir, &dataAnggotaComplete.TanggalBaptis, &dataAnggotaComplete.Keterangan, &dataAnggotaComplete.Status, &dataAnggotaComplete.JenisKelamin, &dataAnggotaComplete.IdKeluarga, &dataAnggotaComplete.Hubungan, &dataAnggotaComplete.IdWilayah, &dataAnggotaComplete.IdLingkungan, &dataAnggotaComplete.KodeLingkungan, &dataAnggotaComplete.NamaLingkungan, &dataAnggotaComplete.KodeWilayah, &dataAnggotaComplete.NamaWilayah)
+		err := result.Scan(&dataAnggotaComplete.Id, &dataAnggotaComplete.NamaLengkap, &dataAnggotaComplete.TanggalLahir, &dataAnggotaComplete.TanggalBaptis, &dataAnggotaComplete.Keterangan, &dataAnggotaComplete.Status, &dataAnggotaComplete.JenisKelamin, &dataAnggotaComplete.NoTelp, &dataAnggotaComplete.IdKeluarga, &dataAnggotaComplete.Hubungan, &dataAnggotaComplete.IdWilayah, &dataAnggotaComplete.IdLingkungan, &dataAnggotaComplete.KodeLingkungan, &dataAnggotaComplete.NamaLingkungan, &dataAnggotaComplete.KodeWilayah, &dataAnggotaComplete.NamaWilayah)
 		if err != nil {
 			return nil, helper.CreateErrorMessage("Gagal untuk scan result", err)
 		}
@@ -196,7 +196,7 @@ func (repository *dataAnggotaRepositoryImpl) FindAll(ctx *fiber.Ctx, tx *sql.Tx)
 
 func (repository *dataAnggotaRepositoryImpl) FindAllWithIdKeluarga(ctx *fiber.Ctx, tx *sql.Tx) ([]entity.DataAnggotaComplete, error) {
 	// note -> id lingkungan & wilayah kemungkinan untuk filter di data table nanti
-	query := `SELECT a.id, a.nama_lengkap, a.tanggal_lahir, a.tanggal_baptis, a.keterangan, a.status, a.jenis_kelamin, b.id_keluarga, b.hubungan, c.id_wilayah, c.id_lingkungan, d.kode_lingkungan, d.nama_lingkungan, e.kode_wilayah, e.nama_wilayah FROM data_anggota a 
+	query := `SELECT a.id, a.nama_lengkap, a.tanggal_lahir, a.tanggal_baptis, a.keterangan, a.status, a.jenis_kelamin, a.no_telp, b.id_keluarga, b.hubungan, c.id_wilayah, c.id_lingkungan, d.kode_lingkungan, d.nama_lingkungan, e.kode_wilayah, e.nama_wilayah FROM data_anggota a 
 	JOIN keluarga_anggota_rel b ON a.id = b.id_anggota 
 	JOIN data_keluarga c ON b.id_keluarga = c.id
 	JOIN lingkungan d ON c.id_lingkungan = d.id
@@ -277,7 +277,7 @@ func (repository *dataAnggotaRepositoryImpl) FindAllWithIdKeluarga(ctx *fiber.Ct
 
 	for result.Next() {
 		dataAnggotaComplete := entity.DataAnggotaComplete{}
-		err := result.Scan(&dataAnggotaComplete.Id, &dataAnggotaComplete.NamaLengkap, &dataAnggotaComplete.TanggalLahir, &dataAnggotaComplete.TanggalBaptis, &dataAnggotaComplete.Keterangan, &dataAnggotaComplete.Status, &dataAnggotaComplete.JenisKelamin, &dataAnggotaComplete.IdKeluarga, &dataAnggotaComplete.Hubungan, &dataAnggotaComplete.IdWilayah, &dataAnggotaComplete.IdLingkungan, &dataAnggotaComplete.KodeLingkungan, &dataAnggotaComplete.NamaLingkungan, &dataAnggotaComplete.KodeWilayah, &dataAnggotaComplete.NamaWilayah)
+		err := result.Scan(&dataAnggotaComplete.Id, &dataAnggotaComplete.NamaLengkap, &dataAnggotaComplete.TanggalLahir, &dataAnggotaComplete.TanggalBaptis, &dataAnggotaComplete.Keterangan, &dataAnggotaComplete.Status, &dataAnggotaComplete.JenisKelamin, &dataAnggotaComplete.NoTelp, &dataAnggotaComplete.IdKeluarga, &dataAnggotaComplete.Hubungan, &dataAnggotaComplete.IdWilayah, &dataAnggotaComplete.IdLingkungan, &dataAnggotaComplete.KodeLingkungan, &dataAnggotaComplete.NamaLingkungan, &dataAnggotaComplete.KodeWilayah, &dataAnggotaComplete.NamaWilayah)
 		if err != nil {
 			return nil, helper.CreateErrorMessage("Gagal untuk scan result", err)
 		}
@@ -357,13 +357,13 @@ func (repository *dataAnggotaRepositoryImpl) UpdateKepalaKeluarga(ctx *fiber.Ctx
 		return helper.CreateErrorMessage("Gagal untuk update Kepala Keluarga", err)
 	}
 
-	//update relation kepala keluarga yang baru 
+	//update relation kepala keluarga yang baru
 	_, err = tx.Exec(udpateDataRelationScript, idAnggotaResult.Id)
 	if err != nil {
 		return helper.CreateErrorMessage("Gagal untuk update data keluarga_anggota_rel", err)
 	}
 
-	//update data_keluarga ke id kepala keluarga yang baru 
+	//update data_keluarga ke id kepala keluarga yang baru
 	_, err = tx.Exec("UPDATE data_keluarga SET id_kepala_keluarga = ? WHERE id = ?", idAnggotaResult.Id, idKeluarga)
 	if err != nil {
 		return helper.CreateErrorMessage("Gagal untuk update id kepala keluarga di data keluarga", err)
@@ -416,6 +416,10 @@ func (repository *dataAnggotaRepositoryImpl) UpdateAnggota(ctx *fiber.Ctx, tx *s
 		setClauses = append(setClauses, "tanggal_baptis = ?")
 		params = append(params, request.TanggalBaptis.ToTime())
 	}
+	if request.NoTelp != "" {
+		setClauses = append(setClauses, "no_telp = ?")
+		params = append(params, request.NoTelp)
+	}
 	if request.Keterangan != "" { //apakah keterangan seperti istri, anak, dll bisa diupdate lewat sini ya nanti ? atau cuman dari update kelluarga saja misalkan ada perubahan data kepala keluarga ???? KEMUNGKINAN BESAR TIDAK PERLU
 		setClauses = append(setClauses, "keterangan = ?")
 		params = append(params, request.Keterangan)
@@ -454,7 +458,7 @@ func (repository *dataAnggotaRepositoryImpl) UpdateAnggota(ctx *fiber.Ctx, tx *s
 		}
 	}
 
-	if request.Status == "MENINGGAL" && request.IsKepalaKeluarga { 
+	if request.Status == "MENINGGAL" && request.IsKepalaKeluarga {
 		errUpdateKepalaKeluarga := repository.UpdateKepalaKeluarga(ctx, tx, request.IdKeluarga, &request.Id)
 		if errUpdateKepalaKeluarga != nil {
 			return entity.DataAnggotaWithStatus{}, errUpdateKepalaKeluarga
@@ -469,6 +473,7 @@ func (repository *dataAnggotaRepositoryImpl) UpdateAnggota(ctx *fiber.Ctx, tx *s
 		Keterangan:    request.Keterangan,
 		Status:        request.Status,
 		JenisKelamin:  request.JenisKelamin,
+		NoTelp:        request.NoTelp,
 	}
 
 	return newDataAnggota, nil
@@ -537,7 +542,7 @@ func (repository *dataAnggotaRepositoryImpl) DeleteOneAnggota(ctx *fiber.Ctx, tx
 			return entity.IdDataAnggota{}, errUpdateKepalaKeluarga
 		}
 	}
-	
+
 	// step 3 baru delete data anggota setelah semua kunci tamu diperbarui
 	sqlScript = "DELETE FROM data_anggota WHERE id = ?"
 	_, err = tx.Exec(sqlScript, idAnggota)

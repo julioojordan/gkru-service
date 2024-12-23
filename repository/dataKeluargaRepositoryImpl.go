@@ -70,6 +70,7 @@ func (repository *dataKeluargaRepositoryImpl) FindOne(ctx *fiber.Ctx, tx *sql.Tx
 				Keterangan:    anggotaRel.Keterangan,
 				Status:        anggotaRel.Status,
 				JenisKelamin:  anggotaRel.JenisKelamin,
+				NoTelp:        anggotaRel.NoTelp,
 			}
 		} else {
 			anggota = append(anggota, entity.DataAnggotaWithStatus{
@@ -80,6 +81,7 @@ func (repository *dataKeluargaRepositoryImpl) FindOne(ctx *fiber.Ctx, tx *sql.Tx
 				Keterangan:    anggotaRel.Keterangan,
 				Status:        anggotaRel.Status,
 				JenisKelamin:  anggotaRel.JenisKelamin,
+				NoTelp:        anggotaRel.NoTelp,
 			})
 		}
 	}
@@ -230,6 +232,7 @@ func (repository *dataKeluargaRepositoryImpl) FindAll(ctx *fiber.Ctx, tx *sql.Tx
 					Keterangan:    anggotaRel.Keterangan,
 					Status:        anggotaRel.Status,
 					JenisKelamin:  anggotaRel.JenisKelamin,
+					NoTelp:        anggotaRel.NoTelp,
 				}
 			} else {
 				anggota = append(anggota, entity.DataAnggotaWithStatus{
@@ -240,6 +243,7 @@ func (repository *dataKeluargaRepositoryImpl) FindAll(ctx *fiber.Ctx, tx *sql.Tx
 					Keterangan:    anggotaRel.Keterangan,
 					Status:        anggotaRel.Status,
 					JenisKelamin:  anggotaRel.JenisKelamin,
+					NoTelp:        anggotaRel.NoTelp,
 				})
 			}
 		}
@@ -393,7 +397,7 @@ func (repository *dataKeluargaRepositoryImpl) UpdateDataKeluarga(ctx *fiber.Ctx,
 	}
 
 	//cek apakah ada update di idKepala keluarga dan apakah valuenya berbeda dengan yang old atau tidak
-	if (request.IdKepalaKeluarga != request.OldIdKepalaKeluarga) && (request.IdKepalaKeluarga != 0){
+	if (request.IdKepalaKeluarga != request.OldIdKepalaKeluarga) && (request.IdKepalaKeluarga != 0) {
 		isKepalaKeluargaUpdated = true
 	}
 

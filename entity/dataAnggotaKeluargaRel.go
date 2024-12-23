@@ -21,4 +21,5 @@ type DataAnggotaWithKeluargaRel struct {
 	Keterangan    string
 	Status        string
 	JenisKelamin  string
+	NoTelp        string
 }

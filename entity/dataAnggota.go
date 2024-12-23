@@ -26,6 +26,7 @@ type DataAnggotaWithStatus struct {
 	Keterangan    string
 	Status        string
 	JenisKelamin  string
+	NoTelp        string
 }
 
 type DataAnggotaWithKeteranganOnly struct {
@@ -53,4 +54,5 @@ type DataAnggotaComplete struct {
 	NamaLingkungan string
 	KodeWilayah    string
 	NamaWilayah    string
+	NoTelp         string
 }

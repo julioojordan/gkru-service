@@ -19,6 +19,7 @@ type AddAnggotaRequest struct {
 	Hubungan      string `json:"hubungan"`
 	IdKeluarga    int32  `json:"idKeluarga"`
 	JenisKelamin  string `json:"jenisKelamin"`
+	NoTelp        string `json:"noTelp"`
 }
 type LingkunganRequest struct {
 	KodeLingkungan string `json:"kodeLingkungan"`
@@ -103,6 +104,7 @@ type UpdateAnggotaRequest struct {
 	IdKeluarga       int32                 `json:"idKeluarga"`
 	JenisKelamin     string                `json:"jenisKelamin"`
 	IsKepalaKeluarga bool                  `json:"isKepalaKeluarga"`
+	NoTelp           string                `json:"noTelp"`
 }
 type UpdateKeteranganAnggotaRequest struct {
 	Id         int32  `json:"idKepalaKeluarga"`
