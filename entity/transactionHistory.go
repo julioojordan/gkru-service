@@ -15,11 +15,9 @@ type CreatedTh struct {
 	IdKeluarga    int32
 	Keterangan    string
 	CreatorId     int32
-	IdWilayah     int32
-	IdLingkungan  int32
 	SubKeterangan string
 	CreatedDate   time.Time
-	FileBukti     string
+	Group         int64
 }
 
 type ThRaw struct {
@@ -109,8 +107,6 @@ type UpdatedThFinal struct {
 	Nominal       int32
 	IdKeluarga    int32
 	Keterangan    string
-	IdWilayah     int32
-	IdLingkungan  int32
 	UpdatorId     int32
 	SubKeterangan string
 	UpdatedDate   time.Time

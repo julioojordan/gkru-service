@@ -74,8 +74,6 @@ type UpdateTHRequest struct {
 	Nominal       int32  `json:"nominal"`
 	Keterangan    string `json:"keterangan"`
 	IdKeluarga    int32  `json:"idKeluarga"`
-	IdWilayah     int32  `json:"idWilayah"`
-	IdLingkungan  int32  `json:"idLingkungan"`
 	SubKeterangan string `json:"subKeterangan"`
 	UpdatedBy     int32  `json:"UpdatedBy"`
 }

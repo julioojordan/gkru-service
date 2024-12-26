@@ -28,9 +28,12 @@ type TransactionHistoryRepository interface {
 	FindAll(ctx *fiber.Ctx, tx *sql.Tx) ([]entity.ThFinal, error)
 	FindAllWithIdKeluarga(ctx *fiber.Ctx, tx *sql.Tx) ([]entity.ThFinal, error)
 	FindAllWithKeluargaContext(ctx *fiber.Ctx, tx *sql.Tx) ([]entity.ThFinal2, error)
+	FindAllHistoryWithTimeFilter(ctx *fiber.Ctx, tx *sql.Tx) ([]entity.ThFinal, error)
+	FindAllSetoran(ctx *fiber.Ctx, tx *sql.Tx) ([]entity.ThFinal2, error)
 	Update(ctx *fiber.Ctx, tx *sql.Tx) (entity.UpdatedThFinal, error)
 	Delete(ctx *fiber.Ctx, tx *sql.Tx) (entity.IdInt, error)
 	Add(ctx *fiber.Ctx, tx *sql.Tx) (entity.CreatedTh, error)
+	AddBatch(ctx *fiber.Ctx, tx *sql.Tx) ([]entity.CreatedTh, error)
 }
 
 type DataKeluargaRepository interface {

@@ -84,6 +84,10 @@ func SetupRoutes(app *fiber.App, Customlogger *logrus.Logger) {
 		transactionHistoryController := ctx.Locals("controllers").(controller.Controllers).TransactionHistoryController
 		return transactionHistoryController.Add(ctx)
 	})
+	app.Post("/history/addIuran", func(ctx *fiber.Ctx) error {
+		transactionHistoryController := ctx.Locals("controllers").(controller.Controllers).TransactionHistoryController
+		return transactionHistoryController.AddBatch(ctx)
+	})
 	app.Get("/history/getTotalIncome", func(ctx *fiber.Ctx) error {
 		transactionHistoryController := ctx.Locals("controllers").(controller.Controllers).TransactionHistoryController
 		return transactionHistoryController.GetTotalIncome(ctx)
@@ -104,6 +108,14 @@ func SetupRoutes(app *fiber.App, Customlogger *logrus.Logger) {
 	app.Get("/historyWithContext", func(ctx *fiber.Ctx) error {
 		transactionHistoryController := ctx.Locals("controllers").(controller.Controllers).TransactionHistoryController
 		return transactionHistoryController.FindAllWithKeluargaContext(ctx)
+	})
+	app.Get("/historyWithTimeFilter", func(ctx *fiber.Ctx) error {
+		transactionHistoryController := ctx.Locals("controllers").(controller.Controllers).TransactionHistoryController
+		return transactionHistoryController.FindAllHistoryWithTimeFilter(ctx)
+	})
+	app.Get("/historySetoran", func(ctx *fiber.Ctx) error {
+		transactionHistoryController := ctx.Locals("controllers").(controller.Controllers).TransactionHistoryController
+		return transactionHistoryController.FindAllSetoran(ctx)
 	})
 	app.Patch("/history/:idTh/update", func(ctx *fiber.Ctx) error {
 		transactionHistoryController := ctx.Locals("controllers").(controller.Controllers).TransactionHistoryController

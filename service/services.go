@@ -34,9 +34,12 @@ type TransactionHistoryService interface {
 	FindAll(ctx *fiber.Ctx) (interface{}, error)
 	FindAllWithIdKeluarga(ctx *fiber.Ctx) (interface{}, error)
 	FindAllWithKeluargaContext(ctx *fiber.Ctx) (interface{}, error)
+	FindAllHistoryWithTimeFilter(ctx *fiber.Ctx) (interface{}, error)
+	FindAllSetoran(ctx *fiber.Ctx) (interface{}, error)
 	Update(ctx *fiber.Ctx) (interface{}, error)
 	Delete(ctx *fiber.Ctx) (interface{}, error)
 	Add(ctx *fiber.Ctx) (interface{}, error)
+	AddBatch(ctx *fiber.Ctx) (interface{}, error)
 }
 
 type DataKeluargaService interface {

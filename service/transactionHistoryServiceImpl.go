@@ -88,6 +88,39 @@ func (service *TransactionHistoryServiceImpl) FindAllWithKeluargaContext(ctx *fi
 	return totalWealth, nil
 }
 
+func (service *TransactionHistoryServiceImpl) FindAllHistoryWithTimeFilter(ctx *fiber.Ctx) (interface{}, error) {
+	logger, _ := ctx.Locals("logger").(*logrus.Logger)
+	tx, err := service.DB.Begin()
+	helper.PanicIfError(err)
+	defer func() {
+		helper.CommitOrRollback2(tx, logger, err) // Selalu panggil CommitOrRollback2
+	}()
+
+	totalWealth, err := service.TransactionHistoryRepository.FindAllHistoryWithTimeFilter(ctx, tx)
+	if err != nil {
+		return nil, err
+	}
+
+	return totalWealth, nil
+}
+
+
+func (service *TransactionHistoryServiceImpl) FindAllSetoran(ctx *fiber.Ctx) (interface{}, error) {
+	logger, _ := ctx.Locals("logger").(*logrus.Logger)
+	tx, err := service.DB.Begin()
+	helper.PanicIfError(err)
+	defer func() {
+		helper.CommitOrRollback2(tx, logger, err) // Selalu panggil CommitOrRollback2
+	}()
+
+	totalWealth, err := service.TransactionHistoryRepository.FindAllSetoran(ctx, tx)
+	if err != nil {
+		return nil, err
+	}
+
+	return totalWealth, nil
+}
+
 func (service *TransactionHistoryServiceImpl) FindOne(ctx *fiber.Ctx) (interface{}, error) {
 	logger, _ := ctx.Locals("logger").(*logrus.Logger)
 	tx, err := service.DB.Begin()
@@ -161,6 +194,22 @@ func (service *TransactionHistoryServiceImpl) Add(ctx *fiber.Ctx) (interface{}, 
 	}()
 
 	totalWealth, err := service.TransactionHistoryRepository.Add(ctx, tx)
+	if err != nil {
+		return nil, err
+	}
+
+	return totalWealth, nil
+}
+
+func (service *TransactionHistoryServiceImpl) AddBatch(ctx *fiber.Ctx) (interface{}, error) {
+	logger, _ := ctx.Locals("logger").(*logrus.Logger)
+	tx, err := service.DB.Begin()
+	helper.PanicIfError(err)
+	defer func() {
+		helper.CommitOrRollback2(tx, logger, err) // Selalu panggil CommitOrRollback2
+	}()
+
+	totalWealth, err := service.TransactionHistoryRepository.AddBatch(ctx, tx)
 	if err != nil {
 		return nil, err
 	}

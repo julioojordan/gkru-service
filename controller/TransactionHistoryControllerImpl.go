@@ -128,6 +128,44 @@ func (controller *TransactionHistoryControllerImpl) FindAllWithKeluargaContext(c
 	return ctx.JSON(res)
 }
 
+func (controller *TransactionHistoryControllerImpl) FindAllHistoryWithTimeFilter(ctx *fiber.Ctx) error {
+	logger, _ := ctx.Locals("logger").(*logrus.Logger)
+	totalOutcome, err := controller.TransactionHistoryService.FindAllHistoryWithTimeFilter(ctx)
+	if err != nil {
+		return helper.HandleError(ctx, logger, err)
+	}
+	res := entity.WebResponse{
+		Code:   200,
+		Status: "Ok",
+		Data:   totalOutcome,
+	}
+	logger.WithFields(logrus.Fields{
+		"type": "response",
+		"code": 200,
+		"status": utils.StatusMessage(200),
+	}).Info("success")
+	return ctx.JSON(res)
+}
+
+func (controller *TransactionHistoryControllerImpl) FindAllSetoran(ctx *fiber.Ctx) error {
+	logger, _ := ctx.Locals("logger").(*logrus.Logger)
+	totalOutcome, err := controller.TransactionHistoryService.FindAllSetoran(ctx)
+	if err != nil {
+		return helper.HandleError(ctx, logger, err)
+	}
+	res := entity.WebResponse{
+		Code:   200,
+		Status: "Ok",
+		Data:   totalOutcome,
+	}
+	logger.WithFields(logrus.Fields{
+		"type": "response",
+		"code": 200,
+		"status": utils.StatusMessage(200),
+	}).Info("success")
+	return ctx.JSON(res)
+}
+
 func (controller *TransactionHistoryControllerImpl) FindAllWithIdKeluarga(ctx *fiber.Ctx) error {
 	logger, _ := ctx.Locals("logger").(*logrus.Logger)
 	totalOutcome, err := controller.TransactionHistoryService.FindAllWithIdKeluarga(ctx)
@@ -150,6 +188,25 @@ func (controller *TransactionHistoryControllerImpl) FindAllWithIdKeluarga(ctx *f
 func (controller *TransactionHistoryControllerImpl) Add(ctx *fiber.Ctx) error {
 	logger, _ := ctx.Locals("logger").(*logrus.Logger)
 	totalOutcome, err := controller.TransactionHistoryService.Add(ctx)
+	if err != nil {
+		return helper.HandleError(ctx, logger, err)
+	}
+	res := entity.WebResponse{
+		Code:   200,
+		Status: "Ok",
+		Data:   totalOutcome,
+	}
+	logger.WithFields(logrus.Fields{
+		"type": "response",
+		"code": 200,
+		"status": utils.StatusMessage(200),
+	}).Info("success")
+	return ctx.JSON(res)
+}
+
+func (controller *TransactionHistoryControllerImpl) AddBatch(ctx *fiber.Ctx) error {
+	logger, _ := ctx.Locals("logger").(*logrus.Logger)
+	totalOutcome, err := controller.TransactionHistoryService.AddBatch(ctx)
 	if err != nil {
 		return helper.HandleError(ctx, logger, err)
 	}

@@ -8,11 +8,11 @@ func AddLingkunganOrWilayahQueryHelper(idWilayah string, idLingkungan string, sq
 	var params []interface{}
 
 	if idWilayah != "" {
-		sqlScript += " AND id_wilayah = ?"
+		sqlScript += " AND b.id_wilayah = ?"
 		params = append(params, idWilayah)
 	}
 	if idLingkungan != "" {
-		sqlScript += " AND id_lingkungan = ?"
+		sqlScript += " AND c.id_lingkungan = ?"
 		params = append(params, idLingkungan)
 	}
 
