@@ -53,10 +53,11 @@ type DeleteAnggotaRequest struct {
 }
 
 type AddKeluargaRequest struct {
-	IdWilayah    int32  `json:"idWilayah"`
-	IdLingkungan int32  `json:"idLingkungan"`
-	Nomor        string `json:"nomor"`
-	Alamat       string `json:"alamat"`
+	IdWilayah     int32  `json:"idWilayah"`
+	IdLingkungan  int32  `json:"idLingkungan"`
+	Nomor         string `json:"nomor"`
+	Alamat        string `json:"alamat"`
+	NomorKKGereja string `json:"nomorKKGereja"`
 }
 
 type UpdateKeluargaRequest struct {
@@ -68,6 +69,7 @@ type UpdateKeluargaRequest struct {
 	IdKepalaKeluarga    int32  `json:"idKepalaKeluarga"`
 	OldIdKepalaKeluarga int32  `json:"OldIdKepalaKeluarga"`
 	Keterangan          string `json:"keterangan"`
+	NomorKKGereja       string `json:"nomorKKGereja"`
 }
 
 type UpdateTHRequest struct {

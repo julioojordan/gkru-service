@@ -19,7 +19,7 @@ func NewDataKeluargaRepository(db *sql.DB) DataKeluargaRepository {
 }
 
 func (repository *dataKeluargaRepositoryImpl) FindOne(ctx *fiber.Ctx, tx *sql.Tx, db *sql.DB) (entity.DataKeluargaFinal, error) {
-	dataKeluargaRawScript := "SELECT id, id_wilayah, id_lingkungan, nomor, id_kepala_keluarga, alamat, status FROM data_keluarga WHERE id = ?"
+	dataKeluargaRawScript := "SELECT id, id_wilayah, id_lingkungan, nomor, id_kepala_keluarga, alamat, status, nomor_kk_gereja FROM data_keluarga WHERE id = ?"
 	idKeluarga := ctx.Params("idKeluarga")
 
 	result, err := tx.Query(dataKeluargaRawScript, idKeluarga)
@@ -29,7 +29,7 @@ func (repository *dataKeluargaRepositoryImpl) FindOne(ctx *fiber.Ctx, tx *sql.Tx
 
 	dataKeluargaRaw := entity.DataKeluargaRaw{}
 	if result.Next() {
-		err := result.Scan(&dataKeluargaRaw.Id, &dataKeluargaRaw.Wilayah, &dataKeluargaRaw.Lingkungan, &dataKeluargaRaw.Nomor, &dataKeluargaRaw.KepalaKeluarga, &dataKeluargaRaw.Alamat, &dataKeluargaRaw.Status)
+		err := result.Scan(&dataKeluargaRaw.Id, &dataKeluargaRaw.Wilayah, &dataKeluargaRaw.Lingkungan, &dataKeluargaRaw.Nomor, &dataKeluargaRaw.KepalaKeluarga, &dataKeluargaRaw.Alamat, &dataKeluargaRaw.Status, &dataKeluargaRaw.NomorKKGereja)
 		if err != nil {
 			return entity.DataKeluargaFinal{}, helper.CreateErrorMessage("Gagal untuk scan result", err)
 		}
@@ -95,6 +95,7 @@ func (repository *dataKeluargaRepositoryImpl) FindOne(ctx *fiber.Ctx, tx *sql.Tx
 		Alamat:         dataKeluargaRaw.Alamat,
 		Anggota:        anggota,
 		Status:         dataKeluargaRaw.Status,
+		NomorKKGereja:  dataKeluargaRaw.NomorKKGereja,
 	}
 
 	return dataKeluargaFinal, nil
@@ -129,7 +130,7 @@ func (repository *dataKeluargaRepositoryImpl) CountKeluargaWithParam(ctx *fiber.
 }
 
 func (repository *dataKeluargaRepositoryImpl) FindAll(ctx *fiber.Ctx, tx *sql.Tx, db *sql.DB) ([]entity.DataKeluargaFinal, error) {
-	query := "SELECT id, id_wilayah, id_lingkungan, nomor, id_kepala_keluarga, alamat, status FROM data_keluarga"
+	query := "SELECT id, id_wilayah, id_lingkungan, nomor, id_kepala_keluarga, alamat, status, nomor_kk_gereja FROM data_keluarga"
 	var args []interface{}
 	var conditions []string
 
@@ -195,7 +196,7 @@ func (repository *dataKeluargaRepositoryImpl) FindAll(ctx *fiber.Ctx, tx *sql.Tx
 	// Loop through all rows
 	for result.Next() {
 		dataKeluargaRaw := entity.DataKeluargaRaw{}
-		err := result.Scan(&dataKeluargaRaw.Id, &dataKeluargaRaw.Wilayah, &dataKeluargaRaw.Lingkungan, &dataKeluargaRaw.Nomor, &dataKeluargaRaw.KepalaKeluarga, &dataKeluargaRaw.Alamat, &dataKeluargaRaw.Status)
+		err := result.Scan(&dataKeluargaRaw.Id, &dataKeluargaRaw.Wilayah, &dataKeluargaRaw.Lingkungan, &dataKeluargaRaw.Nomor, &dataKeluargaRaw.KepalaKeluarga, &dataKeluargaRaw.Alamat, &dataKeluargaRaw.Status, &dataKeluargaRaw.NomorKKGereja)
 		if err != nil {
 			return nil, helper.CreateErrorMessage("Gagal untuk scan resul", err)
 		}
@@ -258,16 +259,12 @@ func (repository *dataKeluargaRepositoryImpl) FindAll(ctx *fiber.Ctx, tx *sql.Tx
 			Alamat:         dataKeluargaRaw.Alamat,
 			Anggota:        anggota,
 			Status:         dataKeluargaRaw.Status,
+			NomorKKGereja:  dataKeluargaRaw.NomorKKGereja,
 		}
 
 		// Add to list
 		dataKeluargaList = append(dataKeluargaList, dataKeluargaFinal)
 	}
-
-	// If no rows were found, return an empty list
-	// if len(dataKeluargaList) == 0 {
-	// 	return nil, fiber.NewError(fiber.StatusNotFound, "No Data Keluarga found")
-	// }
 
 	return dataKeluargaList, nil
 }
@@ -309,8 +306,8 @@ func (repository *dataKeluargaRepositoryImpl) AddKeluarga(ctx *fiber.Ctx, tx *sq
 	}
 
 	//then add data_keluarga
-	sqlScript := "INSERT INTO data_keluarga(id_wilayah, id_lingkungan, nomor, id_kepala_keluarga, alamat) VALUES(?, ?, ?, ?, ?)"
-	result, err := tx.Exec(sqlScript, request.IdWilayah, request.IdLingkungan, request.Nomor, kepalaKeluarga.Id, request.Alamat)
+	sqlScript := "INSERT INTO data_keluarga(id_wilayah, id_lingkungan, nomor, id_kepala_keluarga, alamat, nomor_kk_gereja) VALUES(?, ?, ?, ?, ?, ?)"
+	result, err := tx.Exec(sqlScript, request.IdWilayah, request.IdLingkungan, request.Nomor, kepalaKeluarga.Id, request.Alamat, request.NomorKKGereja)
 	if err != nil {
 		return entity.DataKeluargaRaw{}, helper.CreateErrorMessage("Gagal memasukan data keluarga", err)
 	}
@@ -335,6 +332,7 @@ func (repository *dataKeluargaRepositoryImpl) AddKeluarga(ctx *fiber.Ctx, tx *sq
 		Nomor:          request.Nomor,
 		KepalaKeluarga: kepalaKeluarga.Id,
 		Alamat:         request.Alamat,
+		NomorKKGereja:  request.NomorKKGereja,
 	}
 
 	return newDataKeluarga, nil
@@ -378,6 +376,10 @@ func (repository *dataKeluargaRepositoryImpl) UpdateDataKeluarga(ctx *fiber.Ctx,
 	if request.Status != "" {
 		setClauses = append(setClauses, "status = ?")
 		params = append(params, request.Status)
+	}
+	if request.NomorKKGereja != "" {
+		setClauses = append(setClauses, "nomor_kk_gereja = ?")
+		params = append(params, request.NomorKKGereja)
 	}
 	if request.IdKepalaKeluarga != 0 {
 		setClauses = append(setClauses, "id_kepala_keluarga = ?")
@@ -436,6 +438,7 @@ func (repository *dataKeluargaRepositoryImpl) UpdateDataKeluarga(ctx *fiber.Ctx,
 				Keterangan:    anggotaRel.Keterangan,
 				Status:        anggotaRel.Status,
 				JenisKelamin:  anggotaRel.JenisKelamin,
+				NoTelp:        anggotaRel.NoTelp,
 			}
 		} else {
 			anggota = append(anggota, entity.DataAnggotaWithStatus{
@@ -446,6 +449,7 @@ func (repository *dataKeluargaRepositoryImpl) UpdateDataKeluarga(ctx *fiber.Ctx,
 				Keterangan:    anggotaRel.Keterangan,
 				Status:        anggotaRel.Status,
 				JenisKelamin:  anggotaRel.JenisKelamin,
+				NoTelp:        anggotaRel.NoTelp,
 			})
 		}
 	}
@@ -459,6 +463,7 @@ func (repository *dataKeluargaRepositoryImpl) UpdateDataKeluarga(ctx *fiber.Ctx,
 		Alamat:         request.Alamat,
 		Status:         request.Status,
 		Anggota:        anggota,
+		NomorKKGereja:  request.NomorKKGereja,
 	}
 
 	return newDataKeluarga, nil

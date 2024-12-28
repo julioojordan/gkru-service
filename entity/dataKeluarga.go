@@ -8,6 +8,7 @@ type DataKeluargaRaw struct {
 	KepalaKeluarga int32
 	Alamat         string
 	Status         string
+	NomorKKGereja  string
 }
 
 type DataKeluarga struct {
@@ -33,6 +34,7 @@ type DataKeluargaFinal struct {
 	Alamat         string
 	Anggota        []DataAnggotaWithStatus
 	Status         string
+	NomorKKGereja  string
 }
 
 type UpdatedDataKeluarga struct {
@@ -44,6 +46,7 @@ type UpdatedDataKeluarga struct {
 	KepalaKeluarga DataAnggotaWithStatus
 	Anggota        []DataAnggotaWithStatus
 	Status         string
+	NomorKKGereja  string
 }
 
 type TotalKeluarga struct {
