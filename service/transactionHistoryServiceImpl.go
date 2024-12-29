@@ -153,6 +153,22 @@ func (service *TransactionHistoryServiceImpl) FindAllWithIdKeluarga(ctx *fiber.C
 	return totalWealth, nil
 }
 
+func (service *TransactionHistoryServiceImpl) FindByGroup(ctx *fiber.Ctx) (interface{}, error) {
+	logger, _ := ctx.Locals("logger").(*logrus.Logger)
+	tx, err := service.DB.Begin()
+	helper.PanicIfError(err)
+	defer func() {
+		helper.CommitOrRollback2(tx, logger, err) // Selalu panggil CommitOrRollback2
+	}()
+
+	totalWealth, err := service.TransactionHistoryRepository.FindByGroup(ctx, tx)
+	if err != nil {
+		return nil, err
+	}
+
+	return totalWealth, nil
+}
+
 func (service *TransactionHistoryServiceImpl) Update(ctx *fiber.Ctx) (interface{}, error) {
 	logger, _ := ctx.Locals("logger").(*logrus.Logger)
 	tx, err := service.DB.Begin()

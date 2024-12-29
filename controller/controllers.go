@@ -43,6 +43,7 @@ type TransactionHistoryController interface {
 	FindAllWithKeluargaContext(ctx *fiber.Ctx) error
 	FindAllHistoryWithTimeFilter(ctx *fiber.Ctx) error
 	FindAllSetoran(ctx *fiber.Ctx) error
+	FindByGroup(ctx *fiber.Ctx) error
 	Update(ctx *fiber.Ctx) error
 	Delete(ctx *fiber.Ctx) error
 	Add(ctx *fiber.Ctx) error
@@ -52,6 +53,7 @@ type TransactionHistoryController interface {
 type DataLingkunganController interface {
 	FindOneWithParam(ctx *fiber.Ctx) error
 	FindAll(ctx *fiber.Ctx) error
+	FindAllWithTotalKeluarga(ctx *fiber.Ctx) error
 	Add(ctx *fiber.Ctx) error
 	Update(ctx *fiber.Ctx) error
 	DeleteOne(ctx *fiber.Ctx) error

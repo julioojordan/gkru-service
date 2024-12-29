@@ -105,6 +105,10 @@ func SetupRoutes(app *fiber.App, Customlogger *logrus.Logger) {
 			return transactionHistoryController.FindAll(ctx)
 		}
 	})
+	app.Get("/historyByGroup", func(ctx *fiber.Ctx) error {
+		transactionHistoryController := ctx.Locals("controllers").(controller.Controllers).TransactionHistoryController
+		return transactionHistoryController.FindByGroup(ctx)
+	})
 	app.Get("/historyWithContext", func(ctx *fiber.Ctx) error {
 		transactionHistoryController := ctx.Locals("controllers").(controller.Controllers).TransactionHistoryController
 		return transactionHistoryController.FindAllWithKeluargaContext(ctx)
@@ -189,6 +193,10 @@ func SetupRoutes(app *fiber.App, Customlogger *logrus.Logger) {
 	app.Get("/lingkungan", func(ctx *fiber.Ctx) error {
 		dataLingkunganController := ctx.Locals("controllers").(controller.Controllers).DataLingkunganController
 		return dataLingkunganController.FindAll(ctx)
+	})
+	app.Get("/lingkunganWithTotalKeluarga", func(ctx *fiber.Ctx) error {
+		dataLingkunganController := ctx.Locals("controllers").(controller.Controllers).DataLingkunganController
+		return dataLingkunganController.FindAllWithTotalKeluarga(ctx)
 	})
 
 	// =========== WILAYAH ===============

@@ -36,6 +36,7 @@ type TransactionHistoryService interface {
 	FindAllWithKeluargaContext(ctx *fiber.Ctx) (interface{}, error)
 	FindAllHistoryWithTimeFilter(ctx *fiber.Ctx) (interface{}, error)
 	FindAllSetoran(ctx *fiber.Ctx) (interface{}, error)
+	FindByGroup(ctx *fiber.Ctx) (interface{}, error)
 	Update(ctx *fiber.Ctx) (interface{}, error)
 	Delete(ctx *fiber.Ctx) (interface{}, error)
 	Add(ctx *fiber.Ctx) (interface{}, error)
@@ -54,6 +55,7 @@ type DataKeluargaService interface {
 type DataLingkunganService interface {
 	FindOneWithParam(ctx *fiber.Ctx) (interface{}, error)
 	FindAll(ctx *fiber.Ctx) (interface{}, error)
+	FindAllWithTotalKeluarga(ctx *fiber.Ctx) (interface{}, error)
 	Add(ctx *fiber.Ctx) (interface{}, error)
 	Update(ctx *fiber.Ctx) (interface{}, error)
 	DeleteOne(ctx *fiber.Ctx) (interface{}, error)

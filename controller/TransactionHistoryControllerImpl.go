@@ -223,6 +223,25 @@ func (controller *TransactionHistoryControllerImpl) AddBatch(ctx *fiber.Ctx) err
 	return ctx.JSON(res)
 }
 
+func (controller *TransactionHistoryControllerImpl) FindByGroup(ctx *fiber.Ctx) error {
+	logger, _ := ctx.Locals("logger").(*logrus.Logger)
+	totalOutcome, err := controller.TransactionHistoryService.FindByGroup(ctx)
+	if err != nil {
+		return helper.HandleError(ctx, logger, err)
+	}
+	res := entity.WebResponse{
+		Code:   200,
+		Status: "Ok",
+		Data:   totalOutcome,
+	}
+	logger.WithFields(logrus.Fields{
+		"type": "response",
+		"code": 200,
+		"status": utils.StatusMessage(200),
+	}).Info("success")
+	return ctx.JSON(res)
+}
+
 func (controller *TransactionHistoryControllerImpl) Update(ctx *fiber.Ctx) error {
 	logger, _ := ctx.Locals("logger").(*logrus.Logger)
 	totalOutcome, err := controller.TransactionHistoryService.Update(ctx)

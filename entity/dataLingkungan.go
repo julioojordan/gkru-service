@@ -9,6 +9,16 @@ type DataLingkunganRaw struct {
 	NamaWilayah    string
 }
 
+type DataLingkunganRawWithTotalKeluarga struct {
+	Id             int32
+	KodeLingkungan string
+	NamaLingkungan string
+	IdWilayah      int32
+	KodeWilayah    string
+	NamaWilayah    string
+	TotalKeluarga  int32
+}
+
 type DataLingkungan struct {
 	Id             int32
 	KodeLingkungan string
@@ -16,8 +26,16 @@ type DataLingkungan struct {
 	Wilayah        DataWilayah
 }
 
-type IdDataLingkungan struct {
+type DataLingkunganWithTotalKeluarga struct {
 	Id             int32
+	KodeLingkungan string
+	NamaLingkungan string
+	Wilayah        DataWilayah
+	TotalKeluarga  int32
+}
+
+type IdDataLingkungan struct {
+	Id int32
 }
 
 type TotalLingkungan struct {

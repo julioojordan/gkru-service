@@ -145,6 +145,55 @@ func (repository *dataLingkunganRepositoryImpl) FindAll(ctx *fiber.Ctx, tx *sql.
 	return data, nil
 }
 
+func (repository *dataLingkunganRepositoryImpl) FindAllWithTotalKeluarga(ctx *fiber.Ctx, tx *sql.Tx) ([]entity.DataLingkunganWithTotalKeluarga, error) {
+	sqlScript := `SELECT 
+	l.id, 
+	l.kode_lingkungan, 
+	l.nama_lingkungan, 
+	w.id, 
+	w.kode_wilayah, 
+	w.nama_wilayah, 
+	COUNT(k.nomor) AS total_keluarga 
+	FROM lingkungan l 
+	JOIN wilayah w ON l.id_wilayah = w.id 
+	LEFT JOIN data_keluarga k ON l.id = k.id_lingkungan
+	GROUP BY l.id, l.nama_lingkungan, l.kode_lingkungan
+	ORDER BY w.id ASC`
+	result, err := tx.Query(sqlScript)
+	if err != nil {
+		return []entity.DataLingkunganWithTotalKeluarga{}, helper.CreateErrorMessage("Gagal mengeksekusi query", err)
+	}
+	defer result.Close()
+
+	data := []entity.DataLingkunganWithTotalKeluarga{}
+	for result.Next() {
+		raw := entity.DataLingkunganRawWithTotalKeluarga{}
+		err := result.Scan(&raw.Id, &raw.KodeLingkungan, &raw.NamaLingkungan, &raw.IdWilayah, &raw.KodeWilayah, &raw.NamaWilayah, &raw.TotalKeluarga)
+		if err != nil {
+			return []entity.DataLingkunganWithTotalKeluarga{}, helper.CreateErrorMessage("Gagal untuk scan result", err)
+		}
+		wilayah := entity.DataWilayah{
+			Id:          raw.IdWilayah,
+			KodeWilayah: raw.KodeWilayah,
+			NamaWilayah: raw.NamaWilayah,
+		}
+		lingkungan := entity.DataLingkunganWithTotalKeluarga{
+			Id:             raw.Id,
+			KodeLingkungan: raw.KodeLingkungan,
+			NamaLingkungan: raw.NamaLingkungan,
+			Wilayah:        wilayah,
+			TotalKeluarga:  raw.TotalKeluarga,
+		}
+		data = append(data, lingkungan)
+	}
+
+	// if len(data) == 0 {
+	// 	return nil, fiber.NewError(fiber.StatusNotFound, "lingkungan is not found")
+	// }
+
+	return data, nil
+}
+
 func (repository *dataLingkunganRepositoryImpl) Add(ctx *fiber.Ctx, tx *sql.Tx) (entity.DataLingkunganWithIdWilayah, error) {
 	sqlScript := "INSERT INTO lingkungan(kode_lingkungan, nama_lingkungan, id_wilayah) VALUES(?, ?, ?)"
 	body := ctx.Body()

@@ -92,14 +92,14 @@ func mapToThFinal(dataThRaw entity.ThRaw) entity.ThFinal {
 		subKeterangan = dataThRaw.SubKeterangan.String
 	}
 
-	fileBukti := ""
-	if dataThRaw.FileBukti.Valid {
-		fileBukti = dataThRaw.FileBukti.String
-	}
-
 	updatorId := int32(0)
 	if dataThRaw.UpdatorId.Valid {
 		updatorId = int32(dataThRaw.UpdatorId.Int32)
+	}
+
+	File := ""
+	if dataThRaw.File.Valid {
+		File = dataThRaw.File.String
 	}
 
 	return entity.ThFinal{
@@ -116,7 +116,8 @@ func mapToThFinal(dataThRaw entity.ThRaw) entity.ThFinal {
 		UpdatedDate:   dataThRaw.UpdatedDate,
 		Bulan:         dataThRaw.Bulan,
 		Tahun:         dataThRaw.Tahun,
-		FileBukti:     fileBukti,
+		GroupId:       dataThRaw.GroupId,
+		File:          File,
 	}
 }
 
@@ -126,11 +127,6 @@ func mapToThFinal2(dataThRaw entity.ThRaw2) entity.ThFinal2 {
 	subKeterangan := ""
 	if dataThRaw.SubKeterangan.Valid {
 		subKeterangan = dataThRaw.SubKeterangan.String
-	}
-
-	fileBukti := ""
-	if dataThRaw.FileBukti.Valid {
-		fileBukti = dataThRaw.FileBukti.String
 	}
 
 	updatorId := int32(0)
@@ -152,7 +148,7 @@ func mapToThFinal2(dataThRaw entity.ThRaw2) entity.ThFinal2 {
 		UpdatedDate:        dataThRaw.UpdatedDate,
 		Bulan:              dataThRaw.Bulan,
 		Tahun:              dataThRaw.Tahun,
-		FileBukti:          fileBukti,
+		GroupId:            dataThRaw.GroupId,
 		NamaKepalaKeluarga: dataThRaw.NamaKepalaKeluarga,
 	}
 }
@@ -164,7 +160,6 @@ func (repository *transactionHistoryRepositoryImpl) FindOne(ctx *fiber.Ctx, tx *
 		return entity.ThFinal{}, fiber.NewError(fiber.StatusBadRequest, "Invalid id TH, it must be an integer")
 	}
 
-	// Menambahkan file_bukti ke dalam SELECT statement
 	sqlScript := `
     SELECT 
         a.id, 
@@ -180,12 +175,13 @@ func (repository *transactionHistoryRepositoryImpl) FindOne(ctx *fiber.Ctx, tx *
         a.updated_date, 
         a.bulan,
         a.tahun,
-        a.file_bukti,
+        a.group_id,
         b.username, 
         d.kode_lingkungan, 
         d.nama_lingkungan, 
         e.kode_wilayah, 
-        e.nama_wilayah
+        e.nama_wilayah,
+		f.file
     FROM 
         riwayat_transaksi a
     JOIN 
@@ -196,6 +192,8 @@ func (repository *transactionHistoryRepositoryImpl) FindOne(ctx *fiber.Ctx, tx *
         lingkungan d ON c.id_lingkungan = d.id
     JOIN 
         wilayah e ON c.id_wilayah = e.id
+	LEFT JOIN 
+        grouped_transaksi f ON a.group_id = f.id
     WHERE 
         a.id = ?`
 
@@ -222,12 +220,13 @@ func (repository *transactionHistoryRepositoryImpl) FindOne(ctx *fiber.Ctx, tx *
 			&dataThRaw.UpdatedDate,
 			&dataThRaw.Bulan,
 			&dataThRaw.Tahun,
-			&dataThRaw.FileBukti, // Tambahan kolom file_bukti
+			&dataThRaw.GroupId, // Tambahan kolom file_bukti
 			&dataThRaw.UserName,
 			&dataThRaw.KodeLingkungan,
 			&dataThRaw.NamaLingkungan,
 			&dataThRaw.KodeWilayah,
 			&dataThRaw.NamaWilayah,
+			&dataThRaw.File,
 		)
 		if err != nil {
 			return entity.ThFinal{}, helper.CreateErrorMessage("Gagal untuk scan result", err)
@@ -240,6 +239,49 @@ func (repository *transactionHistoryRepositoryImpl) FindOne(ctx *fiber.Ctx, tx *
 	response := mapToThFinal(dataThRaw)
 
 	return response, nil
+}
+
+func (repository *transactionHistoryRepositoryImpl) FindByGroup(ctx *fiber.Ctx, tx *sql.Tx) ([]entity.ThFinal, error) {
+	idGroup := ctx.Query("idGroup")
+	sqlScript := `
+	SELECT a.id, a.nominal, a.id_keluarga, a.keterangan, a.created_by, c.id_wilayah, c.id_lingkungan, a.updated_by, a.sub_keterangan, a.created_date, a.updated_date, a.bulan, a.tahun,
+		   b.username, 
+		   d.kode_lingkungan, d.nama_lingkungan, 
+		   e.kode_wilayah, e.nama_wilayah, f.file, a.group_id
+	FROM riwayat_transaksi a
+	LEFT JOIN users b ON a.created_by = b.id
+	LEFT JOIN data_keluarga c ON a.id_keluarga = c.id
+	LEFT JOIN lingkungan d ON c.id_lingkungan = d.id
+	LEFT JOIN wilayah e ON c.id_wilayah = e.id
+	JOIN
+		grouped_transaksi f ON a.group_id = f.id
+    WHERE 
+        a.group_id = ?
+	ORDER BY a.created_date ASC`
+
+	// Eksekusi query
+	result, err := tx.Query(sqlScript, idGroup)
+	if err != nil {
+		return nil, helper.CreateErrorMessage("Gagal mengeksekusi query", err)
+	}
+	defer result.Close()
+
+	var thFinals []entity.ThFinal
+
+	// Iterasi hasil
+	for result.Next() {
+		dataThRaw := entity.ThRaw{}
+		err := result.Scan(&dataThRaw.Id, &dataThRaw.Nominal, &dataThRaw.IdKeluarga, &dataThRaw.Keterangan, &dataThRaw.CreatorId, &dataThRaw.IdWilayah, &dataThRaw.IdLingkungan, &dataThRaw.UpdatorId, &dataThRaw.SubKeterangan, &dataThRaw.CreatedDate, &dataThRaw.UpdatedDate, &dataThRaw.Bulan, &dataThRaw.Tahun, &dataThRaw.UserName, &dataThRaw.KodeLingkungan, &dataThRaw.NamaLingkungan, &dataThRaw.KodeWilayah, &dataThRaw.NamaWilayah, &dataThRaw.File, &dataThRaw.GroupId)
+		if err != nil {
+			return nil, helper.CreateErrorMessage("Gagal untuk scan result", err)
+		}
+
+		// Gunakan fungsi mapping
+		thFinal := mapToThFinal(dataThRaw)
+		thFinals = append(thFinals, thFinal)
+	}
+
+	return thFinals, nil
 }
 
 // findAll
@@ -315,9 +357,9 @@ func (repository *transactionHistoryRepositoryImpl) FindAllWithKeluargaContext(c
 		ON a.created_by = b.id
 	LEFT JOIN data_keluarga c 
 		ON a.id_keluarga = c.id
-	LEFT JOIN JOIN lingkungan d 
+	LEFT JOIN lingkungan d 
 		ON c.id_lingkungan = d.id
-	LEFT JOIN JOIN wilayah e 
+	LEFT JOIN wilayah e 
 		ON c.id_wilayah = e.id
 	LEFT JOIN data_anggota f 
 		ON c.id_kepala_keluarga = f.id
@@ -383,9 +425,9 @@ func (repository *transactionHistoryRepositoryImpl) FindAllSetoran(ctx *fiber.Ct
 		ON a.created_by = b.id
 	LEFT JOIN data_keluarga c 
 		ON a.id_keluarga = c.id
-	LEFT JOIN JOIN lingkungan d 
+	LEFT JOIN lingkungan d 
 		ON c.id_lingkungan = d.id
-	LEFT JOIN JOIN wilayah e 
+	LEFT JOIN wilayah e 
 		ON c.id_wilayah = e.id
 	LEFT JOIN data_anggota f 
 		ON c.id_kepala_keluarga = f.id
@@ -615,9 +657,8 @@ func (repository *transactionHistoryRepositoryImpl) Delete(ctx *fiber.Ctx, tx *s
 	return response, nil
 }
 
-// Add
+// Add Santunan
 func (repository *transactionHistoryRepositoryImpl) Add(ctx *fiber.Ctx, tx *sql.Tx) (entity.CreatedTh, error) {
-	fmt.Println("masuk ADD")
 	// untuk add santunan
 	sqlScript := "INSERT INTO riwayat_transaksi(nominal, id_keluarga, keterangan, created_by, sub_keterangan, created_date, bulan, tahun, group_id) VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?)"
 
@@ -671,7 +712,6 @@ func (repository *transactionHistoryRepositoryImpl) Add(ctx *fiber.Ctx, tx *sql.
 		safeFileName := url.QueryEscape(file.Filename)
 		filePath = "/uploads/" + safeFileName
 
-		
 		//insert to grouped transaction
 		resultAddFile, err := tx.Exec("INSERT INTO grouped_transaksi(file) VALUES(?)", filePath)
 		if err != nil {
@@ -705,12 +745,13 @@ func (repository *transactionHistoryRepositoryImpl) Add(ctx *fiber.Ctx, tx *sql.
 		CreatorId:     int32(createdBy),
 		SubKeterangan: subKeterangan,
 		CreatedDate:   currentTime,
-		Group:     lastInsertIdAddFile,
+		Group:         lastInsertIdAddFile,
 	}
 
 	return response, nil
 }
 
+// Add Iuran
 func (repository *transactionHistoryRepositoryImpl) AddBatch(ctx *fiber.Ctx, tx *sql.Tx) ([]entity.CreatedTh, error) {
 	// untuk add iuran yang baru
 	form, err := ctx.MultipartForm()

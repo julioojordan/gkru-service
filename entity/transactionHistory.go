@@ -39,7 +39,8 @@ type ThRaw struct {
 	NamaLingkungan string
 	KodeWilayah    string
 	NamaWilayah    string
-	FileBukti      sql.NullString
+	GroupId        int32
+	File           sql.NullString
 }
 
 // pakai nama kepala keluarga
@@ -62,7 +63,7 @@ type ThRaw2 struct {
 	NamaLingkungan     string
 	KodeWilayah        string
 	NamaWilayah        string
-	FileBukti          sql.NullString
+	GroupId            int32
 	NamaKepalaKeluarga string
 }
 
@@ -80,7 +81,8 @@ type ThFinal struct {
 	UpdatedDate   time.Time
 	Bulan         int32
 	Tahun         int32
-	FileBukti     string
+	GroupId       int32
+	File          string
 }
 
 // th final with nama kepala keluarga
@@ -98,7 +100,7 @@ type ThFinal2 struct {
 	UpdatedDate        time.Time
 	Bulan              int32
 	Tahun              int32
-	FileBukti          string
+	GroupId            int32
 	NamaKepalaKeluarga string
 }
 

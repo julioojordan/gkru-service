@@ -56,6 +56,23 @@ func (service *DataLingkunganServiceImpl) FindAll(ctx *fiber.Ctx) (interface{}, 
 	return result, nil
 }
 
+func (service *DataLingkunganServiceImpl) FindAllWithTotalKeluarga(ctx *fiber.Ctx) (interface{}, error) {
+	logger, _ := ctx.Locals("logger").(*logrus.Logger)
+	tx, err := service.DB.Begin()
+	helper.PanicIfError(err)
+	defer func() {
+		helper.CommitOrRollback2(tx, logger, err) // Selalu panggil CommitOrRollback2
+	}()
+
+	result, err := service.DataLingkunganRepository.FindAllWithTotalKeluarga(ctx, tx)
+	if err != nil {
+		return nil, err
+	}
+
+	return result, nil
+}
+
+
 func (service *DataLingkunganServiceImpl) Add(ctx *fiber.Ctx) (interface{}, error) {
 	logger, _ := ctx.Locals("logger").(*logrus.Logger)
 	tx, err := service.DB.Begin()
