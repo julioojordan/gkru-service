@@ -91,6 +91,6 @@ func main() {
 	})
 
 	routes.SetupRoutes(app, logger)
-	err := app.Listen("localhost:3001")
+	err := app.Listen("0.0.0.0:3001")
 	helper.PanicIfError(err)
 }
