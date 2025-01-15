@@ -1,14 +1,17 @@
 # Gunakan Go sebagai base image
 FROM golang:1.21
 
-# Set working directory di dalam container
+# Set working directory
 WORKDIR /app
 
-# Copy semua file ke dalam container
+# Copy semua file ke container
 COPY . .
 
-# Install dependencies (go.mod dan go.sum harus ada)
-RUN go mod tidy && go mod verify
+# Copy file private.pem ke container
+COPY private.pem /app/private.pem
 
-# Jalankan aplikasi langsung menggunakan `go run`
+# Install dependencies
+RUN go mod tidy
+
+# Jalankan aplikasi
 CMD ["go", "run", "main.go"]

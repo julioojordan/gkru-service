@@ -38,7 +38,7 @@ func (service *UserServiceImpl) FindOne(ctx *fiber.Ctx) (interface{}, error) {
 		return nil, err
 	}
 
-	authToken, err := authentication.CreateToken(user.Username)
+	authToken, err := authentication.CreateToken(user.Username, logger)
 	helper.PanicIfError(err)
 
 	return helper.ToLoginResponse(authToken, user), nil
