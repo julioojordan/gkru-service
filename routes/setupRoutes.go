@@ -25,6 +25,9 @@ func SetupRoutes(app *fiber.App, Customlogger *logrus.Logger) {
 	})
 	// =========== SETUP MIDDLEWARE ===============
 
+	// =========== SETUP STATIC ==========
+	app.Static("/uploads", "./uploads")
+
 	// =========== SETUP ROUTE ===============
 	app.Post("/login", func(ctx *fiber.Ctx) error {
 		userController := ctx.Locals("controllers").(controller.Controllers).UserController
