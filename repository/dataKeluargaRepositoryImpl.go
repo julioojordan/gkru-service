@@ -270,7 +270,7 @@ func (repository *dataKeluargaRepositoryImpl) FindAll(ctx *fiber.Ctx, tx *sql.Tx
 }
 
 func (repository *dataKeluargaRepositoryImpl) GetTotalKeluarga(ctx *fiber.Ctx, tx *sql.Tx) (entity.TotalKeluarga, error) {
-	sqlScript := "SELECT COUNT(*) FROM data_keluarga"
+	sqlScript := "SELECT COUNT(*) FROM data_keluarga WHERE status='aktif'"
 	result, err := tx.Query(sqlScript)
 	if err != nil {
 		return entity.TotalKeluarga{}, helper.CreateErrorMessage("Gagal mengeksekusi query", err)

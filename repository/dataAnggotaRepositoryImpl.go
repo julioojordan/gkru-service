@@ -20,7 +20,11 @@ func NewDataAnggotaRepository(db *sql.DB) DataAnggotaRepository {
 }
 
 func (repository *dataAnggotaRepositoryImpl) GetTotalAnggota(ctx *fiber.Ctx, tx *sql.Tx) (entity.TotalAnggota, error) {
-	sqlScript := "SELECT COUNT(*) FROM data_anggota where status='HIDUP'"
+	sqlScript := `SELECT COUNT(*) 
+	FROM data_anggota a 
+	JOIN keluarga_anggota_rel b ON a.id = b.id_anggota
+	JOIN data_keluarga c ON b.id_keluarga = c.id
+	where a.status='HIDUP' AND c.status='aktif'`
 	result, err := tx.Query(sqlScript)
 	if err != nil {
 		return entity.TotalAnggota{}, helper.CreateErrorMessage("Gagal mengeksekusi query", err)
