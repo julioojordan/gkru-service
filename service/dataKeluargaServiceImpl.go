@@ -88,6 +88,22 @@ func (service *DataKeluargaServiceImpl) GetTotalKeluarga(ctx *fiber.Ctx) (interf
 	return result, nil
 }
 
+func (service *DataKeluargaServiceImpl) GetTotalKeluargaWithFilter(ctx *fiber.Ctx) (interface{}, error) {
+	logger, _ := ctx.Locals("logger").(*logrus.Logger)
+	tx, err := service.DB.Begin()
+	helper.PanicIfError(err)
+	defer func() {
+		helper.CommitOrRollback2(tx, logger, err) // Selalu panggil CommitOrRollback2
+	}()
+
+	result, err := service.DataKeluargaRepository.GetTotalKeluargaWithFilter(ctx, tx)
+	if err != nil {
+		return nil, err
+	}
+
+	return result, nil
+}
+
 func (service *DataKeluargaServiceImpl) UpdateDataKeluarga(ctx *fiber.Ctx) (interface{}, error) {
 	logger, _ := ctx.Locals("logger").(*logrus.Logger)
 	tx, err := service.DB.Begin()

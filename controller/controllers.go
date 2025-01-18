@@ -15,6 +15,7 @@ type DataKeluargaController interface {
 	FindAll(ctx *fiber.Ctx) error
 	AddKeluarga(ctx *fiber.Ctx) error
 	GetTotalKeluarga(ctx *fiber.Ctx) error
+	GetTotalKeluargaWithFilter(ctx *fiber.Ctx) error
 	UpdateDataKeluarga(ctx *fiber.Ctx) error
 	DeleteDataKeluarga(ctx *fiber.Ctx) error
 }

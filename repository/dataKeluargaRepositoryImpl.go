@@ -269,6 +269,44 @@ func (repository *dataKeluargaRepositoryImpl) FindAll(ctx *fiber.Ctx, tx *sql.Tx
 	return dataKeluargaList, nil
 }
 
+func (repository *dataKeluargaRepositoryImpl) GetTotalKeluargaWithFilter(ctx *fiber.Ctx, tx *sql.Tx) (entity.TotalKeluarga, error) {
+	idWilayah := ctx.Query("idWilayah")
+	idLingkungan := ctx.Query("idLingkungan")
+	sqlScript := "SELECT COUNT(*) FROM data_keluarga WHERE status='aktif'"
+
+	// Parameters slice for query
+	var params []interface{}
+
+	// Append filter conditions dynamically
+	if idWilayah != "" {
+		sqlScript += " AND id_wilayah = ?"
+		params = append(params, idWilayah)
+	}
+	if idLingkungan != "" {
+		sqlScript += " AND id_lingkungan = ?"
+		params = append(params, idLingkungan)
+	}
+
+	// Execute query with parameters
+	result, err := tx.Query(sqlScript, params...)
+	if err != nil {
+		return entity.TotalKeluarga{}, helper.CreateErrorMessage("Gagal mengeksekusi query", err)
+	}
+	defer result.Close()
+
+	totalKeluarga := entity.TotalKeluarga{}
+	if result.Next() {
+		err := result.Scan(&totalKeluarga.Total)
+		if err != nil {
+			return entity.TotalKeluarga{}, helper.CreateErrorMessage("Gagal untuk scan result", err)
+		}
+		return totalKeluarga, nil
+	} else {
+		return entity.TotalKeluarga{}, fiber.NewError(fiber.StatusInternalServerError, "Data Tidak Ditemukan")
+	}
+}
+
+
 func (repository *dataKeluargaRepositoryImpl) GetTotalKeluarga(ctx *fiber.Ctx, tx *sql.Tx) (entity.TotalKeluarga, error) {
 	sqlScript := "SELECT COUNT(*) FROM data_keluarga WHERE status='aktif'"
 	result, err := tx.Query(sqlScript)

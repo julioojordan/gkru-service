@@ -53,7 +53,13 @@ func SetupRoutes(app *fiber.App, Customlogger *logrus.Logger) {
 	// =========== KELUARGA ===============
 	app.Get("/keluarga/getTotal", func(ctx *fiber.Ctx) error {
 		dataKeluargaController := ctx.Locals("controllers").(controller.Controllers).DataKeluargaController
-		return dataKeluargaController.GetTotalKeluarga(ctx)
+		idWilayah := ctx.Query("idWilayah")
+		idLingkungan := ctx.Query("idLingkungan")
+		if idWilayah != "" || idLingkungan != "" {
+			return dataKeluargaController.GetTotalKeluargaWithFilter(ctx)
+		} else {
+			return dataKeluargaController.GetTotalKeluarga(ctx)
+		}
 	})
 	app.Post("/keluarga/add", func(ctx *fiber.Ctx) error {
 		dataKeluargaController := ctx.Locals("controllers").(controller.Controllers).DataKeluargaController

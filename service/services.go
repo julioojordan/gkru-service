@@ -48,6 +48,7 @@ type DataKeluargaService interface {
 	FindAll(ctx *fiber.Ctx) (interface{}, error)
 	AddKeluarga(ctx *fiber.Ctx) (interface{}, error)
 	GetTotalKeluarga(ctx *fiber.Ctx) (interface{}, error)
+	GetTotalKeluargaWithFilter(ctx *fiber.Ctx) (interface{}, error)
 	UpdateDataKeluarga(ctx *fiber.Ctx) (interface{}, error)
 	DeleteDataKeluarga(ctx *fiber.Ctx) (interface{}, error)
 }
