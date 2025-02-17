@@ -41,10 +41,10 @@ func NewDB(logger *logrus.Logger) *sql.DB {
     }
 
     // Konfigurasi connection pooling
-    db.SetMaxIdleConns(5)
-    db.SetMaxOpenConns(20)
-    db.SetConnMaxLifetime(60 * time.Minute)
-    db.SetConnMaxIdleTime(10 * time.Minute)
+    db.SetMaxIdleConns(20)
+    db.SetMaxOpenConns(100)
+    db.SetConnMaxLifetime(120 * time.Minute)
+    db.SetConnMaxIdleTime(15 * time.Minute)
 
     return db
 }
